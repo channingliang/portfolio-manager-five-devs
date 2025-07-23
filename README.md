@@ -1,4 +1,6 @@
-# Portfolio Manager Team 6
+# Portfolio Manager Team 6 
+
+[//]: # (TODO: define team name)
 
 ## Overview
 
