@@ -1,7 +1,5 @@
 # Portfolio Manager Training Project
 
-[TOC]
-
 ## Overview
 
 Your team is challenged with designing an application to manage a financial portfolio.

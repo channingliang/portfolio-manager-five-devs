@@ -4,10 +4,8 @@
 
 
 ## Team Members
-Channing - Project Management
-Ethan - Frontend
-Long - Backend
-Peter - Backend
-Serena - Frontend
-
-## Project Requirements
+- Channing
+- Ethan
+- Long
+- Peter
+- Serena
