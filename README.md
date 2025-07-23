@@ -1,8 +1,7 @@
-# Portfolio Manager Team 6 
-
-[//]: # (TODO: define team name)
+# Portfolio Manager - Team Five Devs
 
 ## Overview
+
 
 
 ## Team Members
@@ -11,3 +10,11 @@
 - Long
 - Peter
 - Serena
+
+
+## Presentation
+What
+- packages
+- plan
+- architecture
+- feature
