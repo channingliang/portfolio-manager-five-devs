@@ -49,6 +49,44 @@ const createAccount = async (req, res) => {
   }
 };
 
+
+// 获取账户信息
+const getAccountById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const account = await db.Account.findByPk(id);
+
+    if (!account) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: `未找到 ID 为 ${id} 的账户`
+      });
+    }
+
+    const responseData = {
+      user_id: account.user_id,
+      name: account.name,
+      currency: account.currency,
+      balance: parseFloat(account.balance),
+      created_at: new Date(account.getDataValue('created_at')).toISOString(),
+      updated_at: account.updated_at
+        ? new Date(account.getDataValue('updated_at')).toISOString()
+        : null
+    };
+
+    return res.status(StatusCodes.OK).json(responseData);
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '获取账户失败',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createAccount,
+  getAccountById
 };
