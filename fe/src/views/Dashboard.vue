@@ -1,5 +1,5 @@
 <script setup>
-import CustomCard from "@/components/CustomCard.vue";
+import CustomCard from "@/components/dashboard/CustomCard.vue";
 // import api from "@/lib/request.js";
 
 // Example API call to fetch data

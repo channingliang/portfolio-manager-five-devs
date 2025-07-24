@@ -1,5 +1,5 @@
 <script setup>
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button/index.js'
 import {
   Card,
   CardContent,
@@ -7,16 +7,16 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+} from '@/components/ui/card/index.js'
+import { Input } from '@/components/ui/input/index.js'
+import { Label } from '@/components/ui/label/index.js'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select'
+} from '@/components/ui/select/index.js'
 </script>
 
 <template>
