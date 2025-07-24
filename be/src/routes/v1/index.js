@@ -13,4 +13,7 @@ router.post("/account", AccountController.createAccount);
 // 获取账户详情接口
 router.get("/account/:id", AccountController.getAccountById);
 
+//删除账户
+router.delete("/account/:id", AccountController.deleteAccount); 
+
 module.exports = router;

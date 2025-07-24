@@ -86,7 +86,37 @@ const getAccountById = async (req, res) => {
   }
 };
 
+// 删除账户
+const deleteAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const account = await db.Account.findByPk(id);
+
+    if (!account) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        message: `未找到 ID 为 ${id} 的账户`
+      });
+    }
+
+    await account.destroy();
+
+    return res.status(StatusCodes.OK).json({
+      message: "Account deleted successfully."
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      success: false,
+      message: '删除账户失败',
+      error: error.message
+    });
+  }
+};
+
 module.exports = {
   createAccount,
-  getAccountById
+  getAccountById,
+  deleteAccount
 };
