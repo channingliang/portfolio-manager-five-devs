@@ -10,52 +10,27 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Separator } from "@/components/ui/separator";
 import { ref } from "vue";
+import { useAccountStore } from "@/stores/account.js";
+import {
+  Wallet,
+  User,
+  BanknoteArrowUp,
+  BanknoteArrowDown,
+  ChartCandlestick,
+  HandCoins,
+  Bitcoin,
+  Ellipsis,
+} from "lucide-vue-next";
 
-const components = [
-  {
-    title: "Alert Dialog",
-    href: "/docs/components/alert-dialog",
-    description:
-      "A modal dialog that interrupts the user with important content and expects a response.",
-  },
-  {
-    title: "Hover Card",
-    href: "/docs/components/hover-card",
-    description:
-      "For sighted users to preview content available behind a link.",
-  },
-  {
-    title: "Progress",
-    href: "/docs/components/progress",
-    description:
-      "Displays an indicator showing the completion progress of a task, typically displayed as a progress bar.",
-  },
-  {
-    title: "Scroll-area",
-    href: "/docs/components/scroll-area",
-    description: "Visually or semantically separates content.",
-  },
-  {
-    title: "Tabs",
-    href: "/docs/components/tabs",
-    description:
-      "A set of layered sections of content—known as tab panels—that are displayed one at a time.",
-  },
-  {
-    title: "Tooltip",
-    href: "/docs/components/tooltip",
-    description:
-      "A popup that displays information related to an element when the element receives keyboard focus or the mouse hovers over it.",
-  },
-];
+const accountStore = useAccountStore();
 
 const balance = ref(99999999999);
 </script>
 
 <template>
-  <nav class="fixed top-6 flex h-12 w-full justify-center">
+  <nav class="fixed top-6 z-999 flex h-12 w-full justify-center">
     <div
-      class="flex items-center justify-between rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
+      class="flex min-w-[500px] justify-center rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
     >
       <NavigationMenu class="h-full">
         <NavigationMenuList>
@@ -68,44 +43,28 @@ const balance = ref(99999999999);
             </NavigationMenuLink>
           </NavigationMenuItem>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Getting started</NavigationMenuTrigger>
+            <NavigationMenuTrigger>Market</NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul
                 class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,.75fr)_minmax(0,1fr)]"
               >
-                <li class="row-span-3">
-                  <NavigationMenuLink as-child>
-                    <a
-                      class="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
-                      href="/"
-                    >
-                      <img
-                        src="https://www.reka-ui.com/logo.svg"
-                        class="h-6 w-6"
-                      />
-                      <div class="mt-4 mb-2 text-lg font-medium">shadcn/ui</div>
-                      <p class="text-muted-foreground text-sm leading-tight">
-                        Beautifully designed components built with Radix UI and
-                        Tailwind CSS.
-                      </p>
-                    </a>
-                  </NavigationMenuLink>
-                </li>
-
                 <li>
                   <NavigationMenuLink as-child>
                     <a
-                      href="/docs/introduction"
+                      href="/stock"
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
-                      <div class="text-sm leading-none font-medium">
-                        Introduction
+                      <div
+                        class="inline-flex items-center text-sm leading-none"
+                      >
+                        <ChartCandlestick
+                          class="text-muted-foreground mr-1 size-5"
+                        />Stock
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
                       >
-                        Re-usable components built using Radix UI and Tailwind
-                        CSS.
+                        View stock market data, charts, and more.
                       </p>
                     </a>
                   </NavigationMenuLink>
@@ -113,16 +72,20 @@ const balance = ref(99999999999);
                 <li>
                   <NavigationMenuLink as-child>
                     <a
-                      href="/docs/installation"
+                      href="/fund"
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
-                      <div class="text-sm leading-none font-medium">
-                        Installation
+                      <div
+                        class="inline-flex items-center text-sm leading-none"
+                      >
+                        <HandCoins
+                          class="text-muted-foreground mr-1 size-5"
+                        />Fund
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
                       >
-                        How to install dependencies and structure your app.
+                        View mutual funds, ETFs, and other investment.
                       </p>
                     </a>
                   </NavigationMenuLink>
@@ -130,73 +93,116 @@ const balance = ref(99999999999);
                 <li>
                   <NavigationMenuLink as-child>
                     <a
-                      href="/docs/typography"
+                      href="/crypto"
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
-                      <div class="text-sm leading-none font-medium">
-                        Typography
+                      <div
+                        class="inline-flex items-center text-sm leading-none"
+                      >
+                        <Bitcoin
+                          class="text-muted-foreground mr-1 size-5"
+                        />Crypto
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
                       >
-                        Styles for headings, paragraphs, lists...etc
+                        Explore cryptocurrency markets, prices, and trends.
                       </p>
                     </a>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink as-child>
+                    <div
+                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                    >
+                      <div
+                        class="text-muted-foreground inline-flex items-center text-sm leading-none"
+                      >
+                        <Ellipsis class="mr-1 size-5" />Coming Soon
+                      </div>
+                      <p
+                        class="text-muted-foreground line-clamp-2 text-sm leading-snug"
+                      >
+                        More markets and investment options are on the way!
+                      </p>
+                    </div>
                   </NavigationMenuLink>
                 </li>
               </ul>
             </NavigationMenuContent>
           </NavigationMenuItem>
+          <div class="h-6">
+            <Separator class="mx-2" orientation="vertical" />
+          </div>
           <NavigationMenuItem>
-            <NavigationMenuTrigger>Components</NavigationMenuTrigger>
+            <NavigationMenuTrigger>
+              <div class="flex items-center justify-center font-normal">
+                <span
+                  ><Wallet class="text-muted-foreground mr-1 size-4 stroke-2"
+                /></span>
+                <span class="mr-2">${{ accountStore.balance }}</span>
+              </div>
+            </NavigationMenuTrigger>
             <NavigationMenuContent>
               <ul
-                class="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]"
+                class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,.75fr)_minmax(0,1fr)]"
               >
-                <li v-for="component in components" :key="component.title">
+                <li class="row-span-2">
                   <NavigationMenuLink as-child>
-                    <a
-                      :href="component.href"
+                    <div
+                      class="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
+                    >
+                      <User class="size-6" />
+                      <div class="mt-2 mb-1 text-lg font-medium">Profile</div>
+                      <p class="text-muted-foreground text-sm leading-tight">
+                        Edit your profile, change password, and more.
+                      </p>
+                    </div>
+                  </NavigationMenuLink>
+                </li>
+
+                <li>
+                  <NavigationMenuLink as-child>
+                    <div
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
-                      <div class="text-sm leading-none font-medium">
-                        {{ component.title }}
+                      <div
+                        class="inline-flex items-center text-sm leading-none"
+                      >
+                        <BanknoteArrowUp
+                          class="text-muted-foreground mr-1 size-5"
+                        />Deposit
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
                       >
-                        {{ component.description }}
+                        Deposit money into your account to start trading.
                       </p>
-                    </a>
+                    </div>
+                  </NavigationMenuLink>
+                </li>
+                <li>
+                  <NavigationMenuLink as-child>
+                    <div
+                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
+                    >
+                      <div
+                        class="inline-flex items-center text-sm leading-none"
+                      >
+                        <BanknoteArrowDown
+                          class="text-muted-foreground mr-1 size-5"
+                        />Withdraw
+                      </div>
+                      <p
+                        class="text-muted-foreground line-clamp-2 text-sm leading-snug"
+                      >
+                        Whoo! Time to withdraw your money to anywhere you want!
+                      </p>
+                    </div>
                   </NavigationMenuLink>
                 </li>
               </ul>
-            </NavigationMenuContent>
-          </NavigationMenuItem>
-        </NavigationMenuList>
-      </NavigationMenu>
-
-      <div class="h-6">
-        <Separator class="mx-2" orientation="vertical" />
-      </div>
-
-      <NavigationMenu class="h-full">
-        <NavigationMenuList>
-          <NavigationMenuItem>
-            <NavigationMenuTrigger>${{ balance }}</NavigationMenuTrigger>
-            <NavigationMenuContent>
-              <NavigationMenuLink as-child>
-                <a
-                  class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block w-[200px] space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
-                >
-                  <div class="text-sm leading-none font-medium">Profile</div>
-                  <p
-                    class="text-muted-foreground line-clamp-2 text-sm leading-snug"
-                  >
-                    Edit your profile, change password, and more.
-                  </p>
-                </a>
-              </NavigationMenuLink>
             </NavigationMenuContent>
           </NavigationMenuItem>
         </NavigationMenuList>
