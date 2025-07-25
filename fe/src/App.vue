@@ -1,5 +1,7 @@
+<script setup></script>
+
 <template>
-  <div id="app">
+  <div>
     <router-view />
   </div>
 
@@ -13,7 +15,4 @@
 
 
 
-<style scoped>
-
-</style>
-
+<style scoped></style>
