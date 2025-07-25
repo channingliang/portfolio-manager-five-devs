@@ -22,7 +22,7 @@ const trades = ref([
       </CardHeader>
       <CardContent class="p-0">
         <table class="w-full text-sm">
-          <thead class="bg-gray-50">
+          <thead class="bg-gray-50 sticky top-0 z-10">
             <tr>
               <th class="px-4 py-3 text-left">日期</th>
               <th class="px-4 py-3 text-left">产品</th>

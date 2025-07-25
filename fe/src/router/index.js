@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import BaseLayout from "@/layout/BaseLayout.vue";
 import Dashboard from "@/views/Dashboard.vue";
-import ProductsMarket from "@/views/ProductMarket.vue";
+import ProductMarket from "@/views/ProductMarket.vue";
 
 const routes = [
   {
@@ -18,7 +18,7 @@ const routes = [
       },
       {
         path: "/market",
-        component: ProductsMarket,
+        component: ProductMarket,
       },
     ],
   },

@@ -1,9 +1,7 @@
 <template>
-  <div class="products-market p-6">
-    <h1 class="mb-4 text-2xl font-bold">产品市场</h1>
-
-    <!-- 搜索框 -->
-    <div class="mb-4">
+  <div class="products-market p-6 flex flex-col gap-4">
+    <!-- 顶部搜索框 -->
+    <div>
       <input
         v-model="searchQuery"
         type="text"
@@ -11,6 +9,9 @@
         class="w-full rounded border px-3 py-2"
       />
     </div>
+
+    <!-- 标题 -->
+    <h1 class="text-xl font-bold mb-2">产品市场</h1>
 
     <!-- 加载状态 -->
     <div v-if="loading" class="text-gray-500">加载中...</div>
@@ -28,9 +29,9 @@
         :key="product.id"
         class="rounded border p-4 shadow transition hover:shadow-lg"
       >
-        <h2 class="text-lg font-semibold">{{ product.name }}</h2>
-        <p class="text-gray-600">类型: {{ product.type }}</p>
-        <p class="font-bold text-gray-800">价格: ${{ product.price }}</p>
+        <h2 class="text-base font-semibold">{{ product.name }}</h2>
+        <p class="text-xs text-gray-600">类型: {{ product.type }}</p>
+        <p class="font-bold text-xs text-gray-800">价格: ${{ product.price }}</p>
       </div>
     </div>
   </div>
@@ -40,8 +41,16 @@
 import { ref, computed, onMounted } from "vue";
 import axios from "axios";
 
+
 // 状态管理
-const products = ref([]);
+const products = ref([
+  { id: 1, name: "华夏成长基金", type: "基金", price: 3.25 },
+  { id: 2, name: "贵州茅台", type: "股票", price: 1680.50 },
+  { id: 3, name: "招商银行", type: "股票", price: 32.80 },
+  { id: 4, name: "易方达蓝筹", type: "基金", price: 2.98 },
+  { id: 5, name: "宁德时代", type: "股票", price: 210.10 },
+  { id: 6, name: "中证500ETF", type: "基金", price: 5.12 },
+]);
 const loading = ref(false);
 const error = ref(null);
 const searchQuery = ref("");
