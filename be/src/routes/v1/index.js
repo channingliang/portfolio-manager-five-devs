@@ -20,5 +20,6 @@ router.delete("/account/:id", AccountController.deleteAccount);
 // 现金交易接口
 router.post("/cash/deposit", CashController.depositCash);
 router.post("/cash/spend", CashController.spendCash);
+router.get("/cash/account/:account_id", CashController.getCashTransactionsByAccount);
 
 module.exports = router;

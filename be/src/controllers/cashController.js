@@ -53,5 +53,47 @@ const createCashTransaction = async (req, res, type) => {
   }
 };
 
+exports.getCashTransactionsByAccount = async (req, res) => {
+  try {
+    const account_id = parseInt(req.params.account_id);
+
+    if (isNaN(account_id)) {
+      return res.status(400).json({ code: 400, msg: "无效的账户 ID。" });
+    }
+
+    // 检查账户是否存在
+    const account = await Account.findOne({ where: { user_id: account_id } });
+    if (!account) {
+      return res.status(404).json({ code: 404, msg: "用户不存在。" });
+    }
+
+    // 查询交易记录
+    const transactions = await Cash.findAll({
+      where: { account_id },
+      attributes: [
+        "cash_account_id",
+        "type",
+        "amount",
+        "description",
+        "occurred_at"
+      ],
+      order: [["occurred_at", "ASC"]]
+    });
+
+    return res.status(200).json({
+      code: 200,
+      msg: "Successfully.",
+      data: transactions
+    });
+  } catch (err) {
+    console.error("查询交易记录失败:", err);
+    return res.status(500).json({
+      code: 500,
+      msg: "服务器内部错误。"
+    });
+  }
+};
+
+
 exports.depositCash = (req, res) => createCashTransaction(req, res, 1);
 exports.spendCash = (req, res) => createCashTransaction(req, res, 2);
