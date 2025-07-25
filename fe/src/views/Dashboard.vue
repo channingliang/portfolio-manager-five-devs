@@ -18,6 +18,8 @@ import DataTable from "@/components/dashboard/DataTable.vue";
 // 2. 注册子组件 (直接在 <script setup> 中导入即可，无需 components 选项)
 import { ref } from "vue";
 import LitCard from "@/components/dashboard/LitCard.vue";
+import PieChart from "@/components/dashboard/PieChart.vue";
+import Overview from "@/components/dashboard/Overview.vue";
 const userBalance = ref(386524.85); // 从API或其他地方获取的实际金额
 </script>
 
@@ -28,6 +30,10 @@ const userBalance = ref(386524.85); // 从API或其他地方获取的实际金�
       <LitCard :balance="500000.5" />
       <DataTable />
     </div>
+  </div>
+  <div>
+    <PieChart />
+    <Overview />
   </div>
 </template>
 
