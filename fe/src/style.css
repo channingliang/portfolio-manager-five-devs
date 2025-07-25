@@ -51,13 +51,6 @@
   --sidebar-ring: oklch(0.705 0.015 286.067);
 }
 
-body {
-  margin: 0;
-  display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
-}
 
 @media (prefers-color-scheme: light) {
   :root {
@@ -151,6 +144,6 @@ body {
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground overflow-x-hidden overflow-y-auto;
   }
 }
