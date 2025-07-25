@@ -52,7 +52,7 @@ export default {
   name: "PortfolioOverview",
   data() {
     return {
-      chartData: [30, 60, 40, 80, 50, 70, 90], // 简化的图表数据
+      chartData: [30, 60, 40, 80, 50, 70, 90], // 简化图表数据
     };
   },
 };

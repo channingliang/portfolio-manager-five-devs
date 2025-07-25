@@ -156,7 +156,7 @@ const segmentNames = {
   commodity: "商品投资",
 };
 
-// 计算圆环各部分长度
+// 计算圆环各部长度
 const circumference = 2 * Math.PI * 40; // 2πr ≈ 251.2
 const totalLength = circumference;
 

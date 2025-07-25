@@ -26,7 +26,7 @@ const userBalance = ref(386524.85); // 从API或其他地方获取的实际金�
 <template>
   <div>
     <div class="flex min-h-screen flex-col gap-4 bg-gray-50 p-4">
-      <!-- LitCard 和 DataTable 之间无间隔，贴在一起 -->
+      <!-- LitCard 和 DataTable 之间无间隔，贴一起 -->
       <LitCard :balance="500000.5" />
       <DataTable />
     </div>
