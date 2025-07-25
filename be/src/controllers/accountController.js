@@ -1,4 +1,3 @@
-
 const { StatusCodes } = require("http-status-codes");
 
 const db = require('../models');
@@ -12,9 +11,9 @@ const createAccount = async (req, res) => {
     // 验证必要字段
     if (!name || !currency) {
       return res.status(StatusCodes.BAD_REQUEST).json({
-        success: false,
-        message: '缺少必要字段: name 和 currency 是必需的',
-        error: {}
+        code: StatusCodes.BAD_REQUEST,
+        msg: '缺少必要字段: name 和 currency 是必需的',
+        data: {}
       });
     }
     
@@ -29,26 +28,24 @@ const createAccount = async (req, res) => {
       user_id: newAccount.user_id,
       name: newAccount.name,
       currency: newAccount.currency,
-      balance: parseFloat(newAccount.balance), // 转换为数字格式
-      created_at: newAccount.created_at // ✅ 已是格式化好的字符串
+      balance: parseFloat(newAccount.balance),
+      created_at: newAccount.created_at
     };
 
-    
     return res.status(StatusCodes.CREATED).json({
-      success: true,
-      message: '账户创建成功',
+      code: StatusCodes.CREATED,
+      msg: 'Account create successfully.',
       data: responseData
     });
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: '创建账户失败',
-      error: error.message
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+      msg: '创建账户失败',
+      data: error.message
     });
   }
 };
-
 
 // 获取账户信息
 const getAccountById = async (req, res) => {
@@ -59,8 +56,9 @@ const getAccountById = async (req, res) => {
 
     if (!account) {
       return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: `未找到 ID 为 ${id} 的账户`
+        code: StatusCodes.NOT_FOUND,
+        msg: `未找到 ID 为 ${id} 的账户`,
+        data: {}
       });
     }
 
@@ -75,13 +73,17 @@ const getAccountById = async (req, res) => {
         : null
     };
 
-    return res.status(StatusCodes.OK).json(responseData);
+    return res.status(StatusCodes.OK).json({
+      code: StatusCodes.OK,
+      msg: '获取账户信息成功',
+      data: responseData
+    });
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: '获取账户失败',
-      error: error.message
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+      msg: '获取账户失败',
+      data: error.message
     });
   }
 };
@@ -95,22 +97,25 @@ const deleteAccount = async (req, res) => {
 
     if (!account) {
       return res.status(StatusCodes.NOT_FOUND).json({
-        success: false,
-        message: `未找到 ID 为 ${id} 的账户`
+        code: StatusCodes.NOT_FOUND,
+        msg: `未找到 ID 为 ${id} 的账户`,
+        data: {}
       });
     }
 
     await account.destroy();
 
     return res.status(StatusCodes.OK).json({
-      message: "Account deleted successfully."
+      code: StatusCodes.OK,
+      msg: 'Account deleted successfully.',
+      data: {}
     });
   } catch (error) {
     console.error(error);
     return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-      success: false,
-      message: '删除账户失败',
-      error: error.message
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+      msg: '删除账户失败',
+      data: error.message
     });
   }
 };
@@ -119,4 +124,4 @@ module.exports = {
   createAccount,
   getAccountById,
   deleteAccount
-};
+};  
