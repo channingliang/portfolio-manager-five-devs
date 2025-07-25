@@ -1,6 +1,7 @@
 const express = require("express");
 
 const { InfoController, AccountController } = require("../../controllers");
+const CashController = require("../../controllers/cashController");
 
 const router = express.Router();
 
@@ -15,5 +16,9 @@ router.get("/account/:id", AccountController.getAccountById);
 
 //删除账户
 router.delete("/account/:id", AccountController.deleteAccount); 
+
+// 现金交易接口
+router.post("/cash/deposit", CashController.depositCash);
+router.post("/cash/spend", CashController.spendCash);
 
 module.exports = router;
