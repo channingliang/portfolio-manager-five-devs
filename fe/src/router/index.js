@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import BaseLayout from "@/layout/BaseLayout.vue";
 import Dashboard from "@/views/Dashboard.vue";
+import ProductsMarket from '@/views/ProductMarket.vue'
 
 
 const routes = [
@@ -16,8 +17,14 @@ const routes = [
                 path: '/dashboard',
                 component: Dashboard,
             },
+            { 
+        path: '/market', 
+        component: ProductsMarket 
+    }
         ]
     },
+
+    
 ]
 
 const router = createRouter({
@@ -26,3 +33,12 @@ const router = createRouter({
 })
 
 export default router
+
+
+
+
+
+
+
+
+

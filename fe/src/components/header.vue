@@ -10,11 +10,12 @@
         </div>
             
       <!-- 主导航 -->
-        <nav class="flex space-x-8 text-lg">
-            <a href="#" class="font-bold border-b-2 border-yellow-500 pb-1">账户总览</a>
-           <a href="#" class="hover:text-gray-300 transition-colors">产品市场</a>
-            <a href="#" class="hover:text-gray-300 transition-colors">帮助中心</a>
-        </nav>
+       <nav class="flex space-x-8 text-lg">
+                <a href="#" class="font-bold border-b-2 border-yellow-500 pb-1">账户总览</a>
+                <a href="#" class="hover:text-gray-300 transition-colors">产品市场</a>
+                <a href="#" class="hover:text-gray-300 transition-colors">帮助中心</a>
+            </nav>
+
             
       <!-- 用户区域 -->
        <div class="flex items-center space-x-4">
