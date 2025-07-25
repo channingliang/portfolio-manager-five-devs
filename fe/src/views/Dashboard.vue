@@ -2,6 +2,10 @@
 import CustomCard from "@/components/dashboard/CustomCard.vue";
 import Portfolio from "@/components/dashboard/PortfolioCard.vue";
 import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vue";
+import DataTable from "@/components/DataTable.vue";
+import LitCard from "@/components/LitCard.vue";
+import Overview from "@/components/Overview.vue";
+import PieChart from "@/components/PieChart.vue";
 // import api from "@/lib/request.js";
 
 // Example API call to fetch data
@@ -25,8 +29,8 @@ import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vu
       <div
         class="group via-sky-10 from-grey-50 to-grey-100 overflow-y-auto rounded-2xl bg-gradient-to-br p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-2xl"
       >
-        <h2 class="mb-2 text-lg font-bold">Left Panel (待添加组件)</h2>
-        <div class="h-[800px]">这里填充内容测试滚动</div>
+        <LitCard />
+        <DataTable />
       </div>
 
       <!-- 中间：Portfolio Assets -->
@@ -40,8 +44,8 @@ import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vu
       <div
         class="group from-grey-50 to-grey-100 overflow-y-auto rounded-2xl bg-gradient-to-br p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:scale-[1.01] hover:shadow-2xl"
       >
-        <h2 class="mb-2 text-lg font-bold">Right Panel (待添加组件)</h2>
-        <div class="h-[600px]">这里填充内容测试滚动</div>
+        <PieChart />
+        <Overview />
       </div>
     </div>
 
