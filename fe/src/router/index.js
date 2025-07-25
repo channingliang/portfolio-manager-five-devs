@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import BaseLayout from "@/layout/BaseLayout.vue";
 import Dashboard from "@/views/Dashboard.vue";
-import ProductMarket from "@/views/ProductMarket.vue";
+
 
 const routes = [
   {
@@ -17,8 +17,16 @@ const routes = [
         component: Dashboard,
       },
       {
-        path: "/market",
-        component: ProductMarket,
+        path: "/stock",
+        component: Stock,
+      },
+      {
+        path: "/fund",
+        component: Fund,
+      },
+      {
+        path: "/crypto",
+        component: Crypto,
       },
     ],
   },
