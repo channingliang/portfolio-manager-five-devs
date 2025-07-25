@@ -2,14 +2,30 @@ const db = require("../models");
 const Cash = db.Cash;
 const Account = db.Account;
 
+// 验证金额是否为有效正数
+const isValidAmount = (amount) => {
+  const num = parseFloat(amount);
+  return !isNaN(num) && num > 0;
+};
+
 const createCashTransaction = async (req, res, type) => {
   try {
     const { account_id, amount, description } = req.body;
 
+    // 基础字段校验
     if (!account_id || !amount) {
       return res.status(400).json({
         code: 400,
         msg: "Missing required fields.",
+        data: {}
+      });
+    }
+
+    // 金额有效性校验
+    if (!isValidAmount(amount)) {
+      return res.status(400).json({
+        code: 400,
+        msg: "金额必须是大于0的有效数字",
         data: {}
       });
     }
@@ -34,14 +50,21 @@ const createCashTransaction = async (req, res, type) => {
       transactionType = "存款";
     } else if (type === 2) {
       // 支出：扣钱，判断余额是否足够
-      if (parseFloat(account.balance) < parseFloat(amount)) {
+      const currentBalance = parseFloat(account.balance);
+      const transactionAmount = parseFloat(amount);
+      
+      if (currentBalance < transactionAmount) {
         return res.status(400).json({
           code: 400,
           msg: "余额不足，无法完成支出。",
-          data: {}
+          data: {
+            current_balance: currentBalance,
+            requested_amount: transactionAmount
+          }
         });
       }
-      newBalance = parseFloat(account.balance) - parseFloat(amount);
+      
+      newBalance = currentBalance - transactionAmount;
       transactionType = "支出";
     } else {
       return res.status(400).json({
