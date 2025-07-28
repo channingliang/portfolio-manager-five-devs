@@ -35,12 +35,11 @@ const balance = ref(99999999999);
       <NavigationMenu class="h-full">
         <NavigationMenuList>
           <NavigationMenuItem>
-            <NavigationMenuLink
-              href="/dashboard"
-              :class="navigationMenuTriggerStyle()"
-            >
-              Dashboard
-            </NavigationMenuLink>
+            <router-link to="/dashboard">
+              <NavigationMenuLink :class="navigationMenuTriggerStyle()">
+                Dashboard
+              </NavigationMenuLink>
+            </router-link>
           </NavigationMenuItem>
           <NavigationMenuItem>
             <NavigationMenuTrigger>Market</NavigationMenuTrigger>
@@ -49,67 +48,70 @@ const balance = ref(99999999999);
                 class="grid gap-3 p-6 md:w-[400px] lg:w-[500px] lg:grid-cols-[minmax(0,.75fr)_minmax(0,1fr)]"
               >
                 <li>
-                  <NavigationMenuLink as-child>
-                    <a
-                      href="/stock"
-                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
-                    >
+                  <router-link to="/stock">
+                    <NavigationMenuLink as-child>
                       <div
-                        class="inline-flex items-center text-sm leading-none"
+                        class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                       >
-                        <ChartCandlestick
-                          class="text-muted-foreground mr-1 size-5"
-                        />Stock
+                        <div
+                          class="inline-flex items-center text-sm leading-none"
+                        >
+                          <ChartCandlestick
+                            class="text-muted-foreground mr-1 size-5"
+                          />Stock
+                        </div>
+                        <p
+                          class="text-muted-foreground line-clamp-2 text-sm leading-snug"
+                        >
+                          View stock market data, charts, and more.
+                        </p>
                       </div>
-                      <p
-                        class="text-muted-foreground line-clamp-2 text-sm leading-snug"
-                      >
-                        View stock market data, charts, and more.
-                      </p>
-                    </a>
-                  </NavigationMenuLink>
+                    </NavigationMenuLink>
+                  </router-link>
                 </li>
                 <li>
-                  <NavigationMenuLink as-child>
-                    <a
-                      href="/fund"
-                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
-                    >
+                  <router-link to="/fund">
+                    <NavigationMenuLink as-child>
                       <div
-                        class="inline-flex items-center text-sm leading-none"
+                        class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                       >
-                        <HandCoins
-                          class="text-muted-foreground mr-1 size-5"
-                        />Fund
+                        <div
+                          class="inline-flex items-center text-sm leading-none"
+                        >
+                          <HandCoins
+                            class="text-muted-foreground mr-1 size-5"
+                          />Fund
+                        </div>
+                        <p
+                          class="text-muted-foreground line-clamp-2 text-sm leading-snug"
+                        >
+                          View mutual funds, ETFs, and other investment.
+                        </p>
                       </div>
-                      <p
-                        class="text-muted-foreground line-clamp-2 text-sm leading-snug"
-                      >
-                        View mutual funds, ETFs, and other investment.
-                      </p>
-                    </a>
-                  </NavigationMenuLink>
+                    </NavigationMenuLink>
+                  </router-link>
                 </li>
                 <li>
-                  <NavigationMenuLink as-child>
-                    <a
-                      href="/crypto"
-                      class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
-                    >
+                  <router-link to="/crypto">
+                    <NavigationMenuLink as-child>
                       <div
-                        class="inline-flex items-center text-sm leading-none"
+                        class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                       >
-                        <Bitcoin
-                          class="text-muted-foreground mr-1 size-5"
-                        />Crypto
+                        <div
+                          class="inline-flex items-center text-sm leading-none"
+                        >
+                          <Bitcoin
+                            class="text-muted-foreground mr-1 size-5"
+                          />Crypto
+                        </div>
+                        <p
+                          class="text-muted-foreground line-clamp-2 text-sm leading-snug"
+                        >
+                          Explore cryptocurrency markets, prices, and trends.
+                        </p>
                       </div>
-                      <p
-                        class="text-muted-foreground line-clamp-2 text-sm leading-snug"
-                      >
-                        Explore cryptocurrency markets, prices, and trends.
-                      </p>
-                    </a>
-                  </NavigationMenuLink>
+                    </NavigationMenuLink>
+                  </router-link>
                 </li>
                 <li>
                   <NavigationMenuLink as-child>
