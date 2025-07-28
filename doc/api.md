@@ -13,7 +13,6 @@
 
 `POST /portfolio/holding`
 
-Request Body:
 ```json
 {
   "account_id": "number",
@@ -23,6 +22,7 @@ Request Body:
 }
 ```
 Response:
+
 {
   "code" = 201,
   "message" = "创建投资组合持仓成功",
@@ -37,6 +37,7 @@ Response:
   }
 }
 
+#### URL
 
 ### get portfolio holding
 
@@ -70,7 +71,10 @@ Response:
   "quantity": "number"
 }
 ```
-Response:
+
+#### Response
+
+```json
 {
   "code" = 200,
   "message" = "更新投资组合持仓${id}成功",

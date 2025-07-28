@@ -1,15 +1,18 @@
-<script setup>
-import {Button} from "@/components/ui/button/index.js";
-</script>
+<script setup></script>
 
 <template>
   <div>
-    <Button variant="outline" class="text-2xl font-black">
-      tailwind + shadcn
-    </Button>
+    <router-view />
   </div>
+
 </template>
 
-<style scoped>
 
-</style>
+<script setup>
+
+
+</script>
+
+
+
+<style scoped></style>
