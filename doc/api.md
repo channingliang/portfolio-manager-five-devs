@@ -18,7 +18,10 @@
   "account_id": "number",
   "ticker": "string",
   "ticker_type": "number",
-  "quantity": "number"
+  "transaction_type": "number",
+  "quantity": "number",
+  "price_per_unit": "number"
+  
 }
 ```
 Response:
