@@ -7,7 +7,7 @@ const createAccount = async (req, res) => {
   try {
     // 从请求体获取数据
     const { name, currency } = req.body;
-    
+
     // 验证必要字段
     if (!name || !currency) {
       return res.status(StatusCodes.BAD_REQUEST).json({
@@ -16,13 +16,13 @@ const createAccount = async (req, res) => {
         data: {}
       });
     }
-    
+
     // 创建新账户（balance默认为0.00，created_at自动设置）
     const newAccount = await db.Account.create({
       name,
       currency
     });
-    
+
     // 构建符合要求的响应格式
     const responseData = {
       user_id: newAccount.user_id,
@@ -51,7 +51,6 @@ const createAccount = async (req, res) => {
 const getAccountById = async (req, res) => {
   try {
     const { id } = req.params;
-
     const account = await db.Account.findByPk(id);
 
     if (!account) {
