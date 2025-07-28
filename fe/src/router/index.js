@@ -8,26 +8,26 @@ import Crypto from "@/views/Crypto.vue";
 const routes = [
   {
     path: "/",
-    redirect: "/dashboard",
-  },
-  {
-    path: "/layout",
     component: BaseLayout,
     children: [
       {
-        path: "/dashboard",
+        path: "",
+        redirect: "/dashboard",
+      },
+      {
+        path: "dashboard",
         component: Dashboard,
       },
       {
-        path: "/stock",
+        path: "stock",
         component: Stock,
       },
       {
-        path: "/fund",
+        path: "fund",
         component: Fund,
       },
       {
-        path: "/crypto",
+        path: "crypto",
         component: Crypto,
       },
     ],
