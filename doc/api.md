@@ -1,19 +1,15 @@
-# API Documentation
-
-## RESTful API
-- GET: `/{resource}/{id}`
-- POST: `/{resource}`
-- DELETE: `/{resource}/{id}`
-- PATCH: `/{resource}`
-
 ## Account Module
 
+### Create Account
 
-### create account
+#### URL
 
-`POST /account`
+```http
+POST /account
+```
 
-Request Body:
+#### Request
+
 ```json
 {
   "name": "string",
@@ -34,10 +30,13 @@ Response:
     }
 }
 
+#### URL
 
-### get account
+```http
+GET /account/{id}
+```
 
-`GET /account/{id}`
+#### Request
 
 ```json
 {
@@ -74,26 +73,35 @@ Response:
   "id": "number"
 }
 ```
-Response:
+
+#### Response
+
+```json
 {
     "code": 200,
     "msg": "Account deleted successfully.",
     "data": {}
 }
+```
 
+### Deposit Cash
 
-Cash Transaction Module
+#### URL
 
 Deposit cash
 
 POST /cash/deposit 
 
-Request Body:
+```json
 {
   "account_id": 1,
+  "type": 1,
   "amount": 200.00,
   "description": "Initial deposit"
 }
+```
+
+#### Response
 
 Response:（type=1表示存款，已对边界值判断逻辑进行了完善）
 
@@ -151,6 +159,9 @@ Response:（type=2表示支出,已对边界值判断逻辑进行了完善）
 Query cash transactions by account
 
 GET /cash/account/{account_id}
+```
+
+#### Response
 
 Response:
 {
