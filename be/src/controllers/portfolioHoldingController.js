@@ -187,53 +187,9 @@ const deletePortfolioHolding = async (req, res) => {
     }
 };
 
-// 根据账户ID查询持仓
-const getHoldingsByAccountId = async (req, res) => {
-    try {
-        const { account_id } = req.params;
-        const { ticker_type } = req.query;
-
-        const queryOptions = {
-            where: { account_id }
-        };
-
-        // 如果指定了证券类型，添加到查询条件
-        if (ticker_type !== undefined) {
-            queryOptions.where.ticker_type = ticker_type;
-        }
-
-        const holdings = await db.PortfolioHolding.findAll(queryOptions);
-
-        const responseData = holdings.map(holding => ({
-            portfolio_holding_id: holding.portfolio_holding_id,
-            account_id: holding.account_id,
-            ticker: holding.ticker,
-            ticker_type: holding.ticker_type,
-            quantity: parseFloat(holding.quantity),
-            updated_at: holding.updated_at
-                ? new Date(holding.getDataValue('updated_at')).toISOString()
-                : null
-        }));
-
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `查询账户${account_id}的投资组合持仓成功`,
-            data: responseData
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '查询投资组合持仓失败',
-            error: error.message
-        });
-    }
-};
-
 module.exports = {
     createPortfolioHolding,
     getPortfolioHoldingById,
     updatePortfolioHolding,
     deletePortfolioHolding,
-    getHoldingsByAccountId
 };
