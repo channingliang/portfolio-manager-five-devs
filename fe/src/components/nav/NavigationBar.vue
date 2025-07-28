@@ -21,14 +21,15 @@ import {
   Bitcoin,
   Ellipsis,
 } from "lucide-vue-next";
+import TopUpDrawer from "@/components/nav/TopUpDrawer.vue";
 
 const accountStore = useAccountStore();
 
-const balance = ref(99999999999);
+const drawerOpen = ref(false);
 </script>
 
 <template>
-  <nav class="fixed top-6 z-999 flex h-12 w-full justify-center">
+  <nav class="fixed top-6 z-999 flex h-12 w-full justify-center border">
     <div
       class="flex min-w-[500px] justify-center rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
     >
@@ -165,7 +166,7 @@ const balance = ref(99999999999);
                 </li>
 
                 <li>
-                  <NavigationMenuLink as-child>
+                  <NavigationMenuLink @click="drawerOpen = true" as-child>
                     <div
                       class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
                     >
@@ -174,12 +175,13 @@ const balance = ref(99999999999);
                       >
                         <BanknoteArrowUp
                           class="text-muted-foreground mr-1 size-5"
-                        />Deposit
+                        />Top Up
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
                       >
-                        Deposit money into your account to start trading.
+                        Add funds to your account to start trading and
+                        investing.
                       </p>
                     </div>
                   </NavigationMenuLink>
@@ -211,6 +213,7 @@ const balance = ref(99999999999);
       </NavigationMenu>
     </div>
   </nav>
+  <TopUpDrawer v-model:open="drawerOpen" />
 </template>
 
 <style scoped></style>
