@@ -150,7 +150,7 @@ exports.getCashTransactionsByAccount = async (req, res) => {
         "description",
         "occurred_at"
       ],
-      order: [["occurred_at", "ASC"]]
+      order: [["occurred_at", "DESC"]]
     });
 
     return res.status(200).json({
