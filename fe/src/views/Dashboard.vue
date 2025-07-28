@@ -1,5 +1,4 @@
 <script setup>
-import CustomCard from "@/components/dashboard/CustomCard.vue";
 import Portfolio from "@/components/dashboard/PortfolioCard.vue";
 import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vue";
 import DataTable from "@/components/dashboard/DataTable.vue";
@@ -7,15 +6,6 @@ import LitCard from "@/components/dashboard/LitCard.vue";
 import Overview from "@/components/dashboard/Overview.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
 import api from "@/lib/request.js";
-
-// Example API call to fetch data
-api.get("/account/12")
-  .then((response) => {
-    console.log("Dashboard data:", response.data);
-  })
-  .catch((error) => {
-    console.error("Error fetching dashboard data:", error);
-  });
 </script>
 
 <template>

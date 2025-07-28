@@ -49,7 +49,7 @@
           <!-- 卡片头部 -->
           <div class="flex justify-between">
             <div class="text-xs font-medium text-gray-800">
-              产品名称：
+              Product Name:
               <br />
               {{ item.name }}
             </div>
@@ -57,7 +57,7 @@
               class="font-mono text-xs"
               :class="item.yield >= 0 ? 'text-green-600' : 'text-red-600'"
             >
-              收益率：
+              Yield rate:
               <br />
               {{ item.yield >= 0 ? "+" : "" }}{{ item.yield }}%
             </div>
@@ -65,7 +65,7 @@
 
           <!-- 市值 -->
           <div class="mt-2 font-mono text-sm">
-            市值：￥{{ item.marketValue.toLocaleString() }}
+            Market capitalization: ￥{{ item.marketValue.toLocaleString() }}
           </div>
 
           <!-- Hover显示详情：只显示当前悬停的卡片 -->
@@ -76,17 +76,17 @@
             <table class="w-full text-xs">
               <tbody>
                 <tr>
-                  <td class="py-1 text-gray-500">最新净值</td>
+                  <td class="py-1 text-gray-500">Latest net value</td>
                   <td class="py-1 font-mono">{{ item.nav }}</td>
                 </tr>
                 <tr>
-                  <td class="py-1 text-gray-500">持有份额</td>
+                  <td class="py-1 text-gray-500">Holding shares</td>
                   <td class="py-1 font-mono">
                     {{ item.shares.toLocaleString() }}
                   </td>
                 </tr>
                 <tr>
-                  <td class="py-1 text-gray-500">年化收益</td>
+                  <td class="py-1 text-gray-500">Annualized return</td>
                   <td
                     class="py-1 font-mono"
                     :class="
@@ -118,7 +118,7 @@ const portfolioValue = ref(10000000);
 
 const holdings = ref([
   {
-    name: "产品A",
+    name: "Product A",
     yield: 5.0,
     marketValue: 2500000,
     nav: 3.2567,
@@ -126,7 +126,7 @@ const holdings = ref([
     annualYield: 12.15,
   },
   {
-    name: "产品B",
+    name: "Product B",
     yield: -5.0,
     marketValue: 1500000,
     nav: 2.1356,
@@ -134,7 +134,7 @@ const holdings = ref([
     annualYield: -3.2,
   },
   {
-    name: "产品C",
+    name: "Product C",
     yield: -5.0,
     marketValue: 3800000,
     nav: 1.8765,
@@ -142,7 +142,7 @@ const holdings = ref([
     annualYield: 6.5,
   },
   {
-    name: "产品D",
+    name: "Product D",
     yield: -5.0,
     marketValue: 2200000,
     nav: 3.4521,
