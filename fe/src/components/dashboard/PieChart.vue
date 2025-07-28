@@ -1,6 +1,6 @@
 <template>
   <div class="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow">
-    <h3 class="mb-4 text-lg font-semibold text-gray-800">投资组合分析</h3>
+    <h3 class="mb-4 text-lg font-semibold text-gray-800">Portfolio Analysis</h3>
 
     <!-- 环形图容器 -->
     <div class="relative mx-auto mb-6 h-48 w-48">
@@ -63,9 +63,9 @@
       <!-- 中心文字 -->
       <div class="absolute inset-0 flex items-center justify-center">
         <div class="text-center">
-          <p class="text-sm text-gray-500">当前选中</p>
+          <p class="text-sm text-gray-500">Currently Selected</p>
           <p class="text-lg font-semibold">
-            {{ hoveredSegment ? segmentNames[hoveredSegment] : "全部" }}
+            {{ hoveredSegment ? segmentNames[hoveredSegment] : "All" }}
           </p>
           <p class="text-sm" :class="getSegmentColor(hoveredSegment)">
             {{ hoveredSegment ? data[hoveredSegment] + "%" : "100%" }}

@@ -1,28 +1,50 @@
 <template>
   <div class="medium">
     <!-- 标题 -->
-    <h3 class="text-primary mb-4 flex items-center text-lg font-bold">
-      <span
-        class="iconify mr-2"
-        data-icon="material-symbols:currency-exchange"
-      ></span>
-      Portfolio Assets
-    </h3>
+    <!-- 标题 -->
+    <h2 class="mb-4 text-xl font-semibold text-gray-900">Account Overview</h2>
+    <h3 class="text-primary mb-4 flex items-center text-lg font-bold"></h3>
 
-    <!-- 总资产 -->
-    <div class="mb-4 text-2xl font-bold">
-      ￥{{ portfolioValue.toLocaleString() }}
+    <!-- 投资资产行 -->
+    <div class="flex items-center justify-between">
+      <div class="flex items-center space-x-2">
+        <!-- 投资资产图标 -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="text-gray-600"
+        >
+          <!-- 三个柱状条 -->
+          <rect x="3" y="10" width="4" height="11" rx="1"></rect>
+          <rect x="10" y="6" width="4" height="15" rx="1"></rect>
+          <rect x="17" y="2" width="4" height="19" rx="1"></rect>
+        </svg>
+        <span class="text-gray-600">Portfolio Assets</span>
+      </div>
+
+      <!-- 金额 -->
+      <div class="text-2xl font-bold text-gray-900">
+        ￥{{ portfolioValue.toLocaleString() }}
+      </div>
     </div>
 
     <!-- 持仓产品 -->
     <div class="mb-6">
-      <h4 class="mb-3 text-sm font-medium text-gray-500">持仓产品</h4>
       <div class="grid grid-cols-2 gap-4">
         <!-- 动态生成产品卡片 -->
         <div
           v-for="(item, index) in holdings"
           :key="index"
-          class="group relative rounded-lg border bg-white p-4 transition-shadow hover:shadow-lg"
+          class="relative rounded-lg border bg-white p-4 transition-shadow hover:shadow-lg"
+          @mouseenter="hoverIndex = index"
+          @mouseleave="hoverIndex = null"
         >
           <!-- 卡片头部 -->
           <div class="flex justify-between">
@@ -46,9 +68,10 @@
             市值：￥{{ item.marketValue.toLocaleString() }}
           </div>
 
-          <!-- Hover显示详情 -->
+          <!-- Hover显示详情：只显示当前悬停的卡片 -->
           <div
-            class="absolute top-full left-0 z-10 mt-2 hidden w-full rounded-lg border bg-white p-4 shadow-lg group-hover:block"
+            v-if="hoverIndex === index"
+            class="absolute top-full left-0 z-10 mt-2 w-full rounded-lg border bg-white p-4 shadow-lg"
           >
             <table class="w-full text-xs">
               <tbody>
@@ -86,6 +109,9 @@
 <script setup>
 import { ref } from "vue";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+
+// 当前悬停的卡片索引
+const hoverIndex = ref(null);
 
 // 模拟持仓数据，可以替换为 API 获取
 const portfolioValue = ref(10000000);
