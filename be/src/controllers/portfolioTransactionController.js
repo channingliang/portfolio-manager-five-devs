@@ -1,6 +1,5 @@
 const { StatusCodes } = require("http-status-codes");
 const db = require('../models');
-//数据库主键还未考虑
 // 创建投资组合交易
 const createPortfolioTransaction = async (req, res) => {
     try {
@@ -138,12 +137,34 @@ const updatePortfolioTransaction = async (req, res) => {
         }
 
         // 更新交易记录
-        await transaction.update({
+        const updatedTransaction = await transaction.update({
             ...(price_per_unit !== undefined && { price_per_unit }),
             ...(quantity !== undefined && { quantity }),
             ...(cash_transaction_id !== undefined && { cash_transaction_id }),
             ...(total_amount !== transaction.total_amount && { total_amount })
         });
+
+
+        const { account_id } = updatedTransaction; // 仅使用account_id作为关联条件
+
+        // 查找该account_id对应的所有持仓记录
+        const relatedHoldings = await db.PortfolioHolding.findAll({
+            where: { account_id } // 仅通过account_id关联
+        });
+
+        if (relatedHoldings.length > 0 && quantity !== undefined) {
+            // 遍历更新所有关联持仓的quantity（可根据业务调整更新规则）
+            // 示例规则：将该账户下所有持仓的quantity更新为交易的最新quantity
+            const updatePromises = relatedHoldings.map(holding =>
+                holding.update({
+                    quantity,
+                    updated_at: new Date()
+                })
+            );
+            await Promise.all(updatePromises);
+        } else if (relatedHoldings.length === 0) {
+            console.log(`未找到 account_id 为 ${account_id} 的关联持仓记录`);
+        }
 
         return res.status(StatusCodes.OK).json({
             success: true,
@@ -177,7 +198,17 @@ const deletePortfolioTransaction = async (req, res) => {
             });
         }
 
+        const holding = await db.PortfolioHolding.findByPk(id);
+
+        if (!holding) {
+            return res.status(StatusCodes.NOT_FOUND).json({
+                success: false,
+                message: `未找到 ID 为 ${id} 的投资组合持仓`
+            });
+        }
+
         await transaction.destroy();
+        await holding.destroy();
 
 
         return res.status(StatusCodes.OK).json({
