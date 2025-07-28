@@ -93,7 +93,11 @@ const getPortfolioTransactionById = async (req, res) => {
             occurred_at: new Date(transaction.getDataValue('occurred_at')).toISOString()
         };
 
-        return res.status(StatusCodes.OK).json(responseData);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: `查询 ID 为 ${id} 的投资组合交易成功`,
+            data: responseData
+        });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -143,7 +147,7 @@ const updatePortfolioTransaction = async (req, res) => {
 
         return res.status(StatusCodes.OK).json({
             success: true,
-            message: '投资组合交易更新成功',
+            message: `投资组合交易 ${id} 更新成功`,
             data: {
                 portfolio_transaction_id: transaction.portfolio_transaction_id,
                 total_amount: parseFloat(total_amount)
@@ -153,7 +157,7 @@ const updatePortfolioTransaction = async (req, res) => {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
             success: false,
-            message: '更新投资组合交易失败',
+            message: `更新投资组合交易 ${id} 失败`,
             error: error.message
         });
     }
@@ -175,8 +179,10 @@ const deletePortfolioTransaction = async (req, res) => {
 
         await transaction.destroy();
 
+
         return res.status(StatusCodes.OK).json({
-            message: "投资组合交易删除成功"
+            success: true,
+            message: `投资组合交易 ${id} 删除成功`
         });
     } catch (error) {
         console.error(error);

@@ -25,20 +25,18 @@ router.post("/cash/spend", CashController.spendCash);
 router.get("/cash/account/:account_id", CashController.getCashTransactionsByAccount);
 
 
-
-
 // 投资组合持仓接口
 router.post("/portfolio/holding", PortfolioHoldingController.createPortfolioHolding);
 router.delete("/portfolio/holding/:id", PortfolioHoldingController.deletePortfolioHolding);
 // 更新投资组合持仓
-router.put("/portfolio/holding/:id", PortfolioHoldingController.updatePortfolioHolding);
+router.patch("/portfolio/holding/:id", PortfolioHoldingController.updatePortfolioHolding);
 
 
 // 投资组合交易接口
 router.post("/portfolio/transaction", PortfolioTransactionController.createPortfolioTransaction);
 router.delete("/portfolio/transaction/:id", PortfolioTransactionController.deletePortfolioTransaction);
 // 更新投资组合交易
-router.put("/portfolio/transaction/:id", PortfolioTransactionController.updatePortfolioTransaction);
+router.patch("/portfolio/transaction/:id", PortfolioTransactionController.updatePortfolioTransaction);
 
 // 获取投资组合持仓详情
 router.get("/portfolio/holding/:id", PortfolioHoldingController.getPortfolioHoldingById);

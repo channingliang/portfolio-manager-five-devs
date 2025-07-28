@@ -3,7 +3,6 @@ const db = require('../models');
 //数据库主键还未考虑
 // 创建投资组合持仓
 const createPortfolioHolding = async (req, res) => {
-    // console.log("Creating portfolio holding with data:", req.body);
     try {
         const {
             account_id,
@@ -94,7 +93,11 @@ const getPortfolioHoldingById = async (req, res) => {
                 : null
         };
 
-        return res.status(StatusCodes.OK).json(responseData);
+        return res.status(StatusCodes.OK).json({
+            success: true,
+            message: `获取${id}投资组合持仓`,
+            data: responseData
+        });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
@@ -136,7 +139,7 @@ const updatePortfolioHolding = async (req, res) => {
 
         return res.status(StatusCodes.OK).json({
             success: true,
-            message: '投资组合持仓更新成功',
+            message: `投资组合持仓${id}更新成功`,
             data: {
                 portfolio_holding_id: holding.portfolio_holding_id,
                 ticker: holding.ticker,
@@ -171,7 +174,8 @@ const deletePortfolioHolding = async (req, res) => {
         await holding.destroy();
 
         return res.status(StatusCodes.OK).json({
-            message: "投资组合持仓删除成功"
+            success: true,
+            message: `删除 ID 为 ${id} 的投资组合持仓成功`
         });
     } catch (error) {
         console.error(error);
@@ -213,7 +217,7 @@ const getHoldingsByAccountId = async (req, res) => {
 
         return res.status(StatusCodes.OK).json({
             success: true,
-            count: responseData.length,
+            message: `查询账户${account_id}的投资组合持仓成功`,
             data: responseData
         });
     } catch (error) {
