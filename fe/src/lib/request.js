@@ -3,7 +3,7 @@ import axios from "axios";
 // Read Tiingo token and API base URL from environment variables (Vite project)
 const TIINGO_TOKEN = import.meta.env.VITE_TIINGO_TOKEN;
 const TIINGO_API = import.meta.env.VITE_TIINGO_API;
-const BE_API = import.meta.env.BE_API;
+const BE_API = import.meta.env.VITE_BE_API;
 
 // Create an axios instance with base URL and timeout for your local API
 const instance = axios.create({
