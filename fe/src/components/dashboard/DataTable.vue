@@ -9,39 +9,27 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import api from "@/lib/request.js";
+import { ref } from "vue";
 
+const transactionHistory = ref([]);
+
+api
+  .get("/cash/account/1")
+  .then((response) => {
+    transactionHistory.data = response.data;
+    console.log("Dashboard data:", response);
+  })
+  .catch((error) => {
+    console.error("Error fetching dashboard data:", error);
+  });
 // 定义交易历史数据 transactionHistory，是一个数组，每个对象代表一条交易记录
 // 字段说明：
 // - date：交易日期
 // - type：交易类型或说明
 // - amount：交易金额，正数为收入，负数为支出
 // - isIncome：布尔值，标记该交易是否为收入
-const transactionHistory = [
-  {
-    date: "07/23",
-    type: "工资入账",
-    amount: 28560.0,
-    isIncome: true,
-  },
-  {
-    date: "07/18",
-    type: "基金赎回",
-    amount: 52300.0,
-    isIncome: true,
-  },
-  {
-    date: "07/15",
-    type: "股票购买",
-    amount: -36200.0,
-    isIncome: false,
-  },
-  {
-    date: "07/10",
-    type: "信用卡还款",
-    amount: -8556.8,
-    isIncome: false,
-  },
-];
+
 </script>
 
 <template>

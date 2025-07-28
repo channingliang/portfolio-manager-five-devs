@@ -6,17 +6,6 @@ import LitCard from "@/components/dashboard/LitCard.vue";
 import Overview from "@/components/dashboard/Overview.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
 import api from "@/lib/request.js";
-import api from "@/lib/request.js";
-
-// Example API call to fetch data
-api
-  .get("/account/1")
-  .then((response) => {
-    console.log("Dashboard data:", response);
-  })
-  .catch((error) => {
-    console.error("Error fetching dashboard data:", error);
-  });
 </script>
 
 <template>

@@ -1,7 +1,7 @@
 <script setup>
 import { useAccountStore } from "@/stores/account.js";
 import { Button } from "@/components/ui/button/index.js";
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -18,6 +18,9 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { use } from "echarts/core";
+import * as echarts from "echarts";
 
 const accountStore = useAccountStore();
 
@@ -28,44 +31,36 @@ const updateBalance = () => {
 // 用户持仓（股票代码 -> 股数）
 const holdings = ref({});
 
-// 模拟股票数据
-const allStocks = ref([
-  { code: "AAPL", name: "苹果公司", industry: "科技", price: 175.6 },
-  { code: "TSLA", name: "特斯拉", industry: "汽车", price: 225.3 },
-  { code: "AMZN", name: "亚马逊", industry: "电商", price: 135.8 },
-  { code: "BABA", name: "阿里巴巴", industry: "电商", price: 95.2 },
-  { code: "MSFT", name: "微软", industry: "科技", price: 315.7 },
-  { code: "GOOG", name: "谷歌", industry: "科技", price: 2800.4 },
-  { code: "NFLX", name: "奈飞", industry: "娱乐", price: 440.1 },
-  { code: "NVDA", name: "英伟达", industry: "科技", price: 450.5 },
-  { code: "META", name: "脸书", industry: "科技", price: 330.6 },
-  { code: "ORCL", name: "甲骨文", industry: "科技", price: 120.8 },
-  { code: "INTC", name: "英特尔", industry: "科技", price: 35.9 },
-  { code: "AMD", name: "超威", industry: "科技", price: 105.4 },
-  { code: "UBER", name: "优步", industry: "出行", price: 45.7 },
-  { code: "LYFT", name: "来福车", industry: "出行", price: 12.3 },
-  { code: "DIS", name: "迪士尼", industry: "娱乐", price: 98.5 },
-  { code: "SONY", name: "索尼", industry: "娱乐", price: 88.4 },
-  { code: "PFE", name: "辉瑞", industry: "医药", price: 38.2 },
-  { code: "JNJ", name: "强生", industry: "医药", price: 165.4 },
-  { code: "MRNA", name: "莫德纳", industry: "医药", price: 120.3 },
-  { code: "BA", name: "波音", industry: "航空", price: 210.7 },
-  { code: "AIRB", name: "空客", industry: "航空", price: 150.9 },
-  { code: "XOM", name: "埃克森美孚", industry: "能源", price: 105.2 },
-  { code: "CVX", name: "雪佛龙", industry: "能源", price: 160.1 },
-  { code: "BP", name: "英国石油", industry: "能源", price: 35.8 },
-  { code: "T", name: "美国电话电报", industry: "通信", price: 14.7 },
-  { code: "VZ", name: "威瑞森", industry: "通信", price: 34.5 },
-  { code: "CHL", name: "中国移动", industry: "通信", price: 51.6 },
-  { code: "SHOP", name: "Shopify", industry: "电商", price: 70.2 },
-  { code: "JD", name: "京东", industry: "电商", price: 32.5 },
-  { code: "PDD", name: "拼多多", industry: "电商", price: 145.6 },
-  { code: "NIO", name: "蔚来", industry: "汽车", price: 9.4 },
-  { code: "LI", name: "理想汽车", industry: "汽车", price: 27.3 },
-  { code: "XPEV", name: "小鹏汽车", industry: "汽车", price: 16.8 },
-  { code: "RIVN", name: "Rivian", industry: "汽车", price: 18.6 },
-  { code: "F", name: "福特", industry: "汽车", price: 13.2 },
-]);
+// 模拟股票数据（每个股票附带K线数据）
+const generateKLineData = () => {
+  const basePrice = 1 + Math.random() * 4;
+  const days = 30;
+  const categoryData = [];
+  const values = [];
+
+  for (let i = 0; i < days; i++) {
+    const date = `2024/07/${(i + 1).toString().padStart(2, "0")}`;
+    const open = +(basePrice + Math.random() * 20 - 10).toFixed(2);
+    const close = +(open + Math.random() * 20 - 10).toFixed(2);
+    const low = +(Math.min(open, close) - Math.random() * 5).toFixed(2);
+    const high = +(Math.max(open, close) + Math.random() * 5).toFixed(2);
+    categoryData.push(date);
+    values.push([open, close, low, high]);
+  }
+  return { categoryData, values };
+};
+
+const allStocks = ref(
+  [
+    { code: "000001", name: "华夏成长混合", type: "混合型", price: 3.25 },
+    { code: "110022", name: "易方达消费行业", type: "股票型", price: 5.71 },
+    { code: "001510", name: "富国新兴产业", type: "QDII", price: 2.89 },
+    { code: "003096", name: "中欧医疗健康", type: "医疗主题", price: 4.33 },
+    { code: "005827", name: "招商中证白酒", type: "指数型", price: 1.92 },
+    { code: "006327", name: "南方科技创新", type: "科技主题", price: 2.15 },
+    { code: "008282", name: "广发全球精选", type: "全球配置", price: 1.78 },
+  ].map((stock) => ({ ...stock, kline: generateKLineData() })),
+); // 每个股票生成K线数据
 
 // 搜索逻辑
 const searchInput = ref("");
@@ -139,7 +134,7 @@ const confirmTransaction = () => {
   }
 
   if (qty <= 0 || totalCost <= 0) {
-    alert("请输入有效数量或金额！");
+    alert("Please enter a valid quantity or amount!");
     return;
   }
 
@@ -147,14 +142,14 @@ const confirmTransaction = () => {
 
   if (transactionType.value === "buy") {
     if (accountStore.balance < totalCost) {
-      alert("余额不足，无法买入！");
+      alert("Insufficient balance, unable to purchase!");
       return;
     }
     accountStore.balance -= totalCost;
     holdings.value[code] = (holdings.value[code] || 0) + qty;
   } else {
     if ((holdings.value[code] || 0) < qty) {
-      alert("持仓不足，无法卖出！");
+      alert("Insufficient position, unable to sell!");
       return;
     }
     accountStore.balance += totalCost;
@@ -163,83 +158,249 @@ const confirmTransaction = () => {
 
   dialogOpen.value = false;
 };
+
+// 计算持仓详情（过滤掉股数为 0 的）
+const holdingsList = computed(() => {
+  return Object.entries(holdings.value)
+    .filter(([_, qty]) => qty > 0) // 只保留大于 0 的持仓
+    .map(([code, qty]) => {
+      const stock = allStocks.value.find((s) => s.code === code);
+      return {
+        code,
+        name: stock?.name || "未知",
+        price: stock?.price || 0,
+        quantity: qty,
+        total: (stock?.price || 0) * qty,
+      };
+    });
+});
+
+// 展开行逻辑
+const expandedStock = ref(null);
+const toggleExpand = async (code) => {
+  expandedStock.value = expandedStock.value === code ? null : code;
+  await nextTick();
+  if (expandedStock.value) {
+    initKLineChart(code);
+  }
+};
+
+// 初始化ECharts
+const initKLineChart = (code) => {
+  const stock = allStocks.value.find((s) => s.code === code);
+  if (!stock) return;
+
+  const chartDom = document.getElementById(`kline-${code}`);
+  if (!chartDom) return;
+
+  const chart = echarts.init(chartDom);
+  const upColor = "#ec0000";
+  const upBorderColor = "#8A0000";
+  const downColor = "#00da3c";
+  const downBorderColor = "#008F28";
+
+  const option = {
+    tooltip: { trigger: "axis", axisPointer: { type: "cross" } },
+    grid: { left: "10%", right: "10%", bottom: "15%" },
+    xAxis: {
+      type: "category",
+      data: stock.kline.categoryData,
+      boundaryGap: false,
+      axisLine: { onZero: false },
+    },
+    yAxis: { scale: true },
+    series: [
+      {
+        type: "candlestick",
+        name: code,
+        data: stock.kline.values,
+        itemStyle: {
+          color: upColor,
+          color0: downColor,
+          borderColor: upBorderColor,
+          borderColor0: downBorderColor,
+        },
+      },
+    ],
+  };
+  chart.setOption(option);
+};
 </script>
 
 <template>
-  <div class="w-full">
-    This is Fund page
-    <Button @click="updateBalance">Update</Button>
-    <div class="mx-auto max-w-5xl p-6">
-      <h1 class="mb-6 text-2xl font-bold">Fund Market</h1>
+  <div class="min-h-screen w-full bg-gray-50">
+    <!-- 更新余额按钮 -->
+    <div class="flex justify-end p-4">
+      <Button
+        class="text- black bg-blue-600 hover:bg-blue-700"
+        @click="updateBalance"
+      >
+        Refresh Balance
+      </Button>
+    </div>
+
+    <div class="mx-auto max-w-6xl space-y-10 p-6">
+      <!-- 页面标题 -->
+      <h1 class="mb-2 text-3xl font-bold text-gray-800">Fund Market</h1>
+      <p class="text-gray-500">Browse, search, and trade your favorite funds</p>
 
       <!-- 搜索栏 -->
-      <div class="sticky top-16 z-10 mb-6 flex gap-2 bg-white p-4 shadow">
+      <div class="sticky top-16 z-10 flex gap-3 rounded-lg bg-white p-4 shadow">
         <input
           v-model="searchInput"
           type="text"
-          placeholder="请输入股票名称或代码"
-          class="flex-1 rounded border px-3 py-2"
+          placeholder="Enter fund name or code"
+          class="flex-1 rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
           @keyup.enter="handleSearch"
         />
-        <button
+        <Button
           @click="handleSearch"
-          class="rounded bg-gray-300 px-4 py-2 text-black hover:bg-gray-400"
+          class="rounded-lg bg-blue-500 px-4 text-gray-700 hover:bg-blue-600"
         >
-          搜索
-        </button>
-        <button
+          Search
+        </Button>
+        <Button
           @click="clearSearch"
-          class="rounded bg-gray-300 px-4 py-2 text-black hover:bg-gray-400"
+          class="rounded-lg bg-gray-200 px-4 text-gray-700 hover:bg-gray-300"
         >
-          清空
-        </button>
+          Clear
+        </Button>
       </div>
 
-      <!-- 股票信息表格，全宽 -->
-      <Card class="w-full">
+      <!-- 我的持仓 -->
+      <Card class="w-full rounded-xl shadow-md">
         <CardContent>
-          <Table class="w-full">
-            <TableHeader>
-              <TableRow>
-                <TableHead>股票代码</TableHead>
-                <TableHead>股票名称</TableHead>
-                <TableHead>行业</TableHead>
-                <TableHead class="text-right">价格 (USD)</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              <TableRow v-for="stock in displayedStocks" :key="stock.code">
-                <TableCell>{{ stock.code }}</TableCell>
-                <TableCell>{{ stock.name }}</TableCell>
-                <TableCell>{{ stock.industry }}</TableCell>
-                <TableCell class="text-right">${{ stock.price }}</TableCell>
-                <!--买卖操作-->
-                <TableCell class="text-center">
-                  <Button
-                    class="mr-2 bg-green-600 text-black hover:bg-green-700"
-                    @click="openTransaction(stock, 'buy')"
+          <h2 class="mb-4 text-xl font-semibold text-gray-800">My Holdings</h2>
+          <div v-if="holdingsList.length > 0">
+            <Table class="w-full">
+              <TableHeader>
+                <TableRow class="bg-gray-100">
+                  <TableHead>Fund Code</TableHead>
+                  <TableHead>Fund Name</TableHead>
+                  <TableHead class="text-right">Quantity</TableHead>
+                  <TableHead class="text-right">Price</TableHead>
+                  <TableHead class="text-right">Total</TableHead>
+                  <TableHead class="text-center">Action</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow
+                  v-for="item in holdingsList"
+                  :key="item.code"
+                  class="hover:bg-gray-50"
+                  :class="{
+                    'bg-gray-50': holdingsList.indexOf(item) % 2 === 1,
+                  }"
+                >
+                  <TableCell>{{ item.code }}</TableCell>
+                  <TableCell>{{ item.name }}</TableCell>
+                  <TableCell class="text-right font-mono">{{
+                    item.quantity
+                  }}</TableCell>
+                  <TableCell class="text-right font-mono"
+                    >${{ item.price }}</TableCell
                   >
-                    买入
-                  </Button>
-                </TableCell>
-              </TableRow>
-            </TableBody>
-          </Table>
+                  <TableCell class="text-right font-mono"
+                    >${{ item.total.toFixed(2) }}</TableCell
+                  >
+                  <TableCell class="text-center">
+                    <Button
+                      class="bg-gradient-to-r from-red-500 to-red-600 text-white hover:opacity-90"
+                      @click="
+                        openTransaction(
+                          {
+                            code: item.code,
+                            name: item.name,
+                            price: item.price,
+                          },
+                          'sell',
+                        )
+                      "
+                    >
+                      Sell
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+          <div v-else class="text-gray-500">No positions held</div>
         </CardContent>
       </Card>
 
-      <!-- 空结果提示 -->
-      <div v-if="displayedStocks.length === 0" class="mt-6 text-gray-500">
-        未找到相关股票信息
-      </div>
+      <!-- 股票市场表格 -->
+      <Card>
+        <CardContent>
+          <h2 class="mb-4 text-xl font-bold text-gray-800">Available Fund</h2>
+          <Table class="w-full">
+            <TableHeader>
+              <TableRow class="bg-gray-100">
+                <TableHead class="text-center">Code</TableHead>
+                <TableHead class="text-center">Name</TableHead>
+                <TableHead class="text-center">Type</TableHead>
+                <TableHead class="text-center">Price</TableHead>
+                <TableHead class="text-center">Action</TableHead>
+                <TableHead class="text-center"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              <template v-for="stock in displayedStocks" :key="stock.code">
+                <!-- 点击整行也可以展开/收起 -->
+                <TableRow
+                  class="cursor-pointer hover:bg-gray-50"
+                  @click="toggleExpand(stock.code)"
+                >
+                  <TableCell class="text-center">{{ stock.code }}</TableCell>
+                  <TableCell class="text-center">{{ stock.name }}</TableCell>
+                  <TableCell class="text-center">{{ stock.type }}</TableCell>
+                  <TableCell class="text-center">${{ stock.price }}</TableCell>
+                  <TableCell class="text-center">
+                    <Button
+                      class="bg-gradient-to-r from-green-500 to-green-600 text-white"
+                      @click.stop="openTransaction(stock, 'buy')"
+                    >
+                      Buy
+                    </Button>
+                  </TableCell>
+                  <TableCell class="text-center">
+                    <!-- 箭头也能展开，但不冒泡到行 -->
+                    <span
+                      class="cursor-pointer text-lg text-black select-none"
+                      @click.stop="toggleExpand(stock.code)"
+                    >
+                      {{ expandedStock === stock.code ? "▲" : "▼" }}
+                    </span>
+                  </TableCell>
+                </TableRow>
+
+                <!-- 展开详情行 -->
+                <TableRow v-if="expandedStock === stock.code">
+                  <TableCell colspan="6">
+                    <div
+                      :id="`kline-${stock.code}`"
+                      style="height: 300px"
+                    ></div>
+                  </TableCell>
+                </TableRow>
+              </template>
+            </TableBody>
+          </Table>
+          <div
+            v-if="displayedStocks.length === 0"
+            class="mt-6 text-center text-gray-500"
+          >
+            No funds found
+          </div>
+        </CardContent>
+      </Card>
     </div>
 
     <!-- 买卖股票弹窗 -->
     <Dialog v-model:open="dialogOpen">
-      <DialogContent class="max-w-md">
+      <DialogContent class="max-w-md rounded-xl shadow-lg">
         <DialogHeader>
-          <DialogTitle>
-            {{ transactionType === "buy" ? "买入" : "卖出" }}
+          <DialogTitle class="text-xl font-semibold">
+            {{ transactionType === "buy" ? "Buy" : "Sell" }}
             {{ selectedStock?.name }} ({{ selectedStock?.code }})
           </DialogTitle>
         </DialogHeader>
@@ -248,59 +409,63 @@ const confirmTransaction = () => {
         <div class="mb-4 flex gap-4">
           <Button
             variant="outline"
-            :class="inputMode === 'shares' ? 'bg-gray-200' : ''"
+            :class="inputMode === 'shares' ? 'bg-gray-100' : ''"
             @click="inputMode = 'shares'"
           >
-            按股数
+            By Quantity
           </Button>
           <Button
             variant="outline"
-            :class="inputMode === 'amount' ? 'bg-gray-200' : ''"
+            :class="inputMode === 'amount' ? 'bg-gray-100' : ''"
             @click="inputMode = 'amount'"
           >
-            按金额
+            By Amount
           </Button>
         </div>
 
-        <!-- 输入框（股数模式） -->
-        <template v-if="inputMode === 'shares'">
-          <Input
-            type="number"
-            min="1"
-            :value="shares"
-            @input="(e) => (shares = Number(e.target.value))"
-            placeholder="请输入股数"
-          />
-        </template>
-
-        <!-- 输入框（金额模式） -->
-        <template v-else>
-          <Input
-            type="number"
-            min="1"
-            :value="amount"
-            @input="(e) => (amount = Number(e.target.value))"
-            placeholder="请输入金额"
-          />
-        </template>
+        <!-- 输入框 -->
+        <Input
+          v-if="inputMode === 'shares'"
+          type="number"
+          min="1"
+          :value="shares"
+          @input="(e) => (shares = Number(e.target.value))"
+          placeholder="Enter quantity"
+          class="mb-3"
+        />
+        <Input
+          v-else
+          type="number"
+          min="1"
+          :value="amount"
+          @input="(e) => (amount = Number(e.target.value))"
+          placeholder="Enter amount"
+          class="mb-3"
+        />
 
         <!-- 动态交易金额 -->
-        <p class="text-gray-500">交易金额：${{ transactionCost.toFixed(2) }}</p>
+        <p class="font-semibold text-gray-600">
+          Estimated Cost:
+          <span class="text-blue-600">${{ transactionCost.toFixed(2) }}</span>
+        </p>
 
-        <DialogFooter>
-          <Button @click="dialogOpen = false" class="bg-gray-300 text-black">
-            取消
+        <!-- 操作按钮 -->
+        <DialogFooter class="mt-4">
+          <Button
+            @click="dialogOpen = false"
+            class="bg-gray-300 text-gray-800 hover:bg-gray-400"
+          >
+            Cancel
           </Button>
           <Button
             @click="confirmTransaction"
             :class="
               transactionType === 'buy'
-                ? 'bg-green-600 hover:bg-green-700'
-                : 'bg-red-600 hover:bg-red-700'
+                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90'
+                : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:opacity-90'
             "
-            class="text-black"
           >
-            确认
+            Confirm
           </Button>
         </DialogFooter>
       </DialogContent>

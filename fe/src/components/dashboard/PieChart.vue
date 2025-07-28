@@ -115,7 +115,7 @@
         @mouseleave="hoveredSegment = null"
       >
         <div class="mr-2 h-4 w-4 rounded-full bg-blue-500"></div>
-        <span class="text-sm text-gray-600">固定收益投资: 50%</span>
+        <span class="text-sm text-gray-600">Cash: 50%</span>
       </div>
       <div
         class="flex items-center rounded p-2 transition-colors duration-200"
@@ -124,7 +124,7 @@
         @mouseleave="hoveredSegment = null"
       >
         <div class="mr-2 h-4 w-4 rounded-full bg-orange-500"></div>
-        <span class="text-sm text-gray-600">股权投资: 42%</span>
+        <span class="text-sm text-gray-600">Stock Investments: 42%</span>
       </div>
       <div
         class="flex items-center rounded p-2 transition-colors duration-200"
@@ -133,7 +133,7 @@
         @mouseleave="hoveredSegment = null"
       >
         <div class="mr-2 h-4 w-4 rounded-full bg-green-500"></div>
-        <span class="text-sm text-gray-600">商品投资: 8%</span>
+        <span class="text-sm text-gray-600">Fund Investments: 8%</span>
       </div>
     </div>
   </div>
@@ -151,9 +151,9 @@ const data = {
 };
 
 const segmentNames = {
-  fixedIncome: "固定收益",
-  equity: "股权投资",
-  commodity: "商品投资",
+  fixedIncome: "Cash",
+  equity: "Stock Investments",
+  commodity: "Fund Investments",
 };
 
 // 计算圆环各部长度
