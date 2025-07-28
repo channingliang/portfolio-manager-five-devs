@@ -6,6 +6,7 @@ import LitCard from "@/components/dashboard/LitCard.vue";
 import Overview from "@/components/dashboard/Overview.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
 import api from "@/lib/request.js";
+import api from "@/lib/request.js";
 
 // Example API call to fetch data
 api

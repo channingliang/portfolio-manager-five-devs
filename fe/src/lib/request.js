@@ -16,6 +16,8 @@ instance.interceptors.response.use(
   (response) => {
     const res = response.data;
 
+console.log(res);
+
     // If the response code is not 200, treat it as an error
     if (res.code !== 200) {
       return Promise.reject(new Error(res.message || "Error"));
