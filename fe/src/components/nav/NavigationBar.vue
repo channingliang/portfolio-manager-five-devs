@@ -21,6 +21,7 @@ import {
   Bitcoin,
   Ellipsis,
 } from "lucide-vue-next";
+import DepositDrawer from "@/components/nav/DepositDrawer.vue";
 
 const accountStore = useAccountStore();
 
@@ -32,6 +33,7 @@ const balance = ref(99999999999);
     <div
       class="flex min-w-[500px] justify-center rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
     >
+      <DepositDrawer />
       <NavigationMenu class="h-full">
         <NavigationMenuList>
           <NavigationMenuItem>
