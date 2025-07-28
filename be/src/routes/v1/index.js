@@ -2,6 +2,7 @@ const express = require("express");
 
 const { InfoController, AccountController } = require("../../controllers");
 const CashController = require("../../controllers/cashController");
+const TiingoController = require("../../controllers/tiingoController");
 
 const router = express.Router();
 
@@ -21,5 +22,8 @@ router.delete("/account/:id", AccountController.deleteAccount);
 router.post("/cash/deposit", CashController.depositCash);
 router.post("/cash/spend", CashController.spendCash);
 router.get("/cash/account/:account_id", CashController.getCashTransactionsByAccount);
+
+//tiingo数据接口
+router.post("/tiingo", TiingoController.getTiingoData);
 
 module.exports = router;
