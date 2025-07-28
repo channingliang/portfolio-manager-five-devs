@@ -221,12 +221,6 @@ const confirmTransaction = () => {
                   >
                     买入
                   </Button>
-                  <Button
-                    class="bg-red-600 text-black hover:bg-red-700"
-                    @click="openTransaction(stock, 'sell')"
-                  >
-                    卖出
-                  </Button>
                 </TableCell>
               </TableRow>
             </TableBody>

@@ -18,6 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 
 const accountStore = useAccountStore();
 
@@ -163,6 +164,22 @@ const confirmTransaction = () => {
 
   dialogOpen.value = false;
 };
+
+// 计算持仓详情（过滤掉股数为 0 的）
+const holdingsList = computed(() => {
+  return Object.entries(holdings.value)
+    .filter(([_, qty]) => qty > 0) // 只保留大于 0 的持仓
+    .map(([code, qty]) => {
+      const stock = allStocks.value.find((s) => s.code === code);
+      return {
+        code,
+        name: stock?.name || "未知",
+        price: stock?.price || 0,
+        quantity: qty,
+        total: (stock?.price || 0) * qty,
+      };
+    });
+});
 </script>
 
 <template>
@@ -195,6 +212,56 @@ const confirmTransaction = () => {
         </button>
       </div>
 
+      <!-- 我的持仓 -->
+      <Card class="mb-8 w-full">
+        <CardContent>
+          <h2 class="mb-4 text-lg font-bold">我的持仓</h2>
+          <div v-if="holdingsList.length > 0">
+            <Table class="w-full">
+              <TableHeader>
+                <TableRow>
+                  <TableHead>股票代码</TableHead>
+                  <TableHead>股票名称</TableHead>
+                  <TableHead class="text-right">持有股数</TableHead>
+                  <TableHead class="text-right">当前价格</TableHead>
+                  <TableHead class="text-right">总价值</TableHead>
+                  <TableHead class="text-center">操作</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                <TableRow v-for="item in holdingsList" :key="item.code">
+                  <TableCell>{{ item.code }}</TableCell>
+                  <TableCell>{{ item.name }}</TableCell>
+                  <TableCell class="text-right">{{ item.quantity }}</TableCell>
+                  <TableCell class="text-right">${{ item.price }}</TableCell>
+                  <TableCell class="text-right"
+                    >${{ item.total.toFixed(2) }}</TableCell
+                  >
+                  <TableCell class="text-center">
+                    <Button
+                      class="bg-red-600 text-black hover:bg-red-700"
+                      @click="
+                        openTransaction(
+                          {
+                            code: item.code,
+                            name: item.name,
+                            price: item.price,
+                          },
+                          'sell',
+                        )
+                      "
+                    >
+                      卖出
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              </TableBody>
+            </Table>
+          </div>
+          <div v-else class="text-gray-500">暂无持仓</div>
+        </CardContent>
+      </Card>
+
       <!-- 股票信息表格，全宽 -->
       <Card class="w-full">
         <CardContent>
@@ -220,12 +287,6 @@ const confirmTransaction = () => {
                     @click="openTransaction(stock, 'buy')"
                   >
                     买入
-                  </Button>
-                  <Button
-                    class="bg-red-600 text-black hover:bg-red-700"
-                    @click="openTransaction(stock, 'sell')"
-                  >
-                    卖出
                   </Button>
                 </TableCell>
               </TableRow>
