@@ -22,14 +22,19 @@ import {
   Ellipsis,
 } from "lucide-vue-next";
 import TopUpDrawer from "@/components/nav/TopUpDrawer.vue";
+import api from "@/lib/request.js";
 
 const accountStore = useAccountStore();
 
 const drawerOpen = ref(false);
+
+api.get("account/3").then((res) => {
+  accountStore.setBalance(res.balance);
+});
 </script>
 
 <template>
-  <nav class="fixed top-6 z-999 flex h-12 w-full justify-center border">
+  <nav class="fixed top-6 z-999 flex h-12 w-full justify-center">
     <div
       class="flex min-w-[500px] justify-center rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
     >
@@ -59,7 +64,8 @@ const drawerOpen = ref(false);
                         >
                           <ChartCandlestick
                             class="text-muted-foreground mr-1 size-5"
-                          />Stock
+                          />
+                          Stock
                         </div>
                         <p
                           class="text-muted-foreground line-clamp-2 text-sm leading-snug"
@@ -81,7 +87,8 @@ const drawerOpen = ref(false);
                         >
                           <HandCoins
                             class="text-muted-foreground mr-1 size-5"
-                          />Fund
+                          />
+                          Fund
                         </div>
                         <p
                           class="text-muted-foreground line-clamp-2 text-sm leading-snug"
@@ -101,9 +108,8 @@ const drawerOpen = ref(false);
                         <div
                           class="inline-flex items-center text-sm leading-none"
                         >
-                          <Bitcoin
-                            class="text-muted-foreground mr-1 size-5"
-                          />Crypto
+                          <Bitcoin class="text-muted-foreground mr-1 size-5" />
+                          Crypto
                         </div>
                         <p
                           class="text-muted-foreground line-clamp-2 text-sm leading-snug"
@@ -122,7 +128,8 @@ const drawerOpen = ref(false);
                       <div
                         class="text-muted-foreground inline-flex items-center text-sm leading-none"
                       >
-                        <Ellipsis class="mr-1 size-5" />Coming Soon
+                        <Ellipsis class="mr-1 size-5" />
+                        Coming Soon
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
@@ -144,7 +151,11 @@ const drawerOpen = ref(false);
                 <span
                   ><Wallet class="text-muted-foreground mr-1 size-4 stroke-2"
                 /></span>
-                <span class="mr-2">${{ accountStore.balance }}</span>
+                <span class="mr-2"
+                  >${{
+                    accountStore.balance == null ? "-" : accountStore.balance
+                  }}</span
+                >
               </div>
             </NavigationMenuTrigger>
             <NavigationMenuContent>
@@ -175,7 +186,8 @@ const drawerOpen = ref(false);
                       >
                         <BanknoteArrowUp
                           class="text-muted-foreground mr-1 size-5"
-                        />Top Up
+                        />
+                        Top Up
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"
@@ -196,7 +208,8 @@ const drawerOpen = ref(false);
                       >
                         <BanknoteArrowDown
                           class="text-muted-foreground mr-1 size-5"
-                        />Withdraw
+                        />
+                        Withdraw
                       </div>
                       <p
                         class="text-muted-foreground line-clamp-2 text-sm leading-snug"

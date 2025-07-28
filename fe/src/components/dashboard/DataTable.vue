@@ -37,7 +37,7 @@ api
     该模板用于渲染交易历史表格。
     外层 div 增加卡片效果，白色背景、圆角和阴影。
   -->
-  <div class="rounded-lg bg-white p-6 shadow">
+  <div class="p-6">
     <Table>
       <TableCaption>A list of your transaction history.</TableCaption>
       <TableHeader>

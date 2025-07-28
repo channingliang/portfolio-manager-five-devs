@@ -1,5 +1,5 @@
 <template>
-  <div class="mx-auto w-full max-w-md rounded-lg bg-white p-6 shadow">
+  <div class="mx-auto w-full max-w-md  p-6">
     <h3 class="mb-4 text-lg font-semibold text-gray-800">Portfolio Analysis</h3>
 
     <!-- 环形图容器 -->

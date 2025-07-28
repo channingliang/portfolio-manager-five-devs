@@ -54,7 +54,7 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 // 手动注册 Cash 模型（如果上面没自动读到）
-const Cash = require("./Cash")(sequelize, Sequelize.DataTypes);
+const Cash = require("./cash")(sequelize, Sequelize.DataTypes);
 db.Cash = Cash;
 
 module.exports = db;

@@ -1,5 +1,5 @@
 <template>
-  <div class="rounded-lg bg-white p-4 shadow-sm">
+  <div class="p-4">
     <!-- 标题 -->
     <h2 class="mb-4 text-xl font-semibold text-gray-900">Account Overview</h2>
 
@@ -28,7 +28,7 @@
       </div>
 
       <!-- 金额 -->
-      <div class="text-2xl font-bold text-gray-900">￥386,524.85</div>
+      <div class="font-bold text-gray-900">￥386,524.85</div>
     </div>
   </div>
 </template>

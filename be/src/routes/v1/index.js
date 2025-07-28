@@ -1,8 +1,6 @@
 const express = require("express");
 
-const { InfoController, AccountController } = require("../../controllers");
-const CashController = require("../../controllers/cashController");
-const TiingoController = require("../../controllers/tiingoController");
+const { InfoController, AccountController, CashController, TiingoController } = require("../../controllers");
 
 const router = express.Router();
 

@@ -15,11 +15,8 @@ const instance = axios.create({
 instance.interceptors.response.use(
   (response) => {
     const res = response.data;
-
-console.log(res);
-
     // If the response code is not 200, treat it as an error
-    if (res.code !== 200) {
+    if (![200, 201].includes(res.code)) {
       return Promise.reject(new Error(res.message || "Error"));
     }
     return res.data; // Return only the core data
