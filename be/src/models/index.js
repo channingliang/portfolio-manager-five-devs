@@ -55,6 +55,11 @@ db.Sequelize = Sequelize;
 
 // 手动注册 Cash 模型（如果上面没自动读到）
 const Cash = require("./cash")(sequelize, Sequelize.DataTypes);
+const PortfolioHolding = require("./portfolio-holding")(sequelize, Sequelize.DataTypes);
+const PortfolioTransaction = require("./portfolio-transaction")(sequelize, Sequelize.DataTypes);
+
 db.Cash = Cash;
+db.PortfolioHolding = PortfolioHolding;
+db.PortfolioTransaction = PortfolioTransaction;
 
 module.exports = db;
