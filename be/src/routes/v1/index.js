@@ -1,8 +1,8 @@
 const express = require("express");
 
 const { InfoController, AccountController, CashController, TiingoController } = require("../../controllers");
-const PortfolioHoldingController = require("../../controllers/portfolioHoldingController");
-const PortfolioTransactionController = require("../../controllers/portfolioTransactionController");
+const PortfolioHoldingController = require("../../controllers/portfolio-holding-controller");
+const PortfolioTransactionController = require("../../controllers/portfolio-transaction-controller");
 
 const router = express.Router();
 

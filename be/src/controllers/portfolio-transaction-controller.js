@@ -38,6 +38,15 @@ const createPortfolioTransaction = async (req, res) => {
             occurred_at: new Date()
         });
 
+        newHolding = await db.PortfolioHolding.create({
+            account_id,
+            ticker,
+            ticker_type,
+            quantity,
+            created_at: new Date(),
+            updated_at: new Date()
+        });
+
         const responseData = {
             portfolio_transaction_id: newTransaction.portfolio_transaction_id,
             account_id: newTransaction.account_id,

@@ -1,8 +1,8 @@
 module.exports = {
   InfoController: require("./info-controller"),
-  AccountController: require("./accountController"),
-  CashController: require("./cashController"),
-  PortfolioHoldingController: require("./portfolioHoldingController"),
-  PortfolioTransactionController: require("./portfolioTransactionController"),
+  AccountController: require("./account-controller"),
+  CashController: require("./cash-controller"),
+  PortfolioHoldingController: require("./portfolio-holding-controller"),
+  PortfolioTransactionController: require("./portfolio-transaction-controller"),
   TiingoController: require("./tiingoController")
 };
