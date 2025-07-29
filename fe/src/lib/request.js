@@ -3,7 +3,7 @@ import axios from "axios";
 // Read Tiingo token and API base URL from environment variables (Vite project)
 const TIINGO_TOKEN = import.meta.env.VITE_TIINGO_TOKEN;
 const TIINGO_API = import.meta.env.VITE_TIINGO_API;
-const BE_API = import.meta.env.BE_API;
+const BE_API = import.meta.env.VITE_BE_API;
 
 // Create an axios instance with base URL and timeout for your local API
 const instance = axios.create({
@@ -15,11 +15,8 @@ const instance = axios.create({
 instance.interceptors.response.use(
   (response) => {
     const res = response.data;
-
-console.log(res);
-
     // If the response code is not 200, treat it as an error
-    if (res.code !== 200) {
+    if (![200, 201].includes(res.code)) {
       return Promise.reject(new Error(res.message || "Error"));
     }
     return res.data; // Return only the core data

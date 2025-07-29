@@ -4,4 +4,5 @@ module.exports = {
   CashController: require("./cashController"),
   PortfolioHoldingController: require("./portfolioHoldingController"),
   PortfolioTransactionController: require("./portfolioTransactionController"),
+  TiingoController: require("./tiingoController")
 };

@@ -4,7 +4,7 @@ import api from "@/lib/request.js";
 // Define a store for user info, including wallet balance
 export const useAccountStore = defineStore("account", {
   state: () => ({
-    balance: 0, // Wallet balance
+    balance: null, // Wallet balance
   }),
   actions: {
     setBalance(amount) {

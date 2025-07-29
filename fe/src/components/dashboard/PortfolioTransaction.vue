@@ -22,7 +22,7 @@ const trades = ref([
 
 <template>
   <div class="medium w-full">
-    <Card class="w-full max-w-full rounded-2xl shadow-md">
+    <Card class="w-full max-w-full shadow-md">
       <CardHeader>
         <CardTitle class="text-lg text-gray-700">
           Portfolio Transaction

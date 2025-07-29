@@ -1,33 +1,22 @@
 <script setup>
-import CustomCard from "@/components/dashboard/CustomCard.vue";
 import Portfolio from "@/components/dashboard/PortfolioCard.vue";
 import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vue";
 import DataTable from "@/components/dashboard/DataTable.vue";
 import LitCard from "@/components/dashboard/LitCard.vue";
 import Overview from "@/components/dashboard/Overview.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
-import api from "@/lib/request.js";
-
-// Example API call to fetch data
-api.get("/account/12")
-  .then((response) => {
-    console.log("Dashboard data:", response.data);
-  })
-  .catch((error) => {
-    console.error("Error fetching dashboard data:", error);
-  });
 </script>
 
 <template>
   <!-- 整体容器，高度占满屏幕 -->
   <div
-    class="to-grey-100 flex flex-col gap-4 bg-gradient-to-b from-gray-50 p-6"
+    class="flex flex-col gap-8"
   >
     <!-- 上半部分：三栏，高度固定 -->
-    <div class="grid h-[400px] grid-cols-3 gap-4">
+    <div class="grid h-[calc(100vh-120px)] grid-cols-3 gap-8">
       <!-- 左侧 -->
       <div
-        class="group via-sky-10 from-grey-50 to-grey-100 overflow-y-auto rounded-2xl bg-gradient-to-br p-6 shadow-md transition-all duration-300"
+        class="overflow-y-auto p-6 "
       >
         <LitCard />
         <DataTable />
@@ -35,14 +24,14 @@ api.get("/account/12")
 
       <!-- 中间：Portfolio Assets -->
       <div
-        class="group via-sky-10 from-grey-50 to-grey-100 overflow-y-auto rounded-2xl bg-gradient-to-br p-6 shadow-md transition-all duration-300"
+        class="overflow-y-auto p-6"
       >
         <Portfolio />
       </div>
 
       <!-- 右侧 -->
       <div
-        class="group from-grey-50 to-grey-100 overflow-y-auto rounded-2xl bg-gradient-to-br p-6 shadow-md transition-all duration-300"
+          class="overflow-y-auto p-6"
       >
         <PieChart />
         <Overview />
@@ -51,12 +40,11 @@ api.get("/account/12")
 
     <!-- 下半部分：交易历史，自适应剩余空间 -->
     <div
-      class="group via-sky-10 from-grey-50 to-grey-100 flex-1 overflow-y-auto rounded-lg bg-gradient-to-br p-4 shadow-md transition-all duration-300"
+      class="flex-1 overflow-y-auto p-4 "
     >
       <PortfolioTransaction />
     </div>
   </div>
-  <div class=""></div>
 </template>
 
 <style scoped>

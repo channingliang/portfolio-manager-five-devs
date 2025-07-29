@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full rounded-lg bg-white p-6 shadow">
+  <div class="w-full  p-6">
     <h3 class="mb-6 text-lg font-semibold text-gray-800">Portfolio Overview</h3>
 
     <!-- 统计卡片 -->
