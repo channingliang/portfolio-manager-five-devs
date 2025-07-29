@@ -89,7 +89,7 @@ const getPortfolioHoldingById = async (req, res) => {
 
         if (!holding) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                code: false,
+                code: StatusCodes.NOT_FOUND,
                 msg: `未找到 ID 为 ${id} 的投资组合持仓`
             });
         }
