@@ -17,7 +17,7 @@ const transactionHistory = ref([]);
 api
   .get("/cash/account/3")
   .then((response) => {
-    transactionHistory.value = response.data; //.data->.value
+    transactionHistory.value = response; //.data->.value
     console.log("Dashboard data:", response);
   })
   .catch((error) => {
