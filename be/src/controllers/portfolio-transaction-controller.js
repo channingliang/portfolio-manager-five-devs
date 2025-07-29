@@ -16,8 +16,8 @@ const createPortfolioTransaction = async (req, res) => {
         // 验证必要字段
         if (!account_id || !ticker || ticker_type === undefined || !transaction_type || !quantity || !price_per_unit) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                message: '缺少必要字段: account_id、ticker、ticker_type、transaction_type、quantity、price_per_unit 是必需的',
+                code: StatusCodes.BAD_REQUEST,
+                msg: '缺少必要字段: account_id、ticker、ticker_type、transaction_type、quantity、price_per_unit 是必需的',
                 error: {}
             });
         }
@@ -60,16 +60,16 @@ const createPortfolioTransaction = async (req, res) => {
         };
 
         return res.status(StatusCodes.CREATED).json({
-            success: true,
-            message: '投资组合交易创建成功',
+            code: StatusCodes.CREATED,
+            msg: '投资组合交易创建成功',
             data: responseData
         });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '创建投资组合交易失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '创建投资组合交易失败',
+            error: error.msg
         });
     }
 };
@@ -83,8 +83,8 @@ const getPortfolioTransactionById = async (req, res) => {
 
         if (!transaction) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合交易`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合交易`
             });
         }
 
@@ -102,16 +102,16 @@ const getPortfolioTransactionById = async (req, res) => {
         };
 
         return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `查询 ID 为 ${id} 的投资组合交易成功`,
+            code: StatusCodes.OK,
+            msg: `查询 ID 为 ${id} 的投资组合交易成功`,
             data: responseData
         });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '获取投资组合交易失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '获取投资组合交易失败',
+            error: error.msg
         });
     }
 };
@@ -130,8 +130,8 @@ const updatePortfolioTransaction = async (req, res) => {
 
         if (!transaction) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合交易`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合交易`
             });
         }
 
@@ -176,8 +176,8 @@ const updatePortfolioTransaction = async (req, res) => {
         }
 
         return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `投资组合交易 ${id} 更新成功`,
+            code: StatusCodes.OK,
+            msg: `投资组合交易 ${id} 更新成功`,
             data: {
                 portfolio_transaction_id: transaction.portfolio_transaction_id,
                 total_amount: parseFloat(total_amount)
@@ -186,9 +186,9 @@ const updatePortfolioTransaction = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: `更新投资组合交易 ${id} 失败`,
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: `更新投资组合交易 ${id} 失败`,
+            error: error.msg
         });
     }
 };
@@ -202,8 +202,8 @@ const deletePortfolioTransaction = async (req, res) => {
 
         if (!transaction) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合交易`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合交易`
             });
         }
 
@@ -211,8 +211,8 @@ const deletePortfolioTransaction = async (req, res) => {
 
         if (!holding) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合持仓`
             });
         }
 
@@ -221,15 +221,15 @@ const deletePortfolioTransaction = async (req, res) => {
 
 
         return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `投资组合交易 ${id} 删除成功`
+            code: StatusCodes.OK,
+            msg: `投资组合交易 ${id} 删除成功`
         });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '删除投资组合交易失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '删除投资组合交易失败',
+            error: error.msg
         });
     }
 };

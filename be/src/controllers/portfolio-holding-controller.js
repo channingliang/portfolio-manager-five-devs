@@ -15,8 +15,8 @@ const createPortfolioHolding = async (req, res) => {
         // 验证必要字段
         if (!account_id || !ticker || ticker_type === undefined || quantity === undefined) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                message: '缺少必要字段: account_id、ticker、ticker_type、quantity 是必需的',
+                code: false,
+                msg: '缺少必要字段: account_id、ticker、ticker_type、quantity 是必需的',
                 error: {}
             });
         }
@@ -28,8 +28,8 @@ const createPortfolioHolding = async (req, res) => {
 
         if (existingHolding) {
             return res.status(StatusCodes.CONFLICT).json({
-                success: false,
-                message: `该账户已存在 ${ticker} 的持仓记录`,
+                code: false,
+                msg: `该账户已存在 ${ticker} 的持仓记录`,
                 error: {}
             });
         }
@@ -66,16 +66,16 @@ const createPortfolioHolding = async (req, res) => {
         };
 
         return res.status(StatusCodes.CREATED).json({
-            success: true,
-            message: '投资组合持仓创建成功',
+            code: StatusCodes.CREATED,
+            msg: '投资组合持仓创建成功',
             data: responseData
         });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '创建投资组合持仓失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '创建投资组合持仓失败',
+            error: error.msg
         });
     }
 };
@@ -89,8 +89,8 @@ const getPortfolioHoldingById = async (req, res) => {
 
         if (!holding) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
+                code: false,
+                msg: `未找到 ID 为 ${id} 的投资组合持仓`
             });
         }
 
@@ -107,16 +107,16 @@ const getPortfolioHoldingById = async (req, res) => {
         };
 
         return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `获取${id}投资组合持仓`,
+            code: StatusCodes.OK,
+            msg: `获取${id}投资组合持仓`,
             data: responseData
         });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '获取投资组合持仓失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '获取投资组合持仓失败',
+            error: error.msg
         });
     }
 };
@@ -129,8 +129,8 @@ const updatePortfolioHolding = async (req, res) => {
 
         if (quantity === undefined) {
             return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                message: '缺少必要字段: quantity 是必需的',
+                code: StatusCodes.BAD_REQUEST,
+                msg: '缺少必要字段: quantity 是必需的',
                 error: {}
             });
         }
@@ -139,8 +139,8 @@ const updatePortfolioHolding = async (req, res) => {
 
         if (!holding) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合持仓`
             });
         }
 
@@ -178,8 +178,8 @@ const updatePortfolioHolding = async (req, res) => {
         }
 
         return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `投资组合持仓${id}更新成功`,
+            code: StatusCodes.OK,
+            msg: `投资组合持仓${id}更新成功`,
             data: {
                 portfolio_holding_id: holding.portfolio_holding_id,
                 ticker: holding.ticker,
@@ -190,9 +190,9 @@ const updatePortfolioHolding = async (req, res) => {
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '更新投资组合持仓失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '更新投资组合持仓失败',
+            error: error.msg
         });
     }
 };
@@ -206,8 +206,8 @@ const deletePortfolioHolding = async (req, res) => {
 
         if (!holding) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合持仓`
             });
         }
 
@@ -215,8 +215,8 @@ const deletePortfolioHolding = async (req, res) => {
 
         if (!transaction) {
             return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合交易`
+                code: StatusCodes.NOT_FOUND,
+                msg: `未找到 ID 为 ${id} 的投资组合交易`
             });
         }
 
@@ -225,15 +225,15 @@ const deletePortfolioHolding = async (req, res) => {
         await holding.destroy();
 
         return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `删除 ID 为 ${id} 的投资组合持仓成功`
+            code: StatusCodes.OK,
+            msg: `删除 ID 为 ${id} 的投资组合持仓成功`
         });
     } catch (error) {
         console.error(error);
         return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '删除投资组合持仓失败',
-            error: error.message
+            code: StatusCodes.INTERNAL_SERVER_ERROR,
+            msg: '删除投资组合持仓失败',
+            error: error.msg
         });
     }
 };
