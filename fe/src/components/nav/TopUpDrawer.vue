@@ -101,9 +101,9 @@ const step2Text = computed(() => {
 
 const step3Text = computed(() => {
   if (accordionValue.value === STEP4 || processDone.value) {
-    return "Process finished.";
+    return "Process finished";
   }
-  return "Processing your request...";
+  return "Request process";
 });
 
 const step4Text = computed(() => {
@@ -229,7 +229,7 @@ watch(
 <template>
   <Drawer v-model:open="modelValue">
     <DrawerContent>
-      <div class="mx-auto h-full min-w-2xl pt-8 pb-16">
+      <div class="mx-auto h-full min-w-2xl pt-8">
         <DrawerHeader>
           <DrawerTitle>Top Up</DrawerTitle>
           <DrawerDescription>
@@ -241,7 +241,7 @@ watch(
         <div class="px-4">
           <Accordion
             type="single"
-            class="mx-auto w-full rounded-2xl bg-white p-4 shadow-lg"
+            class="mx-auto mb-16 w-full rounded-2xl bg-white p-4 shadow-lg"
             collapsible
             v-model="accordionValue"
           >
@@ -346,9 +346,7 @@ watch(
                   class="flex min-h-[120px] flex-col items-center justify-center py-8"
                 >
                   <Loader2 class="mb-2 h-10 w-10 animate-spin text-blue-500" />
-                  <div class="text-base text-blue-500">
-                    Please wait while we process your request...
-                  </div>
+                  <div>Please wait while we process your request...</div>
                 </div>
               </AccordionContent>
             </AccordionItem>
@@ -367,29 +365,28 @@ watch(
               </AccordionTrigger>
               <AccordionContent>
                 <div
-                  class="flex min-h-[120px] flex-col items-center justify-center py-8"
+                  class="flex min-h-[80px] flex-col items-center justify-center py-2"
                 >
                   <template v-if="apiResult === true">
-                    <Check class="mb-2 h-16 w-16 text-green-500" />
                     <div class="mb-2 text-xl font-semibold text-green-600">
-                      Deposit Successful!
+                      Top Up Successful!
                     </div>
                     <div class="text-gray-500">
-                      You have successfully added €{{ topupAmount }} to your
-                      wallet.
+                      You have added
+                      <span class="font-black">${{ topupAmount }}</span> to your
+                      wallet
                     </div>
                   </template>
                   <template v-else-if="apiResult === false">
-                    <X class="mb-2 h-16 w-16 text-red-500" />
                     <div class="mb-2 text-xl font-semibold text-red-600">
-                      Deposit Failed
+                      Top Up Failed
                     </div>
                     <div class="text-gray-500">
                       {{ processMessage }}
                     </div>
                   </template>
                   <Button
-                    class="mt-6 w-24"
+                    class="mt-4 w-24"
                     variant="outline"
                     @click="closeDrawer"
                   >
