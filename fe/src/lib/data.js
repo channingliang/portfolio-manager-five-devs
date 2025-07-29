@@ -1,9 +1,8 @@
 // dashboard 饼状图数据
 export const pieChartData = [
-  { name: "A", value: 40 },
-  { name: "B", value: 30 },
-  { name: "C", value: 20 },
-  { name: "D", value: 10 },
+  { value: 40, name: "stock" },
+  { value: 30, name: "cash" },
+  { value: 20, name: "crypto" },
 ];
 
 export const lineChartData = [
