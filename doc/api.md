@@ -1,76 +1,77 @@
-## Account Module
+# API Documentation
 
-### Create Account
+## RESTful API
+- GET: `/{resource}/{id}`
+- POST: `/{resource}`
+- DELETE: `/{resource}/{id}`
+- PATCH: `/{resource}/{id}`
 
-#### URL
+## Portfolio Module
 
-```http
-POST /account
-```
+### Holding
+### create portfolio
 
-#### Request
+`POST /portfolio/holding`
 
 ```json
 {
-  "name": "string",
-  "currency": "number"
+  "account_id": "number",
+  "ticker": "string",
+  "ticker_type": "number",
+  "transaction_type": "number",
+  "quantity": "number",
+  "price_per_unit": "number"
+  
 }
 ```
 Response:
 
 {
-  "code": 200,
-  "msg": "Account create successfully.",
-    "data": {
-        "user_id": 1,
-        "name": "Alice",
-        "currency": "USD",
-        "balance": 0.00,
-        "created_at": "2025-07-24T10:00:00"
-    }
+  "code" = 201,
+  "message" = "创建投资组合持仓成功",
+  "data": {
+    "portfolio_holding_id": 1,
+    "account_id": 1,
+    "ticker": "Alice",
+    "ticker_type": 1,
+    "quantity": 0.00,
+    "created_at": "2025-07-24T10:00:00",
+    "updated_at": "2025-07-24T10:10:00"
+  }
 }
 
 #### URL
 
-```http
-GET /account/{id}
-```
+### get portfolio holding
 
-#### Request
+`GET /portfolio/holding/{id}`
 
 ```json
-{
-  "id": "number"
-}
+{}
 ```
 Response:
 {
-    "code": 200,
-    "msg": "获取账户信息成功",
-    "data": {
-        "user_id": 10,
-        "name": "li",
-        "currency": "USD",
-        "balance": 0,
-        "created_at": "2025-07-25T05:24:42.000Z",
-        "updated_at": null
-    }
-}
-
-{
-    "code": 404,
-    "msg": "未找到 ID 为 101 的账户",
-    "data": {}
+  "code" = 200,
+  "message" = "获取投资组合持仓成功",
+  data: {
+    "portfolio_holding_id": 1,
+    "account_id": 1,
+    "ticker": "Alice",
+    "ticker_type": 1,
+    "quantity": 0.00,
+    "created_at": "2025-07-24T10:00:00",
+    "updated_at": "2025-07-24T10:10:00"
+  }
 }
 
 
-#### delete account
+#### update portfolio holding
 
-`DELETE /account/{id}`
+`PATCH /portfolio/holding/{id}`
 
 ```json
 {
-  "id": "number"
+  "quantity": "number"
 }
 ```
 
@@ -78,110 +79,126 @@ Response:
 
 ```json
 {
-    "code": 200,
-    "msg": "Account deleted successfully.",
-    "data": {}
+  "code" = 200,
+  "message" = "更新投资组合持仓${id}成功",
+  "data": {
+    "portfolio_holding_id": 1,
+    "ticker": "Alice",
+    "quantity": 0.00,
+    "updated_at": "2025-07-24T10:10:00"
+  }
 }
-```
 
-### Deposit Cash
 
-#### URL
+#### delete portfolio holding
 
-Deposit cash
-
-POST /cash/deposit 
+`DELETE /portfolio/holding/{id}`
 
 ```json
-{
-  "account_id": 1,
-  "type": 1,
-  "amount": 200.00,
-  "description": "Initial deposit"
-}
+{}
 ```
-
-#### Response
-
-Response:（type=1表示存款，已对边界值判断逻辑进行了完善）
-
+Response:
 {
-    "code": 201,
-    "msg": "存款交易成功",
-    "data": {
-        "transaction_id": 10,
-        "account_id": 9,
-        "type": 1,
-        "amount": 200,
-        "description": "Initial deposit",
-        "occurred_at": "2025-07-25T07:13:40.797Z",
-        "current_balance": 350
-    }
+  success: true,
+  message: `投资组合持仓 ${id} 删除成功`,
 }
-{
-    "code": 404,
-    "msg": "用户不存在。",
-    "data": {}
-}
-Spend cash
 
-POST /cash/spend
+
+
+### Transaction
+### create Transaction
+
+`POST /transaction`
 
 Request Body:
-
+```json
 {
-  "account_id": 1,
-  "amount": 50.00,
-  "description": "Purchase of book"
+  "account_id": "number",
+  "ticker": "string",
+  "ticker_type": "number",
+  "transaction_type": "number",
+  "quantity": "number",
+  "price_per_unit": "number",
+  "cash_transaction_id": "number"
 }
-
-Response:（type=2表示支出,已对边界值判断逻辑进行了完善）
-
-{
-    "code": 201,
-    "msg": "支出交易成功",
-    "data": {
-        "transaction_id": 16,
-        "account_id": 9,
-        "type": 2,
-        "amount": 50,
-        "description": "Purchase of book",
-        "occurred_at": "2025-07-25T07:18:20.097Z",
-        "current_balance": 201
-    }
-}
-{
-    "code": 400,
-    "msg": "余额不足，无法完成支出。",
-    "data": {}
-}
-
-Query cash transactions by account
-
-GET /cash/account/{account_id}
 ```
-
-#### Response
-
 Response:
 {
-    "code": 200,
-    "msg": "获取交易记录成功",
-    "data": [
-        {
-            "cash_account_id": 8,
-            "type": 1,
-            "amount": "200.00",
-            "description": "Initial deposit",
-            "occurred_at": "2025-07-25T05:23:44.000Z"
-        },
-        {
-            "cash_account_id": 9,
-            "type": 2,
-            "amount": "50.00",
-            "description": "Purchase of book",
-            "occurred_at": "2025-07-25T05:24:09.000Z"
-        }
-    ]
+  "code" = 201,
+  "message" = "投资组合交易创建成功",
+  "data": {
+    "portfolio_holding_id": 1,
+    "account_id": 1,
+    "ticker": "Alice",
+    "ticker_type": 1,
+    "transaction_type": 1,
+    "quantity": 0.00,
+    "price_per_unit": 0.00,
+    "total_amount": 0.00,
+    "occurred_at": "2025-07-24T10:00:00"
+  }
 }
 
+
+### get portfolio transaction
+
+`GET /portfolio/transaction/{id}`
+
+```json
+{}
+```
+Response:
+{
+  "code" = 200,
+  "message" = "获取投资组合持仓成功",
+  data: {
+    "portfolio_holding_id": 1,
+    "account_id": 1,
+    "ticker": "Alice",
+    "ticker_type": 1,
+    "transaction_type": 1,
+    "quantity": 0.00,
+    "created_at": "2025-07-24T10:00:00",
+    "updated_at": "2025-07-24T10:10:00",
+    "price_per_unit": 0.00,
+    "total_amount": 0.00,
+    "cash_transaction_id": 1,
+    "occurred_at": "2025-07-24T10:00:00" 
+  }
+}
+
+
+#### update portfolio transaction
+
+`PATCH /portfolio/transaction/{id}`
+
+```json
+{
+  "price_per_unit": "number",
+  "quantity": "number",
+  "cash_transaction_id": "number"
+}
+```
+Response:
+{
+  "code" = 200,
+  "message" = "更新投资组合交易${id}成功",
+  "data": {
+    "portfolio_holding_id": 1,
+    "total_amount": 0.00
+  }
+}
+
+
+#### delete portfolio transaction
+
+`DELETE /portfolio/transaction/{id}`
+
+```json
+{}
+```
+Response:
+{
+  success: true,
+  message: `投资组合交易 ${id} 删除成功`,
+}
