@@ -1,7 +1,7 @@
 <script setup>
 import { useAccountStore } from "@/stores/account.js";
 import { Button } from "@/components/ui/button/index.js";
-import { ref, computed, onMounted, nextTick } from "vue";
+import { ref, computed, onMounted, nextTick, watch } from "vue";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { use } from "echarts/core";
 import * as echarts from "echarts";
+import api from "@/lib/request.js";
 
 const accountStore = useAccountStore();
 
