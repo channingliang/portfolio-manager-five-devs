@@ -1,7 +1,7 @@
 <script setup>
 import { useAccountStore } from "@/stores/account.js";
 import { Button } from "@/components/ui/button/index.js";
-import { ref, computed, onMounted, nextTick, watch } from "vue";
+import { ref, computed, onMounted, nextTick } from "vue";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Table,
@@ -19,12 +19,12 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { use } from "echarts/core";
 import * as echarts from "echarts";
 import api from "@/lib/request.js";
 
 const accountStore = useAccountStore();
 
+// 刷新余额按钮（测试用）
 const updateBalance = () => {
   accountStore.setBalance(9999999.99);
 };
@@ -32,40 +32,73 @@ const updateBalance = () => {
 // 用户持仓（股票代码 -> 股数）
 const holdings = ref({});
 
-// 模拟股票数据（每个股票附带K线数据）
-const generateKLineData = () => {
-  const basePrice = 100 + Math.random() * 200;
-  const days = 30;
-  const categoryData = [];
-  const values = [];
-
-  for (let i = 0; i < days; i++) {
-    const date = `2024/07/${(i + 1).toString().padStart(2, "0")}`;
-    const open = +(basePrice + Math.random() * 20 - 10).toFixed(2);
-    const close = +(open + Math.random() * 20 - 10).toFixed(2);
-    const low = +(Math.min(open, close) - Math.random() * 5).toFixed(2);
-    const high = +(Math.max(open, close) + Math.random() * 5).toFixed(2);
-    categoryData.push(date);
-    values.push([open, close, low, high]);
-  }
-  return { categoryData, values };
-};
-
-const allStocks = ref(
-  [
-    { code: "AAPL", name: "苹果公司", industry: "科技", price: 175.6 },
-    { code: "TSLA", name: "特斯拉", industry: "汽车", price: 225.3 },
-    { code: "AMZN", name: "亚马逊", industry: "电商", price: 135.8 },
-    { code: "BABA", name: "阿里巴巴", industry: "电商", price: 95.2 },
-  ].map((stock) => ({ ...stock, kline: generateKLineData() })),
-); // 每个股票生成K线数据
+// 股票列表（API获取）
+const allStocks = ref([]);
 
 // 搜索逻辑
 const searchInput = ref("");
 const searchQuery = ref("");
+const loading = ref(false);
+const processMessage = ref("");
 
+// const handleSearch = () => {
+//   searchQuery.value = searchInput.value.trim();
+//   if (!searchQuery.value) return;
+
+//   loading.value = true;
+//   api
+//     .post("/tiingo", {
+//       ticker: searchQuery.value,
+//       startDate: "2025-01-01T00:00:00.000Z",
+//       endDate: "2025-07-28T23:59:59.999Z",
+//       sort: "DESC",
+//     })
+//     .then((res) => {
+//       allStocks.value = (res || []).map((item) => ({
+//         ticker: item.ticker,
+//         name: item.name,
+//         price: "--", // 等待 EOD 数据填充
+//         kline: [],
+//       }));
+//       // 拉取每只股票最新价格
+//       allStocks.value.forEach((stock) => fetchEODData(stock, true));
+//     })
+//     .catch((e) => {
+//       processMessage.value = e?.message || "Search failed.";
+//       console.error("Search error:", e);
+//     })
+//     .finally(() => {
+//       loading.value = false;
+//     });
+// };
+
+// 使用 mock 数据模拟搜索
+import { mockStocks } from "@/lib/api.js";
 const handleSearch = () => {
   searchQuery.value = searchInput.value.trim();
+  if (!searchQuery.value) return;
+
+  loading.value = true;
+
+  // 模拟 API 查询逻辑
+  setTimeout(() => {
+    // 模拟根据 searchQuery 过滤
+    const result = mockStocks.filter((stock) =>
+      stock.ticker.toLowerCase().includes(searchQuery.value.toLowerCase()),
+    );
+
+    allStocks.value = result.map((item) => ({
+      ticker: item.ticker,
+      name: item.name,
+      price: item.price || "--", // 直接用 mock 数据价格
+      kline: [], // 如果要的话，也可以用之前的 generatePriceSeries 填充
+    }));
+
+    // 如果还想模拟拉取 EOD 数据，可以在这里直接调用 fetchEODData
+    allStocks.value.forEach((stock) => fetchEODData(stock, true));
+
+    loading.value = false;
+  }, 500); // 用 setTimeout 模拟网络延迟
 };
 
 const clearSearch = () => {
@@ -73,22 +106,98 @@ const clearSearch = () => {
   searchQuery.value = "";
 };
 
-const displayedStocks = computed(() => {
-  if (!searchQuery.value) return allStocks.value;
-  const keyword = searchQuery.value.toLowerCase();
-  return allStocks.value.filter(
-    (stock) =>
-      stock.name.toLowerCase().includes(keyword) ||
-      stock.code.toLowerCase().includes(keyword),
-  );
-});
+// 显示列表
+const displayedStocks = computed(() => allStocks.value);
 
-// 买卖交易弹窗逻辑
+// 获取 EOD 数据：用于价格和 K 线
+// const fetchEODData = (stock, onlyPrice = false) => {
+//   api
+//     .post("/tiingo", {
+//       ticker: searchQuery.value,
+//       startDate: "2025-01-01T00:00:00.000Z",
+//       endDate: "2025-07-28T23:59:59.999Z",
+//       sort: "DESC",
+//     })
+//     .then((res) => {
+//       if (!res?.length) return;
+//       const last = res[res.length - 1];
+//       stock.price = last.close?.toFixed(2) ?? "--";
+//       if (!onlyPrice) {
+//         stock.kline = res.map((d) => ({
+//           date: d.date.slice(0, 10),
+//           open: d.open,
+//           close: d.close,
+//           low: d.low,
+//           high: d.high,
+//         }));
+//         drawKLine(stock);
+//       }
+//     })
+//     .catch((e) => {
+//       console.error(`EOD fetch error for ${stock.ticker}:`, e);
+//     });
+//};
+
+// 使用 mock 数据模拟 EOD 数据获取
+import { stockPrices } from "@/lib/api.js";
+const fetchEODData = (stock, onlyPrice = false) => {
+  const mock = stockPrices.find((s) => s.ticker === stock.ticker);
+  if (!mock) return;
+
+  const res = mock.priceHistory;
+  const last = res[res.length - 1];
+
+  stock.price = last.close?.toFixed(2) ?? "--";
+  if (!onlyPrice) {
+    stock.kline = res.map((d) => ({
+      date: d.date,
+      open: d.open,
+      close: d.close,
+      low: d.low,
+      high: d.high,
+    }));
+    drawKLine(stock);
+  }
+};
+
+// 绘制K线
+const drawKLine = (stock) => {
+  const dom = document.getElementById(`kline-${stock.ticker}`);
+  if (!dom) return;
+  const chart = echarts.init(dom);
+  const dates = stock.kline.map((d) => d.date);
+  const values = stock.kline.map((d) => [d.open, d.close, d.low, d.high]);
+  chart.setOption({
+    tooltip: { trigger: "axis" },
+    xAxis: { type: "category", data: dates, boundaryGap: false },
+    yAxis: { scale: true },
+    series: [
+      {
+        type: "candlestick",
+        data: values,
+      },
+    ],
+  });
+};
+
+// 展开行逻辑
+const expandedStock = ref(null);
+const toggleExpand = (ticker) => {
+  expandedStock.value = expandedStock.value === ticker ? null : ticker;
+  if (expandedStock.value) {
+    const stock = allStocks.value.find((s) => s.ticker === ticker);
+    if (stock && !stock.kline.length) {
+      fetchEODData(stock);
+    } else {
+      nextTick(() => drawKLine(stock));
+    }
+  }
+};
+
+// 买卖交易逻辑
 const dialogOpen = ref(false);
-const transactionType = ref("buy"); // 'buy' 或 'sell'
+const transactionType = ref("buy");
 const selectedStock = ref(null);
-
-// 输入模式：'shares'（股数）或 'amount'（金额）
 const inputMode = ref("shares");
 const shares = ref(0);
 const amount = ref(0);
@@ -102,14 +211,11 @@ const openTransaction = (stock, type) => {
   dialogOpen.value = true;
 };
 
-// 计算当前交易金额（用于显示）
 const transactionCost = computed(() => {
   if (!selectedStock.value) return 0;
-  if (inputMode.value === "shares") {
-    return shares.value * selectedStock.value.price;
-  } else {
-    return amount.value;
-  }
+  return inputMode.value === "shares"
+    ? shares.value * selectedStock.value.price
+    : amount.value;
 });
 
 // 确认交易
@@ -118,7 +224,6 @@ const confirmTransaction = () => {
     dialogOpen.value = false;
     return;
   }
-
   const price = selectedStock.value.price;
   let qty = 0;
   let totalCost = 0;
@@ -136,36 +241,35 @@ const confirmTransaction = () => {
     return;
   }
 
-  const code = selectedStock.value.code;
+  const ticker = selectedStock.value.ticker;
 
   if (transactionType.value === "buy") {
     if (accountStore.balance < totalCost) {
-      alert("Insufficient balance, unable to purchase!");
+      alert("Insufficient balance!");
       return;
     }
     accountStore.balance -= totalCost;
-    holdings.value[code] = (holdings.value[code] || 0) + qty;
+    holdings.value[ticker] = (holdings.value[ticker] || 0) + qty;
   } else {
-    if ((holdings.value[code] || 0) < qty) {
-      alert("Insufficient position, unable to sell!");
+    if ((holdings.value[ticker] || 0) < qty) {
+      alert("Not enough shares to sell!");
       return;
     }
     accountStore.balance += totalCost;
-    holdings.value[code] -= qty;
+    holdings.value[ticker] -= qty;
   }
-
   dialogOpen.value = false;
 };
 
-// 计算持仓详情（过滤掉股数为 0 的）
+// 计算持仓列表
 const holdingsList = computed(() => {
   return Object.entries(holdings.value)
-    .filter(([_, qty]) => qty > 0) // 只保留大于 0 的持仓
-    .map(([code, qty]) => {
-      const stock = allStocks.value.find((s) => s.code === code);
+    .filter(([_, qty]) => qty > 0)
+    .map(([ticker, qty]) => {
+      const stock = allStocks.value.find((s) => s.ticker === ticker);
       return {
-        code,
-        name: stock?.name || "未知",
+        ticker,
+        name: stock?.name || "Unknown",
         price: stock?.price || 0,
         quantity: qty,
         total: (stock?.price || 0) * qty,
@@ -173,64 +277,19 @@ const holdingsList = computed(() => {
     });
 });
 
-// 展开行逻辑
-const expandedStock = ref(null);
-const toggleExpand = async (code) => {
-  expandedStock.value = expandedStock.value === code ? null : code;
-  await nextTick();
-  if (expandedStock.value) {
-    initKLineChart(code);
-  }
-};
-
-// 初始化ECharts
-const initKLineChart = (code) => {
-  const stock = allStocks.value.find((s) => s.code === code);
-  if (!stock) return;
-
-  const chartDom = document.getElementById(`kline-${code}`);
-  if (!chartDom) return;
-
-  const chart = echarts.init(chartDom);
-  const upColor = "#ec0000";
-  const upBorderColor = "#8A0000";
-  const downColor = "#00da3c";
-  const downBorderColor = "#008F28";
-
-  const option = {
-    tooltip: { trigger: "axis", axisPointer: { type: "cross" } },
-    grid: { left: "10%", right: "10%", bottom: "15%" },
-    xAxis: {
-      type: "category",
-      data: stock.kline.categoryData,
-      boundaryGap: false,
-      axisLine: { onZero: false },
-    },
-    yAxis: { scale: true },
-    series: [
-      {
-        type: "candlestick",
-        name: code,
-        data: stock.kline.values,
-        itemStyle: {
-          color: upColor,
-          color0: downColor,
-          borderColor: upBorderColor,
-          borderColor0: downBorderColor,
-        },
-      },
-    ],
-  };
-  chart.setOption(option);
-};
+// 默认加载 AAPL
+onMounted(() => {
+  searchInput.value = "AAPL";
+  handleSearch();
+});
 </script>
 
 <template>
   <div class="min-h-screen w-full bg-gray-50">
-    <!-- 更新余额按钮 -->
+    <!-- 刷新余额 -->
     <div class="flex justify-end p-4">
       <Button
-        class="text- black bg-blue-600 hover:bg-blue-700"
+        class="bg-blue-600 text-white hover:bg-blue-700"
         @click="updateBalance"
       >
         Refresh Balance
@@ -238,7 +297,6 @@ const initKLineChart = (code) => {
     </div>
 
     <div class="mx-auto max-w-6xl space-y-10 p-6">
-      <!-- 页面标题 -->
       <h1 class="mb-2 text-3xl font-bold text-gray-800">Stock Market</h1>
       <p class="text-gray-500">
         Browse, search, and trade your favorite stocks
@@ -249,19 +307,19 @@ const initKLineChart = (code) => {
         <input
           v-model="searchInput"
           type="text"
-          placeholder="Enter stock name or code"
+          placeholder="Enter stock name or ticker"
           class="flex-1 rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
           @keyup.enter="handleSearch"
         />
         <Button
           @click="handleSearch"
-          class="rounded-lg bg-blue-500 px-4 text-gray-700 hover:bg-blue-600"
+          class="rounded-lg bg-blue-500 text-gray-700 hover:bg-blue-600"
         >
           Search
         </Button>
         <Button
           @click="clearSearch"
-          class="rounded-lg bg-gray-200 px-4 text-gray-700 hover:bg-gray-300"
+          class="rounded-lg bg-gray-200 text-gray-700 hover:bg-gray-300"
         >
           Clear
         </Button>
@@ -275,8 +333,8 @@ const initKLineChart = (code) => {
             <Table class="w-full">
               <TableHeader>
                 <TableRow class="bg-gray-100">
-                  <TableHead>Stock Code</TableHead>
-                  <TableHead>Stock Name</TableHead>
+                  <TableHead>Ticker</TableHead>
+                  <TableHead>Name</TableHead>
                   <TableHead class="text-right">Quantity</TableHead>
                   <TableHead class="text-right">Price</TableHead>
                   <TableHead class="text-right">Total</TableHead>
@@ -286,30 +344,23 @@ const initKLineChart = (code) => {
               <TableBody>
                 <TableRow
                   v-for="item in holdingsList"
-                  :key="item.code"
+                  :key="item.ticker"
                   class="hover:bg-gray-50"
-                  :class="{
-                    'bg-gray-50': holdingsList.indexOf(item) % 2 === 1,
-                  }"
                 >
-                  <TableCell>{{ item.code }}</TableCell>
+                  <TableCell>{{ item.ticker }}</TableCell>
                   <TableCell>{{ item.name }}</TableCell>
-                  <TableCell class="text-right font-mono">{{
-                    item.quantity
-                  }}</TableCell>
-                  <TableCell class="text-right font-mono"
-                    >${{ item.price }}</TableCell
-                  >
-                  <TableCell class="text-right font-mono"
+                  <TableCell class="text-right">{{ item.quantity }}</TableCell>
+                  <TableCell class="text-right">${{ item.price }}</TableCell>
+                  <TableCell class="text-right"
                     >${{ item.total.toFixed(2) }}</TableCell
                   >
                   <TableCell class="text-center">
                     <Button
-                      class="bg-gradient-to-r from-red-500 to-red-600 text-white hover:opacity-90"
+                      class="bg-gradient-to-r from-red-500 to-red-600 text-white"
                       @click="
                         openTransaction(
                           {
-                            code: item.code,
+                            code: item.ticker,
                             name: item.name,
                             price: item.price,
                           },
@@ -328,33 +379,28 @@ const initKLineChart = (code) => {
         </CardContent>
       </Card>
 
-      <!-- 股票市场表格 -->
+      <!-- 股票表格 -->
       <Card>
         <CardContent>
           <h2 class="mb-4 text-xl font-bold text-gray-800">Available Stocks</h2>
           <Table class="w-full">
             <TableHeader>
               <TableRow class="bg-gray-100">
-                <TableHead class="text-center">Code</TableHead>
+                <TableHead class="text-center">Ticker</TableHead>
                 <TableHead class="text-center">Name</TableHead>
-                <TableHead class="text-center">Industry</TableHead>
                 <TableHead class="text-center">Price</TableHead>
                 <TableHead class="text-center">Action</TableHead>
-                <TableHead class="text-center"></TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              <template v-for="stock in displayedStocks" :key="stock.code">
-                <!-- 点击整行也可以展开/收起 -->
+              <template v-for="stock in displayedStocks" :key="stock.ticker">
                 <TableRow
                   class="cursor-pointer hover:bg-gray-50"
-                  @click="toggleExpand(stock.code)"
+                  @click="toggleExpand(stock.ticker)"
                 >
-                  <TableCell class="text-center">{{ stock.code }}</TableCell>
+                  <TableCell class="text-center">{{ stock.ticker }}</TableCell>
                   <TableCell class="text-center">{{ stock.name }}</TableCell>
-                  <TableCell class="text-center">{{
-                    stock.industry
-                  }}</TableCell>
                   <TableCell class="text-center">${{ stock.price }}</TableCell>
                   <TableCell class="text-center">
                     <Button
@@ -365,21 +411,18 @@ const initKLineChart = (code) => {
                     </Button>
                   </TableCell>
                   <TableCell class="text-center">
-                    <!-- 箭头也能展开，但不冒泡到行 -->
                     <span
-                      class="cursor-pointer text-lg text-black select-none"
-                      @click.stop="toggleExpand(stock.code)"
+                      class="cursor-pointer text-lg"
+                      @click.stop="toggleExpand(stock.ticker)"
                     >
-                      {{ expandedStock === stock.code ? "▲" : "▼" }}
+                      {{ expandedStock === stock.ticker ? "▲" : "▼" }}
                     </span>
                   </TableCell>
                 </TableRow>
-
-                <!-- 展开详情行 -->
-                <TableRow v-if="expandedStock === stock.code">
+                <TableRow v-if="expandedStock === stock.ticker">
                   <TableCell colspan="6">
                     <div
-                      :id="`kline-${stock.code}`"
+                      :id="`kline-${stock.ticker}`"
                       style="height: 300px"
                     ></div>
                   </TableCell>
@@ -388,10 +431,13 @@ const initKLineChart = (code) => {
             </TableBody>
           </Table>
           <div
-            v-if="displayedStocks.length === 0"
+            v-if="!loading && displayedStocks.length === 0"
             class="mt-6 text-center text-gray-500"
           >
             No stocks found
+          </div>
+          <div v-if="loading" class="mt-6 text-center text-gray-500">
+            Loading...
           </div>
         </CardContent>
       </Card>
@@ -403,11 +449,10 @@ const initKLineChart = (code) => {
         <DialogHeader>
           <DialogTitle class="text-xl font-semibold">
             {{ transactionType === "buy" ? "Buy" : "Sell" }}
-            {{ selectedStock?.name }} ({{ selectedStock?.code }})
+            {{ selectedStock?.name }} ({{ selectedStock?.ticker }})
           </DialogTitle>
         </DialogHeader>
 
-        <!-- 输入模式切换 -->
         <div class="mb-4 flex gap-4">
           <Button
             variant="outline"
@@ -425,7 +470,6 @@ const initKLineChart = (code) => {
           </Button>
         </div>
 
-        <!-- 输入框 -->
         <Input
           v-if="inputMode === 'shares'"
           type="number"
@@ -445,26 +489,23 @@ const initKLineChart = (code) => {
           class="mb-3"
         />
 
-        <!-- 动态交易金额 -->
         <p class="font-semibold text-gray-600">
           Estimated Cost:
           <span class="text-blue-600">${{ transactionCost.toFixed(2) }}</span>
         </p>
 
-        <!-- 操作按钮 -->
         <DialogFooter class="mt-4">
           <Button
             @click="dialogOpen = false"
             class="bg-gray-300 text-gray-800 hover:bg-gray-400"
+            >Cancel</Button
           >
-            Cancel
-          </Button>
           <Button
             @click="confirmTransaction"
             :class="
               transactionType === 'buy'
-                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white hover:opacity-90'
-                : 'bg-gradient-to-r from-red-500 to-red-600 text-white hover:opacity-90'
+                ? 'bg-gradient-to-r from-green-500 to-green-600 text-white'
+                : 'bg-gradient-to-r from-red-500 to-red-600 text-white'
             "
           >
             Confirm
