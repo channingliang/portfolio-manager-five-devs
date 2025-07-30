@@ -19,7 +19,7 @@ jest.mock("../../src/models", () => {
 
   // 模拟 Account 模型
   const AccountMock = dbMock.define("Account", {
-    user_id: 1,
+    account_id: 1,
     name: "Test Account",
     currency: "USD",
     balance: "0.00",
@@ -58,7 +58,7 @@ describe("POST /accounts", () => {
   it("should create a new account", async () => {
     // 模拟数据库创建操作
     const mockAccount = {
-      user_id: 1,
+      account_id: 1,
       name: "Savings",
       currency: "USD",
       balance: "0.00",
@@ -119,7 +119,7 @@ describe("GET /accounts/:id", () => {
   // 测试成功获取账户
   it("should get an account by ID", async () => {
     const mockAccount = {
-      user_id: 1,
+      account_id: 1,
       name: "Savings",
       currency: "USD",
       balance: "100.50",
@@ -222,14 +222,14 @@ describe("PUT /accounts/:id", () => {
   // 测试成功更新账户
   it("should update an account", async () => {
     const mockAccount = {
-      user_id: 1,
+      account_id: 1,
       name: "Old Name",
       currency: "USD",
       balance: "0.00",
       created_at: new Date("2023-01-01"),
       updated_at: new Date("2023-01-01"),
       update: jest.fn().mockResolvedValue({
-        user_id: 1,
+        account_id: 1,
         name: "New Name",
         currency: "CNY",
         balance: "0.00",

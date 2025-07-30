@@ -30,7 +30,7 @@
 
 | Column     | Type          | Attributes         | Description                       |
 |------------|---------------|--------------------|-----------------------------------|
-| user_id    | int           | auto increment, PK | Unique ID of the account owner    |
+| account_id | int           | auto increment, PK | Unique ID of the account owner    |
 | name       | varchar(45)   |                    | Name of the account               |
 | currency   | varchar(3)    |                    | Currency code (e.g. USD, EUR)     |
 | balance    | decimal(18,2) | default = 0.00     | Current balance of the account    |
@@ -114,7 +114,7 @@ Response:
   "code": 201,
   "msg": "Account created successfully.",
   "data": {
-    "user_id": 1,
+    "account_id": 1,
     "name": "John Doe",
     "currency": "USD",
     "balance": 0.00,
@@ -143,7 +143,7 @@ Response:
   "code": 200,
   "msg": "Account retrieved successfully.",
   "data": {
-    "user_id": 1,
+    "account_id": 1,
     "name": "John Doe",
     "currency": "USD",
     "balance": 0.00,
@@ -175,7 +175,7 @@ Response:
   "code": 200,
   "msg": "Account updated successfully.",
   "data": {
-    "user_id": 1,
+    "account_id": 1,
     "name": "John Doe Updated",
     "currency": "EUR",
     "balance": 100.00,

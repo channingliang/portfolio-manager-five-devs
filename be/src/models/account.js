@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Account = sequelize.define(
     "Account",
     {
-      user_id: {
+      account_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,
@@ -47,7 +47,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       timestamps: false, // 禁用 Sequelize 自动时间戳
       tableName: "account", // 对应数据库表名
-    }
+    },
   );
 
   // console.log('Account model initialized with fields:', Account.rawAttributes);
