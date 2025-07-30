@@ -12,16 +12,26 @@ import api from "@/lib/request.js";
 import { useAccountStore } from "@/stores/account.js";
 import BuyDrawer from "@/components/stock/BuyDrawer.vue";
 import SellDrawer from "@/components/stock/SellDrawer.vue";
+import KLine from "@/components/stock/KLine.vue";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import eventBus from "@/lib/eventBus.js";
 
 // 当前登录账号ID
 const accountId = 1;
 
-// 资产数据
 const holdingAssets = ref([]);
 
 // 当前操作资产
 const selectedProduct = ref(null);
+
+// K线弹窗状态
+const openKlinePopoverIdx = ref(null);
+const klineDataMap = ref({}); // key: ticker, value: kline数据
+const klineLoadingMap = ref({}); // key: ticker, value: boolean
 
 // Drawer 控制
 const buyDrawerOpen = ref(false);
@@ -79,6 +89,26 @@ function openSellDrawer(item) {
   selectedProduct.value = item;
   sellDrawerOpen.value = true;
   sellError.value = "";
+}
+
+// K线弹窗
+async function handleKlinePopoverOpen(idx, ticker) {
+  openKlinePopoverIdx.value = idx;
+  // 若无数据或不是最新，则发起请求
+  if (!klineDataMap.value[ticker]) {
+    klineLoadingMap.value[ticker] = true;
+    try {
+      const res = await api.get(`/market/stock/${ticker}`);
+      klineDataMap.value[ticker] = res.detail || [];
+    } catch (e) {
+      klineDataMap.value[ticker] = [];
+    }
+    klineLoadingMap.value[ticker] = false;
+  }
+}
+
+function handleKlinePopoverClose() {
+  openKlinePopoverIdx.value = null;
 }
 
 // 买入确认
@@ -163,50 +193,85 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
     <div
       class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2"
     >
-      <div
+      <Popover
         v-for="(item, index) in holdingAssets"
         :key="item.portfolio_holding_id || index"
-        class="relative rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
+        :open="openKlinePopoverIdx === index"
+        @update:open="
+          (val) =>
+            val
+              ? handleKlinePopoverOpen(index, item.ticker)
+              : handleKlinePopoverClose()
+        "
       >
-        <!-- 产品名和代码 -->
-        <div class="mb-2 text-sm">
-          <div class="text-end text-xs text-gray-500">
-            {{ item.ticker_type === 1 ? "Stock" : "Crypto/Fund" }}
+        <PopoverTrigger as-child>
+          <div
+            class="relative cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
+          >
+            <!-- 产品名和代码 -->
+            <div class="mb-2 text-sm">
+              <div class="text-end text-xs text-gray-500">
+                {{ item.ticker_type === 1 ? "Stock" : "Crypto/Fund" }}
+              </div>
+              <div class="font-bold">
+                <p>{{ item.name }}</p>
+                <p class="mt-1 text-xs text-gray-500">{{ item.ticker }}</p>
+              </div>
+            </div>
+            <!-- 当前价格 -->
+            <div class="mb-3 text-sm text-gray-700">
+              ${{ Number(item.current?.price_per_unit || 0).toLocaleString() }}
+            </div>
+            <!-- 持仓份额&盈亏 -->
+            <div
+              class="mb-2 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm"
+            >
+              <div class="flex items-center gap-1">
+                <Layers class="size-4" />
+                {{ Number(item.quantity).toLocaleString() }}
+              </div>
+              <div class="flex items-center gap-1">
+                <HandCoins class="size-4" />
+                <span :class="getProfitClass(item)">
+                  {{ getProfitText(item) }}
+                </span>
+              </div>
+            </div>
+            <!-- 操作按钮 -->
+            <div class="flex justify-end space-x-2">
+              <Button
+                variant="outline"
+                size="icon"
+                @click.stop="openBuyDrawer(item)"
+              >
+                <Plus />
+              </Button>
+              <Button
+                variant="outline"
+                size="icon"
+                @click.stop="openSellDrawer(item)"
+              >
+                <Minus />
+              </Button>
+            </div>
           </div>
-          <div class="font-bold">
-            <p>{{ item.name }}</p>
-            <p class="mt-1 text-xs text-gray-500">{{ item.ticker }}</p>
+        </PopoverTrigger>
+        <PopoverContent class="w-[50vw] max-w-[98vw]">
+          <div class="mb-2">{{ item.name }} ({{ item.ticker }})</div>
+          <div
+            v-if="klineLoadingMap[item.ticker]"
+            class="py-8 text-center text-gray-400"
+          >
+            Loading...
           </div>
-        </div>
-        <!-- 当前价格 -->
-        <div class="mb-3 text-sm text-gray-700">
-          ${{ Number(item.current?.price_per_unit || 0).toLocaleString() }}
-        </div>
-        <!-- 持仓份额&盈亏 -->
-        <div
-          class="mb-2 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm"
-        >
-          <div class="flex items-center gap-1">
-            <Layers class="size-4" />
-            {{ Number(item.quantity).toLocaleString() }}
-          </div>
-          <div class="flex items-center gap-1">
-            <HandCoins class="size-4" />
-            <span :class="getProfitClass(item)">
-              {{ getProfitText(item) }}
-            </span>
-          </div>
-        </div>
-        <!-- 操作按钮 -->
-        <div class="flex justify-end space-x-2">
-          <Button variant="outline" size="icon" @click="openBuyDrawer(item)">
-            <Plus />
-          </Button>
-          <Button variant="outline" size="icon" @click="openSellDrawer(item)">
-            <Minus />
-          </Button>
-        </div>
-      </div>
+          <KLine
+            v-else
+            :klineData="klineDataMap[item.ticker] || []"
+            :chartId="`kline-popover-${item.ticker}`"
+            style="width: 100%; height: 320px"
+          />
+        </PopoverContent>
+      </Popover>
     </div>
   </div>
 
@@ -223,7 +288,7 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
     @cancel="buyError = ''"
   />
 
-  <!-- 卖出Drawer，关键是这里！holding 传持有份额 -->
+  <!-- 卖出Drawer -->
   <SellDrawer
     v-if="selectedProduct"
     v-model:open="sellDrawerOpen"
