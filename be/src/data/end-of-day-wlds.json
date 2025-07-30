@@ -11,8 +11,8 @@
     "adjLow": 1.48,
     "adjOpen": 1.54,
     "adjVolume": 159115,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-05-28T00:00:00.000Z",
@@ -26,8 +26,8 @@
     "adjLow": 1.5802,
     "adjOpen": 1.68,
     "adjVolume": 85652,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-05-29T00:00:00.000Z",
@@ -41,8 +41,8 @@
     "adjLow": 1.6,
     "adjOpen": 1.64,
     "adjVolume": 137981,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-05-30T00:00:00.000Z",
@@ -56,8 +56,8 @@
     "adjLow": 1.58,
     "adjOpen": 1.65,
     "adjVolume": 1699940,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-02T00:00:00.000Z",
@@ -71,8 +71,8 @@
     "adjLow": 1.6,
     "adjOpen": 1.65,
     "adjVolume": 96375,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-03T00:00:00.000Z",
@@ -86,8 +86,8 @@
     "adjLow": 1.62,
     "adjOpen": 1.67,
     "adjVolume": 48736,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-04T00:00:00.000Z",
@@ -101,8 +101,8 @@
     "adjLow": 1.6372,
     "adjOpen": 1.68,
     "adjVolume": 111511,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-05T00:00:00.000Z",
@@ -116,8 +116,8 @@
     "adjLow": 1.6,
     "adjOpen": 1.68,
     "adjVolume": 106911,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-06T00:00:00.000Z",
@@ -131,8 +131,8 @@
     "adjLow": 1.62,
     "adjOpen": 1.62,
     "adjVolume": 39050,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-09T00:00:00.000Z",
@@ -146,8 +146,8 @@
     "adjLow": 1.5501,
     "adjOpen": 1.64,
     "adjVolume": 191026,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-10T00:00:00.000Z",
@@ -161,8 +161,8 @@
     "adjLow": 1.58,
     "adjOpen": 1.59,
     "adjVolume": 58287,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-11T00:00:00.000Z",
@@ -176,8 +176,8 @@
     "adjLow": 1.4709,
     "adjOpen": 1.59,
     "adjVolume": 117764,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-12T00:00:00.000Z",
@@ -191,8 +191,8 @@
     "adjLow": 1.485,
     "adjOpen": 1.51,
     "adjVolume": 38371,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-13T00:00:00.000Z",
@@ -206,8 +206,8 @@
     "adjLow": 1.43,
     "adjOpen": 1.54,
     "adjVolume": 85774,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-16T00:00:00.000Z",
@@ -221,8 +221,8 @@
     "adjLow": 1.45,
     "adjOpen": 1.48,
     "adjVolume": 91542,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-17T00:00:00.000Z",
@@ -236,8 +236,8 @@
     "adjLow": 1.5,
     "adjOpen": 1.5,
     "adjVolume": 75650,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-18T00:00:00.000Z",
@@ -251,8 +251,8 @@
     "adjLow": 1.52,
     "adjOpen": 1.53,
     "adjVolume": 69947,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-20T00:00:00.000Z",
@@ -266,8 +266,8 @@
     "adjLow": 1.6,
     "adjOpen": 1.65,
     "adjVolume": 203215,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-23T00:00:00.000Z",
@@ -281,8 +281,8 @@
     "adjLow": 1.38,
     "adjOpen": 1.73,
     "adjVolume": 312514,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-24T00:00:00.000Z",
@@ -296,8 +296,8 @@
     "adjLow": 1.42,
     "adjOpen": 1.42,
     "adjVolume": 5175320,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-25T00:00:00.000Z",
@@ -311,8 +311,8 @@
     "adjLow": 1.47,
     "adjOpen": 1.6,
     "adjVolume": 2031281,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-26T00:00:00.000Z",
@@ -326,8 +326,8 @@
     "adjLow": 1.5,
     "adjOpen": 1.54,
     "adjVolume": 200443,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-27T00:00:00.000Z",
@@ -341,8 +341,8 @@
     "adjLow": 1.4,
     "adjOpen": 1.53,
     "adjVolume": 135823,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-06-30T00:00:00.000Z",
@@ -356,8 +356,8 @@
     "adjLow": 1.44,
     "adjOpen": 1.47,
     "adjVolume": 122919,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-01T00:00:00.000Z",
@@ -371,8 +371,8 @@
     "adjLow": 1.45,
     "adjOpen": 1.52,
     "adjVolume": 41093,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-02T00:00:00.000Z",
@@ -386,8 +386,8 @@
     "adjLow": 1.47,
     "adjOpen": 1.48,
     "adjVolume": 31798,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-03T00:00:00.000Z",
@@ -401,8 +401,8 @@
     "adjLow": 1.49,
     "adjOpen": 1.55,
     "adjVolume": 26928,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-07T00:00:00.000Z",
@@ -416,8 +416,8 @@
     "adjLow": 1.4607,
     "adjOpen": 1.52,
     "adjVolume": 28857,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-08T00:00:00.000Z",
@@ -431,8 +431,8 @@
     "adjLow": 1.47,
     "adjOpen": 1.47,
     "adjVolume": 56943,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-09T00:00:00.000Z",
@@ -446,8 +446,8 @@
     "adjLow": 1.46,
     "adjOpen": 1.5305,
     "adjVolume": 40059,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-10T00:00:00.000Z",
@@ -461,8 +461,8 @@
     "adjLow": 1.49,
     "adjOpen": 1.5,
     "adjVolume": 108025,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-11T00:00:00.000Z",
@@ -476,8 +476,8 @@
     "adjLow": 1.5,
     "adjOpen": 1.59,
     "adjVolume": 39434,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-14T00:00:00.000Z",
@@ -491,8 +491,8 @@
     "adjLow": 1.53,
     "adjOpen": 1.55,
     "adjVolume": 35077,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-15T00:00:00.000Z",
@@ -506,8 +506,8 @@
     "adjLow": 1.57,
     "adjOpen": 1.57,
     "adjVolume": 75343,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-16T00:00:00.000Z",
@@ -521,8 +521,8 @@
     "adjLow": 1.5307,
     "adjOpen": 1.59,
     "adjVolume": 83633,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-17T00:00:00.000Z",
@@ -536,8 +536,8 @@
     "adjLow": 1.5531,
     "adjOpen": 1.58,
     "adjVolume": 42189,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-18T00:00:00.000Z",
@@ -551,8 +551,8 @@
     "adjLow": 1.55,
     "adjOpen": 1.56,
     "adjVolume": 60564,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-21T00:00:00.000Z",
@@ -566,8 +566,8 @@
     "adjLow": 1.45,
     "adjOpen": 1.58,
     "adjVolume": 153258,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-22T00:00:00.000Z",
@@ -581,8 +581,8 @@
     "adjLow": 1.45,
     "adjOpen": 1.46,
     "adjVolume": 55071,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-23T00:00:00.000Z",
@@ -596,8 +596,8 @@
     "adjLow": 1.4902,
     "adjOpen": 1.54,
     "adjVolume": 77964,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-24T00:00:00.000Z",
@@ -611,8 +611,8 @@
     "adjLow": 1.5,
     "adjOpen": 1.52,
     "adjVolume": 316417,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
   },
   {
     "date": "2025-07-25T00:00:00.000Z",
@@ -626,7 +626,52 @@
     "adjLow": 1.672,
     "adjOpen": 1.74,
     "adjVolume": 62865,
-    "divCash": 0.0,
-    "splitFactor": 1.0
+    "divCash": 0,
+    "splitFactor": 1
+  },
+  {
+    "date": "2025-07-28T00:00:00.000Z",
+    "close": 1.7,
+    "high": 1.72,
+    "low": 1.69,
+    "open": 1.72,
+    "volume": 67902,
+    "adjClose": 1.7,
+    "adjHigh": 1.72,
+    "adjLow": 1.69,
+    "adjOpen": 1.72,
+    "adjVolume": 67902,
+    "divCash": 0,
+    "splitFactor": 1
+  },
+  {
+    "date": "2025-07-29T00:00:00.000Z",
+    "close": 1.62,
+    "high": 1.7,
+    "low": 1.59,
+    "open": 1.69,
+    "volume": 67761,
+    "adjClose": 1.62,
+    "adjHigh": 1.7,
+    "adjLow": 1.59,
+    "adjOpen": 1.69,
+    "adjVolume": 67761,
+    "divCash": 0,
+    "splitFactor": 1
+  },
+  {
+    "date": "2025-07-30T00:00:00.000Z",
+    "close": 1.49,
+    "high": 1.57,
+    "low": 1.48,
+    "open": 1.56,
+    "volume": 65530,
+    "adjClose": 1.49,
+    "adjHigh": 1.57,
+    "adjLow": 1.48,
+    "adjOpen": 1.56,
+    "adjVolume": 65530,
+    "divCash": 0,
+    "splitFactor": 1
   }
 ]

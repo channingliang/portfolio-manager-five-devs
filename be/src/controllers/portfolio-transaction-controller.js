@@ -1,242 +1,380 @@
+// controllers/portfolioController.js
 const { StatusCodes } = require("http-status-codes");
-const db = require('../models');
-// 创建投资组合交易
-const createPortfolioTransaction = async (req, res) => {
-    try {
-        const {
-            account_id,
-            ticker,
-            ticker_type,
-            transaction_type,
-            quantity,
-            price_per_unit,
-            cash_transaction_id
-        } = req.body;
+const db = require("../models"); // Sequelize
 
-        // 验证必要字段
-        if (!account_id || !ticker || ticker_type === undefined || !transaction_type || !quantity || !price_per_unit) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                code: StatusCodes.BAD_REQUEST,
-                msg: '缺少必要字段: account_id、ticker、ticker_type、transaction_type、quantity、price_per_unit 是必需的',
-                error: {}
-            });
-        }
+exports.createPortfolioTransaction = async (req, res) => {
+  const t = await db.sequelize.transaction();
+  // 参数对象基本校验
+  if (
+    !req.body ||
+    typeof req.body !== "object" ||
+    Array.isArray(req.body) ||
+    Object.keys(req.body).length === 0
+  ) {
+    await t.rollback();
+    return res.status(StatusCodes.BAD_REQUEST).json({
+      code: 400,
+      msg: "Request body is required and should be a non-empty object.",
+    });
+  }
+  try {
+    // ==== 参数校验 ====
+    const {
+      account_id,
+      ticker,
+      ticker_type,
+      transaction_type,
+      quantity,
+      price_per_unit,
+    } = req.body;
 
-        // 计算总金额
-        const total_amount = parseFloat(quantity) * parseFloat(price_per_unit);
+    // 必要字段检查
+    if (
+      !account_id ||
+      !ticker ||
+      ticker_type === undefined ||
+      !transaction_type ||
+      quantity === undefined ||
+      price_per_unit === undefined
+    ) {
+      await t.rollback();
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: 400,
+        msg: "Missing required parameters.",
+      });
+    }
+    if (
+      typeof account_id !== "number" ||
+      typeof ticker !== "string" ||
+      typeof ticker_type !== "number" ||
+      typeof transaction_type !== "number" ||
+      typeof quantity !== "number" ||
+      typeof price_per_unit !== "number"
+    ) {
+      await t.rollback();
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: 400,
+        msg: "Invalid parameter types.",
+      });
+    }
+    if (quantity <= 0 || price_per_unit <= 0) {
+      await t.rollback();
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: 400,
+        msg: "Quantity and price_per_unit must be positive numbers.",
+      });
+    }
 
-        // 创建交易记录
-        const newTransaction = await db.PortfolioTransaction.create({
-            account_id,
-            ticker,
-            ticker_type,
-            transaction_type,
-            quantity,
-            price_per_unit,
-            total_amount,
-            cash_transaction_id,
-            occurred_at: new Date()
+    // 只支持买入（1）和卖出（2）
+    if (![1, 2].includes(transaction_type)) {
+      await t.rollback();
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: 400,
+        msg: "Only buy (1) and sell (2) transactions are supported.",
+      });
+    }
+
+    // 获取账户信息
+    const acc = await db.Account.findByPk(account_id, { transaction: t });
+    if (!acc) {
+      await t.rollback();
+      return res.status(StatusCodes.NOT_FOUND).json({
+        code: 404,
+        msg: "Account not found.",
+      });
+    }
+    const total_amount = Number(quantity) * Number(price_per_unit);
+    const occurred_at = new Date();
+
+    // ==== 买入 ====
+    if (transaction_type === 1) {
+      if (Number(acc.balance) < total_amount) {
+        await t.rollback();
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          code: 400,
+          msg: "Insufficient balance.",
         });
+      }
 
-        newHolding = await db.PortfolioHolding.create({
+      // 扣钱，生成 cash transaction(type=2)
+      const new_balance = Number(acc.balance) - total_amount;
+      const cashTx = await db.Cash.create(
+        {
+          account_id,
+          type: 2, // money out
+          amount: total_amount,
+          related_id: null,
+          description: `Buy ${quantity} ${ticker} @ ${price_per_unit}`,
+          occurred_at,
+          balance_after: new_balance,
+        },
+        { transaction: t },
+      );
+
+      // 更新账户余额
+      await acc.update(
+        { balance: new_balance, updated_at: new Date() },
+        { transaction: t },
+      );
+
+      // 生成 portfolio transaction
+      const portfolioTx = await db.PortfolioTransaction.create(
+        {
+          account_id,
+          ticker,
+          ticker_type,
+          transaction_type,
+          quantity,
+          price_per_unit,
+          total_amount,
+          cash_transaction_id: cashTx.cash_transaction_id,
+          occurred_at,
+        },
+        { transaction: t },
+      );
+
+      // 更新或创建持仓
+      const holding = await db.PortfolioHolding.findOne({
+        where: { account_id, ticker },
+        transaction: t,
+      });
+      if (holding) {
+        await holding.update(
+          {
+            quantity: Number(holding.quantity) + Number(quantity),
+            updated_at: new Date(),
+          },
+          { transaction: t },
+        );
+      } else {
+        await db.PortfolioHolding.create(
+          {
             account_id,
             ticker,
             ticker_type,
             quantity,
             created_at: new Date(),
-            updated_at: new Date()
+          },
+          { transaction: t },
+        );
+      }
+
+      await t.commit();
+
+      return res.status(StatusCodes.CREATED).json({
+        code: 201,
+        msg: "Portfolio transaction created successfully.",
+        data: {
+          portfolio_transaction_id: portfolioTx.portfolio_transaction_id,
+          account_id,
+          ticker,
+          ticker_type,
+          transaction_type,
+          quantity: Number(quantity),
+          price_per_unit: Number(price_per_unit),
+          total_amount,
+          cash_transaction_id: cashTx.cash_transaction_id,
+          occurred_at: occurred_at.toISOString(),
+        },
+      });
+    }
+
+    // ==== 卖出 ====
+    if (transaction_type === 2) {
+      // 检查是否有持仓、且持仓数充足
+      const holding = await db.PortfolioHolding.findOne({
+        where: { account_id, ticker },
+        transaction: t,
+      });
+      if (!holding || Number(holding.quantity) < Number(quantity)) {
+        await t.rollback();
+        return res.status(StatusCodes.BAD_REQUEST).json({
+          code: 400,
+          msg: "Not enough holdings to sell.",
+        });
+      }
+
+      // 收钱，生成 cash transaction(type=1)
+      const new_balance = Number(acc.balance) + total_amount;
+      const cashTx = await db.Cash.create(
+        {
+          account_id,
+          type: 1, // money in
+          amount: total_amount,
+          related_id: null,
+          description: `Sell ${quantity} ${ticker} @ ${price_per_unit}`,
+          occurred_at,
+          balance_after: new_balance,
+        },
+        { transaction: t },
+      );
+
+      // 更新账户余额
+      await acc.update(
+        { balance: new_balance, updated_at: new Date() },
+        { transaction: t },
+      );
+
+      // 生成 portfolio transaction
+      const portfolioTx = await db.PortfolioTransaction.create(
+        {
+          account_id,
+          ticker,
+          ticker_type,
+          transaction_type,
+          quantity,
+          price_per_unit,
+          total_amount,
+          cash_transaction_id: cashTx.cash_transaction_id,
+          occurred_at,
+        },
+        { transaction: t },
+      );
+
+      // 减少持仓，若持仓归零自动删除
+      const remaining = Number(holding.quantity) - Number(quantity);
+      if (remaining > 0) {
+        await holding.update(
+          {
+            quantity: remaining,
+            updated_at: new Date(),
+          },
+          { transaction: t },
+        );
+      } else {
+        await holding.destroy({ transaction: t });
+      }
+
+      await t.commit();
+
+      return res.status(StatusCodes.CREATED).json({
+        code: 201,
+        msg: "Portfolio sell transaction completed.",
+        data: {
+          portfolio_transaction_id: portfolioTx.portfolio_transaction_id,
+          account_id,
+          ticker,
+          ticker_type,
+          transaction_type,
+          quantity: Number(quantity),
+          price_per_unit: Number(price_per_unit),
+          total_amount,
+          cash_transaction_id: cashTx.cash_transaction_id,
+          occurred_at: occurred_at.toISOString(),
+        },
+      });
+    }
+  } catch (err) {
+    await t.rollback();
+    console.error(err);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ code: 500, msg: "Server error." });
+  }
+};
+
+exports.getPortfolioHoldings = async (req, res) => {
+  try {
+    // 支持 GET 参数和 query/body 方式
+    const account_id = Number(
+      req.query.account_id || (req.body && req.body.account_id),
+    );
+    if (!account_id || isNaN(account_id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: 400,
+        msg: "Valid account_id is required.",
+      });
+    }
+
+    // 查询所有持仓
+    const holdings = await db.PortfolioHolding.findAll({
+      where: { account_id },
+      order: [["created_at", "ASC"]],
+    });
+
+    if (!holdings || holdings.length === 0) {
+      return res.status(StatusCodes.OK).json({
+        code: 200,
+        msg: "No holdings found.",
+        data: [],
+      });
+    }
+
+    // 针对每个 holding 查询对应的所有 transaction，构造返回值
+    const results = await Promise.all(
+      holdings.map(async (holding) => {
+        // 查该持仓下的所有交易，最新的排在最前
+        const transactions = await db.PortfolioTransaction.findAll({
+          where: {
+            account_id,
+            ticker: holding.ticker,
+          },
+          order: [["occurred_at", "DESC"]],
         });
 
-        const responseData = {
-            portfolio_transaction_id: newTransaction.portfolio_transaction_id,
-            account_id: newTransaction.account_id,
-            ticker: newTransaction.ticker,
-            ticker_type: newTransaction.ticker_type,
-            transaction_type: newTransaction.transaction_type,
-            quantity: parseFloat(newTransaction.quantity),
-            price_per_unit: parseFloat(newTransaction.price_per_unit),
-            total_amount: parseFloat(newTransaction.total_amount),
-            occurred_at: newTransaction.occurred_at
+        // 取最新 price_per_unit，模拟现价
+        let current_price = null;
+        if (transactions.length > 0) {
+          const latest_price = Number(transactions[0].price_per_unit);
+          const delta = latest_price * (Math.random() * 0.4 - 0.2); // 现在是 -20% 到 +20%
+          current_price = Number((latest_price + delta).toFixed(2));
+        }
+
+        // 计算加权买入成本
+        let total_buy_amount = 0;
+        let total_buy_quantity = 0;
+        transactions.forEach((tx) => {
+          if (tx.transaction_type === 1) {
+            // 只统计买入
+            total_buy_amount += Number(tx.price_per_unit) * Number(tx.quantity);
+            total_buy_quantity += Number(tx.quantity);
+          }
+        });
+        const avg_cost =
+          total_buy_quantity > 0 ? total_buy_amount / total_buy_quantity : 0;
+
+        // 盈亏
+        const profit_loss = Number(
+          ((current_price - avg_cost) * Number(holding.quantity)).toFixed(2),
+        );
+
+        return {
+          portfolio_holding_id: holding.portfolio_holding_id,
+          account_id: holding.account_id,
+          ticker: holding.ticker,
+          ticker_type: holding.ticker_type,
+          quantity: Number(holding.quantity),
+          created_at: holding.created_at,
+          updated_at: holding.updated_at,
+          current: {
+            price_per_unit: current_price,
+            profit_loss: profit_loss,
+          },
+          transactions: transactions.map((tx) => ({
+            portfolio_transaction_id: tx.portfolio_transaction_id,
+            account_id: tx.account_id,
+            ticker: tx.ticker,
+            ticker_type: tx.ticker_type,
+            transaction_type: tx.transaction_type,
+            quantity: Number(tx.quantity),
+            price_per_unit: Number(tx.price_per_unit),
+            total_amount: Number(tx.total_amount),
+            cash_transaction_id: tx.cash_transaction_id,
+            occurred_at: tx.occurred_at,
+          })),
         };
+      }),
+    );
 
-        return res.status(StatusCodes.CREATED).json({
-            code: StatusCodes.CREATED,
-            msg: '投资组合交易创建成功',
-            data: responseData
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            code: StatusCodes.INTERNAL_SERVER_ERROR,
-            msg: '创建投资组合交易失败',
-            error: error.msg
-        });
-    }
-};
-
-// 获取单个投资组合交易
-const getPortfolioTransactionById = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const transaction = await db.PortfolioTransaction.findByPk(id);
-
-        if (!transaction) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                code: StatusCodes.NOT_FOUND,
-                msg: `未找到 ID 为 ${id} 的投资组合交易`
-            });
-        }
-
-        const responseData = {
-            portfolio_transaction_id: transaction.portfolio_transaction_id,
-            account_id: transaction.account_id,
-            ticker: transaction.ticker,
-            ticker_type: transaction.ticker_type,
-            transaction_type: transaction.transaction_type,
-            quantity: parseFloat(transaction.quantity),
-            price_per_unit: parseFloat(transaction.price_per_unit),
-            total_amount: parseFloat(transaction.total_amount),
-            cash_transaction_id: transaction.cash_transaction_id,
-            occurred_at: new Date(transaction.getDataValue('occurred_at')).toISOString()
-        };
-
-        return res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            msg: "Portfolio transactions retrieved successfully.",
-            data: responseData
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            code: StatusCodes.INTERNAL_SERVER_ERROR,
-            msg: '获取投资组合交易失败',
-            error: error.msg
-        });
-    }
-};
-
-// 更新投资组合交易
-const updatePortfolioTransaction = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const {
-            price_per_unit,
-            quantity,
-            cash_transaction_id
-        } = req.body;
-
-        const transaction = await db.PortfolioTransaction.findByPk(id);
-
-        if (!transaction) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                code: StatusCodes.NOT_FOUND,
-                msg: `未找到 ID 为 ${id} 的投资组合交易`
-            });
-        }
-
-        // 计算新的总金额（如果价格或数量有更新）
-        let total_amount = transaction.total_amount;
-        if (price_per_unit !== undefined && quantity !== undefined) {
-            total_amount = parseFloat(price_per_unit) * parseFloat(quantity);
-        } else if (price_per_unit !== undefined) {
-            total_amount = parseFloat(price_per_unit) * parseFloat(transaction.quantity);
-        } else if (quantity !== undefined) {
-            total_amount = parseFloat(transaction.price_per_unit) * parseFloat(quantity);
-        }
-
-        // 更新交易记录
-        const updatedTransaction = await transaction.update({
-            ...(price_per_unit !== undefined && { price_per_unit }),
-            ...(quantity !== undefined && { quantity }),
-            ...(cash_transaction_id !== undefined && { cash_transaction_id }),
-            ...(total_amount !== transaction.total_amount && { total_amount })
-        });
-
-
-        const { account_id } = updatedTransaction; // 仅使用account_id作为关联条件
-
-        // 查找该account_id对应的所有持仓记录
-        const relatedHoldings = await db.PortfolioHolding.findAll({
-            where: { account_id } // 仅通过account_id关联
-        });
-
-        if (relatedHoldings.length > 0 && quantity !== undefined) {
-            // 遍历更新所有关联持仓的quantity（可根据业务调整更新规则）
-            // 示例规则：将该账户下所有持仓的quantity更新为交易的最新quantity
-            const updatePromises = relatedHoldings.map(holding =>
-                holding.update({
-                    quantity,
-                    updated_at: new Date()
-                })
-            );
-            await Promise.all(updatePromises);
-        } else if (relatedHoldings.length === 0) {
-            console.log(`未找到 account_id 为 ${account_id} 的关联持仓记录`);
-        }
-
-        return res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            msg: `投资组合交易 ${id} 更新成功`,
-            data: {
-                portfolio_transaction_id: transaction.portfolio_transaction_id,
-                total_amount: parseFloat(total_amount)
-            }
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            code: StatusCodes.INTERNAL_SERVER_ERROR,
-            msg: `更新投资组合交易 ${id} 失败`,
-            error: error.msg
-        });
-    }
-};
-
-// 删除投资组合交易
-const deletePortfolioTransaction = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const transaction = await db.PortfolioTransaction.findByPk(id);
-
-        if (!transaction) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                code: StatusCodes.NOT_FOUND,
-                msg: `未找到 ID 为 ${id} 的投资组合交易`
-            });
-        }
-
-        const holding = await db.PortfolioHolding.findByPk(id);
-
-        if (!holding) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                code: StatusCodes.NOT_FOUND,
-                msg: `未找到 ID 为 ${id} 的投资组合持仓`
-            });
-        }
-
-        await transaction.destroy();
-        await holding.destroy();
-
-
-        return res.status(StatusCodes.OK).json({
-            code: StatusCodes.OK,
-            msg: `投资组合交易 ${id} 删除成功`
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            code: StatusCodes.INTERNAL_SERVER_ERROR,
-            msg: '删除投资组合交易失败',
-            error: error.msg
-        });
-    }
-};
-
-module.exports = {
-    createPortfolioTransaction,
-    getPortfolioTransactionById,
-    updatePortfolioTransaction,
-    deletePortfolioTransaction
+    return res.status(StatusCodes.OK).json({
+      code: 200,
+      msg: "Portfolio holdings retrieved successfully.",
+      data: results,
+    });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(StatusCodes.INTERNAL_SERVER_ERROR)
+      .json({ code: 500, msg: "Server error." });
+  }
 };
