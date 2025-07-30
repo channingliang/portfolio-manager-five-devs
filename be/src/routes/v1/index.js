@@ -25,5 +25,10 @@ router.get("/cash/account/:account_id", CashController.getCashTransactionsByAcco
 
 //tiingo数据接口
 router.post("/tiingo", TiingoController.getTiingoData);
+router.post("/tiingo/end_of_day", TiingoController.getEndOfDayData);
+router.post("/tiingo/def", TiingoController.getDefinitionsData);
+router.post("/tiingo/foud_overview", TiingoController.getFundOverview);
+router.post("/tiingo/metaEndpoint", TiingoController.getMetaEndpoint);
+
 
 module.exports = router;
