@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { InfoController, AccountController, CashController, TiingoController, SearchController } = require("../../controllers");
+const { InfoController, AccountController, CashController, TiingoController, PortfolioHoldingsWeeklyController } = require("../../controllers");
 const PortfolioHoldingController = require("../../controllers/portfolio-holding-controller");
 const PortfolioTransactionController = require("../../controllers/portfolio-transaction-controller");
 
@@ -45,5 +45,9 @@ router.get("/portfolio/transaction/:id", PortfolioTransactionController.getPortf
 
 //tiingo数据接口
 router.post("/tiingo", TiingoController.getTiingoData);
+
+//获取每周portfolio数据
+router.get("/portfolio/week/:id", PortfolioHoldingsWeeklyController.getPortfolioHoldingsWeeklyChange);
+
 
 module.exports = router;

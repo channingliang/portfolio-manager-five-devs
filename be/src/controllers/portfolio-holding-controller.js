@@ -58,16 +58,20 @@ const createPortfolioHolding = async (req, res) => {
 
         const responseData = {
             portfolio_holding_id: newHolding.portfolio_holding_id,
-            account_id: newHolding.account_id,
-            ticker: newHolding.ticker,
-            ticker_type: newHolding.ticker_type,
-            quantity: parseFloat(newHolding.quantity),
-            created_at: newHolding.created_at
+            account_id: newTransaction.account_id,
+            ticker: newTransaction.ticker,
+            ticker_type: newTransaction.ticker_type,
+            transaction_type: newTransaction.transaction_type,
+            price_per_unit: newTransaction.price_per_unit,
+            quantity: newTransaction.quantity,
+            total_amount: newTransaction.total_amount,
+            cash_transaction_id: newTransaction.cash_transaction_id,
+            created_at: newTransaction.created_at
         };
 
         return res.status(StatusCodes.CREATED).json({
             code: StatusCodes.CREATED,
-            msg: '投资组合持仓创建成功',
+            msg: "Portfolio transaction created successfully.",
             data: responseData
         });
     } catch (error) {
@@ -94,43 +98,41 @@ const getPortfolioHoldingById = async (req, res) => {
             });
         }
 
-
-        const transaction = await db.PortfolioTransaction.findAll({
-            where: {
-                account_id: holding.account_id,
-                ticker: holding.ticker
-            }
+        const transaction = await db.PortfolioTransaction.findOne({
+            where: { account_id: holding.account_id, ticker: holding.ticker }
         });
 
-        const responseData = [
-            // {
-            //     portfolio_holding_id: holding.portfolio_holding_id,
-            //     account_id: holding.account_id,
-            //     ticker: holding.ticker,
-            //     ticker_type: holding.ticker_type,
-            //     quantity: parseFloat(holding.quantity),
-            //     created_at: new Date(holding.getDataValue('created_at')).toISOString(),
-            //     updated_at: holding.updated_at
-            //         ? new Date(holding.getDataValue('updated_at')).toISOString()
-            //         : null
-            // },
-            {
-                portfolio_transaction_id: transaction.transaction_id,
-                account_id: transaction.account_id,
-                ticker: transaction.ticker,
-                ticker_type: transaction.ticker_type,
-                transaction_type: transaction.transaction_type,
-                quantity: parseFloat(transaction.quantity),
-                price_per_unit: parseFloat(transaction.price_per_unit),
-                total_amount: parseFloat(transaction.total_amount),
-                cash_transaction_id: transaction.cash_transaction_id,
-                occurred_at: transaction.occurred_at
-            }
-        ];
+        holdData = {
+            portfolio_holding_id: holding.portfolio_holding_id,
+            account_id: holding.account_id,
+            ticker: holding.ticker,
+            ticker_type: holding.ticker_type,
+            quantity: (holding.quantity),
+            created_at: new Date(holding.getDataValue('created_at')).toISOString(),
+            updated_at: holding.updated_at
+                ? new Date(holding.getDataValue('updated_at')).toISOString()
+                : null,
+            current: transaction.price_per_unit
+        };
+
+        transactionData = {
+            portfolio_transaction_id: transaction.transaction_id,
+            account_id: transaction.account_id,
+            ticker: transaction.ticker,
+            ticker_type: transaction.ticker_type,
+            transaction_type: transaction.transaction_type,
+            quantity: (transaction.quantity),
+            price_per_unit: (transaction.price_per_unit),
+            total_amount: (transaction.total_amount),
+            cash_transaction_id: transaction.cash_transaction_id,
+            occurred_at: transaction.occurred_at
+        };
+
+        const responseData = [{ holdData }, { transactionData }];
 
         return res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            msg: `获取${id}投资组合持仓`,
+            msg: "Portfolio holdings retrieved successfully.",
             data: responseData
         });
     } catch (error) {

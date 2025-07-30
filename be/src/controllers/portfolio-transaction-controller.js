@@ -103,7 +103,7 @@ const getPortfolioTransactionById = async (req, res) => {
 
         return res.status(StatusCodes.OK).json({
             code: StatusCodes.OK,
-            msg: `查询 ID 为 ${id} 的投资组合交易成功`,
+            msg: "Portfolio transactions retrieved successfully.",
             data: responseData
         });
     } catch (error) {
