@@ -33,11 +33,21 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.DATE,
         allowNull: false,
       },
+      balance_after: {
+        type: DataTypes.DECIMAL(18, 2),
+        allowNull: true,
+        defaultValue: null,
+        get() {
+          const value = this.getDataValue("balance_after");
+          if (value === null || isNaN(parseFloat(value))) return null;
+          return parseFloat(value).toFixed(2);
+        },
+      },
     },
     {
       tableName: "cash_transaction",
       timestamps: false,
-    }
+    },
   );
 
   return Cash;

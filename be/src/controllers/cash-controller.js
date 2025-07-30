@@ -14,7 +14,7 @@ exports.createCashTransaction = async (req, res) => {
   let transaction;
   try {
     transaction = await sequelize.transaction();
-    
+
     const { account_id, type, amount, description } = req.body;
 
     // 基础字段校验
@@ -33,9 +33,9 @@ exports.createCashTransaction = async (req, res) => {
     }
 
     // 查询账户
-    const account = await Account.findOne({ 
+    const account = await Account.findOne({
       where: { user_id: account_id },
-      transaction 
+      transaction,
     });
 
     if (!account) {
@@ -49,11 +49,11 @@ exports.createCashTransaction = async (req, res) => {
     } else if (type === 2) {
       const currentBalance = parseFloat(account.balance);
       const transactionAmount = parseFloat(amount);
-      
+
       if (currentBalance < transactionAmount) {
         throw new Error("余额不足，无法完成支出。");
       }
-      
+
       newBalance = currentBalance - transactionAmount;
     }
 
@@ -62,14 +62,18 @@ exports.createCashTransaction = async (req, res) => {
     await account.save({ transaction });
 
     // 创建交易记录（related_id 设为 null）
-    const cashRecord = await Cash.create({
-      account_id,
-      type,
-      amount,
-      related_id: null, // 允许为空
-      description,
-      occurred_at: new Date(),
-    }, { transaction });
+    const cashRecord = await Cash.create(
+      {
+        account_id,
+        type,
+        amount,
+        related_id: null, // 允许为空
+        description,
+        occurred_at: new Date(),
+        balance_after: newBalance,
+      },
+      { transaction },
+    );
 
     await transaction.commit();
 
@@ -82,34 +86,34 @@ exports.createCashTransaction = async (req, res) => {
       related_id: cashRecord.related_id, // 返回 null
       description: cashRecord.description,
       occurred_at: cashRecord.occurred_at,
-      current_balance: newBalance
+      balance_after: cashRecord.balance_after,
     };
 
     return res.status(201).json({
       code: 201,
       msg: "Cash transaction created successfully.",
-      data: responseData
+      data: responseData,
     });
   } catch (err) {
     if (transaction) await transaction.rollback();
-    
+
     console.error("Cash transaction error:", err);
-    
+
     const errorMap = {
       "Missing required fields.": 400,
-      "金额必须是大于0的有效数字": 400,
+      金额必须是大于0的有效数字: 400,
       "用户不存在。": 404,
       "余额不足，无法完成支出。": 400,
-      "非法交易类型。": 400
+      "非法交易类型。": 400,
     };
-    
+
     const statusCode = errorMap[err.message] || 500;
     const errorData = statusCode === 500 ? err.message : {};
-    
+
     return res.status(statusCode).json({
       code: statusCode,
       msg: err.message || "服务器内部错误。",
-      data: errorData
+      data: errorData,
     });
   }
 };
@@ -123,7 +127,7 @@ exports.getCashTransactions = async (req, res) => {
       return res.status(400).json({
         code: 400,
         msg: "无效的账户 ID。",
-        data: {}
+        data: {},
       });
     }
 
@@ -132,7 +136,7 @@ exports.getCashTransactions = async (req, res) => {
       return res.status(404).json({
         code: 404,
         msg: "用户不存在。",
-        data: {}
+        data: {},
       });
     }
 
@@ -145,12 +149,13 @@ exports.getCashTransactions = async (req, res) => {
         "amount",
         "related_id",
         "description",
-        "occurred_at"
+        "occurred_at",
+        "balance_after",
       ],
-      order: [["occurred_at", "DESC"]]
+      order: [["occurred_at", "DESC"]],
     });
 
-    const responseTransactions = transactions.map(transaction => ({
+    const responseTransactions = transactions.map((transaction) => ({
       cash_transaction_id: transaction.cash_account_id,
       account_id: transaction.account_id,
       type: transaction.type,
@@ -158,20 +163,20 @@ exports.getCashTransactions = async (req, res) => {
       related_id: transaction.related_id,
       description: transaction.description,
       occurred_at: transaction.occurred_at,
-      current_balance: account.balance
+      balance_after: transaction.balance_after,
     }));
 
     return res.status(200).json({
       code: 200,
       msg: "Cash transactions retrieved successfully.",
-      data: responseTransactions
+      data: responseTransactions,
     });
   } catch (err) {
     console.error("查询交易记录失败:", err);
     return res.status(500).json({
       code: 500,
       msg: "服务器内部错误。",
-      data: err.message
+      data: err.message,
     });
   }
 };
@@ -185,7 +190,7 @@ exports.getCashDistribution = async (req, res) => {
       return res.status(400).json({
         code: 400,
         msg: "无效的账户 ID。",
-        data: {}
+        data: {},
       });
     }
 
@@ -194,7 +199,7 @@ exports.getCashDistribution = async (req, res) => {
       return res.status(404).json({
         code: 404,
         msg: "用户不存在。",
-        data: {}
+        data: {},
       });
     }
 
@@ -208,17 +213,16 @@ exports.getCashDistribution = async (req, res) => {
     return res.status(200).json({
       code: 200,
       msg: "Cash distribution retrieved successfully.",
-      data: distribution
+      data: distribution,
     });
   } catch (err) {
     console.error("获取现金分布失败:", err);
     return res.status(500).json({
       code: 500,
       msg: "服务器内部错误。",
-      data: err.message
+      data: err.message,
     });
   }
 };
-
 
 //
