@@ -2,7 +2,7 @@ module.exports = (sequelize, DataTypes) => {
   const Cash = sequelize.define(
     "cash_transaction",
     {
-      cash_account_id: {
+      cash_transaction_id: {
         type: DataTypes.INTEGER,
         primaryKey: true,
         autoIncrement: true,

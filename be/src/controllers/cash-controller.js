@@ -79,7 +79,7 @@ exports.createCashTransaction = async (req, res) => {
 
     // 构建响应数据
     const responseData = {
-      cash_transaction_id: cashRecord.cash_account_id,
+      cash_transaction_id: cashRecord.cash_transaction_id,
       account_id: cashRecord.account_id,
       type: cashRecord.type,
       amount: cashRecord.amount,
@@ -143,7 +143,7 @@ exports.getCashTransactions = async (req, res) => {
     const transactions = await Cash.findAll({
       where: { account_id },
       attributes: [
-        "cash_account_id",
+        "cash_transaction_id",
         "account_id",
         "type",
         "amount",
@@ -156,7 +156,7 @@ exports.getCashTransactions = async (req, res) => {
     });
 
     const responseTransactions = transactions.map((transaction) => ({
-      cash_transaction_id: transaction.cash_account_id,
+      cash_transaction_id: transaction.cash_transaction_id,
       account_id: transaction.account_id,
       type: transaction.type,
       amount: transaction.amount,
