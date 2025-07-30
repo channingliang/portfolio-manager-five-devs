@@ -1,0 +1,62 @@
+[
+    {
+        "ticker": "injusdt",
+        "name": "INJ (INJ/USDT)",
+        "baseCurrency": "inj",
+        "quoteCurrency": "usdt"
+    },
+    {
+        "ticker": "valueeth",
+        "name": "VALUE (VALUE/ETH)",
+        "baseCurrency": "value",
+        "quoteCurrency": "eth"
+    },
+    {
+        "ticker": "bsvusdc",
+        "name": "BSV-USDC (BSV/USDC)",
+        "baseCurrency": "bsv",
+        "quoteCurrency": "usdc"
+    },
+    {
+        "ticker": "xlmtry",
+        "name": "XLM (XLM/TRY)",
+        "baseCurrency": "xlm",
+        "quoteCurrency": "try"
+    },
+    {
+        "ticker": "rsrtry",
+        "name": "RSR (RSR/TRY)",
+        "baseCurrency": "rsr",
+        "quoteCurrency": "try"
+    },
+    {
+        "ticker": "rankerusdt",
+        "name": "RANKER-USDT (RANKER/USDT)",
+        "baseCurrency": "ranker",
+        "quoteCurrency": "usdt"
+    },
+    {
+        "ticker": "ftieth",
+        "name": "FTI (FTI/ETH)",
+        "baseCurrency": "fti",
+        "quoteCurrency": "eth"
+    },
+    {
+        "ticker": "tngospswetheth",
+        "name": null,
+        "baseCurrency": "tngospsweth",
+        "quoteCurrency": "eth"
+    },
+    {
+        "ticker": "straxbtc",
+        "name": "Stratis (STRAX/BTC)",
+        "baseCurrency": "strax",
+        "quoteCurrency": "btc"
+    },
+    {
+        "ticker": "tngosprswetheth",
+        "name": null,
+        "baseCurrency": "tngosprsweth",
+        "quoteCurrency": "eth"
+    }
+]
