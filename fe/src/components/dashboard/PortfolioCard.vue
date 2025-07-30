@@ -4,7 +4,7 @@
     <h2 class="mb-4 text-xl font-semibold text-gray-900">Account Overview</h2>
 
     <!-- 投资资产行 -->
-    <div class="flex items-center justify-between">
+    <div class="mb-6 flex items-center justify-between">
       <div class="flex items-center space-x-2">
         <!-- 投资资产图标 -->
         <svg
@@ -27,14 +27,14 @@
       </div>
 
       <!-- 总资产 -->
-      <div class="font-bold text-gray-900">
-        ￥{{ totalValue.toLocaleString() }}
-      </div>
+      <div class="font-bold text-gray-900">￥{{ totalValue }}</div>
     </div>
 
     <!-- 持仓产品 -->
     <div class="mb-6">
-      <div class="grid grid-cols-2 gap-4">
+      <div
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2"
+      >
         <!-- 产品卡片 -->
         <div
           v-for="(item, index) in accountOverview"
@@ -42,24 +42,41 @@
           class="relative rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
         >
           <!-- 产品名 -->
-          <div class="text-sm text-gray-800">
+          <div class="mb-2 text-sm text-gray-800">
             <div>{{ item.name }}</div>
             <div class="text-xs text-gray-500">({{ item.ticker }})</div>
           </div>
 
           <!-- 收益 -->
           <div
-            class="flex items-center text-sm"
+            class="mb-2 flex items-center text-sm"
             :class="item.profit >= 0 ? 'text-green-600' : 'text-red-600'"
           >
-            <ChartNoAxesCombined class="size-4" />
-            ￥{{ item.profit.toLocaleString() }}
+            <ChartNoAxesCombined class="mr-1 size-4" />
+            {{ item.profit >= 0 ? "+" : "" }}￥{{
+              item.profit.toLocaleString()
+            }}
           </div>
 
           <!-- 持仓份额 -->
-          <div class="flex items-center text-sm text-gray-600">
-            <Inbox class="size-4" />
-            {{ item.amount.toLocaleString() }}
+          <div class="mb-2 flex items-center text-sm text-gray-600">
+            <Inbox class="mr-1 size-4" />
+            {{ item.amount.toLocaleString() }} shares
+          </div>
+
+          <!-- 当前价格 -->
+          <div class="mb-3 text-sm text-gray-700">
+            Current price:<br />${{ item.current_price.toLocaleString() }}
+          </div>
+
+          <!-- 操作按钮组 -->
+          <div class="flex justify-end space-x-2">
+            <Button variant="outline" size="icon" @click="openBuyDialog(item)">
+              <Plus />
+            </Button>
+            <Button variant="outline" size="icon" @click="openSellDialog(item)">
+              <Trash />
+            </Button>
           </div>
 
           <!-- 当前价格 + 卖出按钮 -->
@@ -81,7 +98,6 @@
       </div>
     </div>
   </div>
-
   <!-- 卖出弹窗 -->
   <Dialog v-model:open="showDialog">
     <DialogContent class="max-w-sm">
@@ -105,6 +121,8 @@
           v-model="sellValue"
           placeholder="Please enter the quantity"
           type="number"
+          min="0"
+          step="any"
           class="w-full"
         />
       </div>
@@ -141,6 +159,8 @@
           v-model="buyValue"
           placeholder="Please enter the quantity"
           type="number"
+          min="0"
+          step="any"
           class="w-full"
         />
       </div>
@@ -161,9 +181,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { accountOverview } from "@/lib/data.js"; // 引入你的API数据
+import { ref, computed, onMounted } from "vue";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -174,28 +192,204 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowDownUp } from "lucide-vue-next";
-import {
-  ChartNoAxesCombined,
-  Inbox,
-  ArrowBigDown,
-  ArrowBigUp,
-  Plus,
-  Trash,
-} from "lucide-vue-next";
+import { ChartNoAxesCombined, Inbox, Plus, Trash } from "lucide-vue-next";
 
-// 卖出弹窗
-const showDialog = ref(false);
-const sellMode = ref("shares"); // "shares" or "amount"
-const sellValue = ref("");
-const selectedProduct = ref(null);
+// 1. 响应式数据定义
+// 持仓数据（后期可从API加载）
+const accountOverview = ref([
+  {
+    name: "Portfolio A",
+    ticker: "AAPL",
+    amount: 150, // 持仓份额
+    profit: 1999, // 收益金额
+    current_price: 214.05, // 当前价格
+    cost_price: 190.0, // 成本价（用于计算收益）
+  },
+  {
+    name: "Portfolio B",
+    ticker: "TSLA",
+    amount: 80,
+    profit: -230,
+    current_price: 298.12,
+    cost_price: 320.0,
+  },
+  {
+    name: "Portfolio C",
+    ticker: "MSFT",
+    amount: 120,
+    profit: 3100,
+    current_price: 345.67,
+    cost_price: 320.5,
+  },
+  {
+    name: "Portfolio D",
+    ticker: "BTC",
+    amount: 0.75,
+    profit: 4200,
+    current_price: 29850.25,
+    cost_price: 28500.0,
+  },
+  {
+    name: "Portfolio E",
+    ticker: "ETH",
+    amount: 5,
+    profit: -950,
+    current_price: 1985.6,
+    cost_price: 2150.0,
+  },
+  {
+    name: "Portfolio F",
+    ticker: "FUND001",
+    amount: 1000,
+    profit: 320,
+    current_price: 2.45,
+    cost_price: 2.1,
+  },
+  {
+    name: "Portfolio G",
+    ticker: "NVDA",
+    amount: 60,
+    profit: 4000,
+    current_price: 460.2,
+    cost_price: 410.0,
+  },
+  {
+    name: "Portfolio H",
+    ticker: "SOL",
+    amount: 120,
+    profit: 650,
+    current_price: 24.8,
+    cost_price: 22.5,
+  },
+  {
+    name: "Portfolio I",
+    ticker: "PDD",
+    amount: 200,
+    profit: 2800,
+    current_price: 156.3,
+    cost_price: 142.0,
+  },
+  {
+    name: "Portfolio J",
+    ticker: "FUND005",
+    amount: 500,
+    profit: 120,
+    current_price: 3.15,
+    cost_price: 3.0,
+  },
+]);
 
-// 买入弹窗相关
-const showBuyDialog = ref(false);
-const buyMode = ref("shares");
-const buyValue = ref("");
+// 弹窗控制变量
+const showDialog = ref(false); // 卖出弹窗显示状态
+const showBuyDialog = ref(false); // 买入弹窗显示状态
+const selectedProduct = ref(null); // 当前选中的操作产品
 
-// 打开卖出弹窗
+// 买入相关变量
+const buyMode = ref("shares"); // 买入模式：按份额(shares)或金额(amount)
+const buyValue = ref(""); // 买入输入值
+
+// 卖出相关变量
+const sellMode = ref("shares"); // 卖出模式：按份额(shares)或金额(amount)
+const sellValue = ref(""); // 卖出输入值
+
+// 2. 计算属性
+// 计算总资产：持仓份额 × 当前价格之和
+const totalValue = computed(() => {
+  const total = accountOverview.value.reduce(
+    (sum, item) => sum + item.amount * item.current_price,
+    0,
+  );
+  return total.toLocaleString(undefined, { maximumFractionDigits: 2 });
+});
+
+// 3. 数据操作服务（封装业务逻辑，便于后期对接API）
+const portfolioService = {
+  /**
+   * 加载持仓数据
+   * 后期对接API时，替换为真实接口调用
+   */
+  async loadHoldings() {
+    // 模拟API请求延迟
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        resolve([...accountOverview.value]);
+      }, 500);
+    });
+  },
+
+  /**
+   * 买入操作
+   * @param {Object} product - 产品信息
+   * @param {number} quantity - 买入份额
+   */
+  async buy(product, quantity) {
+    return new Promise((resolve) => {
+      // 找到对应产品并更新数据
+      const item = accountOverview.value.find(
+        (item) => item.ticker === product.ticker,
+      );
+      if (item) {
+        // 增加持仓份额
+        item.amount = Number((item.amount + quantity).toFixed(6));
+        // 重新计算收益：(当前价 - 成本价) × 总份额
+        item.profit = Number(
+          ((item.current_price - item.cost_price) * item.amount).toFixed(2),
+        );
+      }
+      resolve(true);
+    });
+  },
+
+  /**
+   * 卖出操作
+   * @param {Object} product - 产品信息
+   * @param {number} quantity - 卖出份额
+   */
+  async sell(product, quantity) {
+    return new Promise((resolve, reject) => {
+      const item = accountOverview.value.find(
+        (item) => item.ticker === product.ticker,
+      );
+
+      // 验证：产品是否存在
+      if (!item) {
+        return reject(new Error("Product not found"));
+      }
+
+      // 验证：卖出份额是否超过持仓
+      if (item.amount < quantity) {
+        return reject(new Error("Cannot sell more than you hold"));
+      }
+
+      // 更新持仓数据
+      item.amount = Number((item.amount - quantity).toFixed(6));
+      // 重新计算收益
+      item.profit = Number(
+        ((item.current_price - item.cost_price) * item.amount).toFixed(2),
+      );
+
+      resolve(true);
+    });
+  },
+};
+
+// 4. 生命周期钩子
+// 组件挂载时加载数据（模拟API请求流程）
+onMounted(async () => {
+  try {
+    const data = await portfolioService.loadHoldings();
+    accountOverview.value = data;
+  } catch (error) {
+    console.error("Failed to load portfolio data:", error);
+    alert("Failed to load portfolio data. Please try again later.");
+  }
+});
+
+// 5. 事件处理函数
+/**
+ * 打开卖出弹窗
+ * @param {Object} item - 选中的产品
+ */
 function openSellDialog(item) {
   selectedProduct.value = item;
   sellValue.value = "";
@@ -203,7 +397,10 @@ function openSellDialog(item) {
   showDialog.value = true;
 }
 
-// 打开买入弹窗
+/**
+ * 打开买入弹窗
+ * @param {Object} item - 选中的产品
+ */
 function openBuyDialog(item) {
   selectedProduct.value = item;
   buyValue.value = "";
@@ -211,32 +408,79 @@ function openBuyDialog(item) {
   showBuyDialog.value = true;
 }
 
-// 确认卖出
-function confirmSell() {
-  console.log(
-    `Selling ${sellValue.value} ${sellMode.value === "shares" ? "份额" : "金额"} of`,
-    selectedProduct.value?.name,
-  );
-  showDialog.value = false;
+/**
+ * 确认卖出
+ */
+async function confirmSell() {
+  // 输入验证
+  if (
+    !selectedProduct.value ||
+    !sellValue.value ||
+    Number(sellValue.value) <= 0
+  ) {
+    alert("Please enter a valid quantity");
+    return;
+  }
+
+  // 根据模式计算卖出份额
+  const quantity =
+    sellMode.value === "shares"
+      ? Number(sellValue.value) // 按份额卖出
+      : Number(
+          (
+            Number(sellValue.value) / selectedProduct.value.current_price
+          ).toFixed(6),
+        ); // 按金额换算份额
+
+  if (quantity <= 0) {
+    alert("Quantity must be greater than 0");
+    return;
+  }
+
+  try {
+    await portfolioService.sell(selectedProduct.value, quantity);
+    showDialog.value = false;
+  } catch (error) {
+    alert(error.message);
+  }
 }
 
-// 确认买入
-function confirmBuy() {
-  console.log(
-    `Buying ${buyValue.value} ${
-      buyMode.value === "shares" ? "份额" : "金额"
-    } of ${selectedProduct.value?.name}`,
-  );
-  showBuyDialog.value = false;
-}
+/**
+ * 确认买入
+ */
+async function confirmBuy() {
+  // 输入验证
+  if (
+    !selectedProduct.value ||
+    !buyValue.value ||
+    Number(buyValue.value) <= 0
+  ) {
+    alert("Please enter a valid quantity");
+    return;
+  }
 
-// 总资产计算
-const totalValue = computed(() =>
-  accountOverview.reduce(
-    (sum, item) => sum + item.amount * item.current_price,
-    0,
-  ),
-);
+  // 根据模式计算买入份额
+  const quantity =
+    buyMode.value === "shares"
+      ? Number(buyValue.value) // 按份额买入
+      : Number(
+          (
+            Number(buyValue.value) / selectedProduct.value.current_price
+          ).toFixed(6),
+        ); // 按金额换算份额
+
+  if (quantity <= 0) {
+    alert("Quantity must be greater than 0");
+    return;
+  }
+
+  try {
+    await portfolioService.buy(selectedProduct.value, quantity);
+    showBuyDialog.value = false;
+  } catch (error) {
+    alert(error.message);
+  }
+}
 </script>
 
 <style scoped>
@@ -244,5 +488,12 @@ const totalValue = computed(() =>
   padding: 20px;
   height: 100%;
   overflow-y: auto; /* 允许滚动 */
+}
+
+/* 响应式调整 */
+@media (max-width: 640px) {
+  .grid-cols-1 {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
 }
 </style>
