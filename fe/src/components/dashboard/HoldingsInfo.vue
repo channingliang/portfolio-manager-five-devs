@@ -11,10 +11,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
-  ChartNoAxesCombined,
-  Inbox,
+  Layers,
+  HandCoins,
   Plus,
-  Trash,
+  Minus,
   ChartCandlestick,
 } from "lucide-vue-next";
 
@@ -309,7 +309,7 @@ async function confirmBuy() {
 
 <template>
   <div
-    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border bg-white/90 p-4 shadow-lg backdrop-blur-md"
+    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border bg-white/70 p-4 shadow-lg backdrop-blur-md"
   >
     <div class="flex items-center gap-1">
       <ChartCandlestick class="size-4" />
@@ -335,26 +335,31 @@ async function confirmBuy() {
             <div class="text-xs text-gray-500">({{ item.ticker }})</div>
           </div>
 
-          <!-- 收益 -->
-          <div
-            class="mb-2 flex items-center text-sm"
-            :class="item.profit >= 0 ? 'text-green-600' : 'text-red-600'"
-          >
-            <ChartNoAxesCombined class="mr-1 size-4" />
-            {{ item.profit >= 0 ? "+" : "" }}￥{{
-              item.profit.toLocaleString()
-            }}
-          </div>
-
-          <!-- 持仓份额 -->
-          <div class="mb-2 flex items-center text-sm text-gray-600">
-            <Inbox class="mr-1 size-4" />
-            {{ item.amount.toLocaleString() }} shares
-          </div>
-
           <!-- 当前价格 -->
           <div class="mb-3 text-sm text-gray-700">
-            Current price:<br />${{ item.current_price.toLocaleString() }}
+            ${{ item.current_price.toLocaleString() }}
+          </div>
+
+          <!-- 收益 -->
+
+          <!-- 持仓份额 -->
+          <div
+            class="mb-2 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm"
+          >
+            <div class="flex items-center gap-1">
+              <Layers class="size-4" />
+              {{ item.amount.toLocaleString() }}
+            </div>
+            <div class="flex items-center gap-1">
+              <HandCoins class="size-4" />
+              <span
+                :class="item.profit >= 0 ? 'text-green-600' : 'text-red-600'"
+              >
+                {{ item.profit >= 0 ? "+" : "" }}${{
+                  item.profit.toLocaleString()
+                }}
+              </span>
+            </div>
           </div>
 
           <!-- 操作按钮组 -->
@@ -363,7 +368,7 @@ async function confirmBuy() {
               <Plus />
             </Button>
             <Button variant="outline" size="icon" @click="openSellDialog(item)">
-              <Trash />
+              <Minus />
             </Button>
           </div>
         </div>
@@ -402,8 +407,8 @@ async function confirmBuy() {
       <DialogFooter>
         <Button variant="secondary" @click="showDialog = false">Cancel</Button>
         <Button class="text-black" variant="destructive" @click="confirmSell"
-          >Confirm</Button
-        >
+          >Confirm
+        </Button>
       </DialogFooter>
     </DialogContent>
   </Dialog>
@@ -439,8 +444,8 @@ async function confirmBuy() {
 
       <DialogFooter>
         <Button variant="secondary" @click="showBuyDialog = false"
-          >Cancel</Button
-        >
+          >Cancel
+        </Button>
         <Button
           class="bg-green-600 text-black hover:bg-green-700"
           @click="confirmBuy"

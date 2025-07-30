@@ -8,24 +8,23 @@ import GraphsCarousel from "@/components/dashboard/GraphsCarousel.vue";
 </script>
 
 <template>
-  <div class="flex gap-4">
-    <!-- 左侧：固定宽度 -->
-    <div
-      class="sticky top-24 h-[calc(100vh-160px)] max-w-[400px] min-w-[300px] pr-2"
-    >
-      <CashInfo />
+  <div class="flex min-h-screen gap-4">
+    <div class="w-[400px]">
+      <div class="sticky top-24">
+        <CashInfo />
+      </div>
     </div>
 
-    <!-- 中间：自适应 -->
-    <div class="sticky top-24 h-auto flex-1">
+    <div class="sticky top-24 h-auto min-w-[400px] flex-1">
       <HoldingsInfo />
     </div>
 
-    <!-- 右侧：固定宽度 -->
-    <div class="sticky top-24 max-w-[500px] min-w-[400px]">
-      <!--<PieChart />-->
-      <!--<LineGraph />-->
-      <GraphsCarousel />
+    <div class="w-[400px]">
+      <div class="sticky top-24 space-y-4">
+        <!--<GraphsCarousel />-->
+        <PieChart />
+        <LineGraph />
+      </div>
     </div>
   </div>
 </template>
@@ -35,6 +34,7 @@ import GraphsCarousel from "@/components/dashboard/GraphsCarousel.vue";
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: rgba(100, 100, 100, 0.2);
   border-radius: 3px;

@@ -1,13 +1,21 @@
 <template>
-  <div class="mx-auto h-full w-full">
-    <div ref="chartRef" class="h-[50vh] w-auto" />
+  <div
+    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border p-4 shadow-lg"
+  >
+    <ChartPie class="size-4" />
+    Pie Chart
   </div>
+  <div
+    ref="chartRef"
+    class="mx-auto min-h-[300px] w-auto rounded-2xl border pt-4 pb-6"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import * as echarts from "echarts";
 import { pieChartData } from "@/lib/data";
+import { ChartPie } from "lucide-vue-next";
 
 const chartRef = ref(null);
 let chart = null;
@@ -33,12 +41,16 @@ function renderChart() {
         return `${name}<br/>占比: ${pct}%<br/>数值: ${value}`;
       },
     },
-    legend: { orient: "vertical", left: "left" },
+    legend: {
+      orient: "horizontal",
+      bottom: 0, // 或 'top'
+      left: "center", // 居中对齐
+    },
     series: [
       {
         type: "pie",
         radius: "60%",
-        center: ["63%", "55%"],
+        center: ["48%", "45%"],
         data: pieChartData,
         label: {
           show: true,

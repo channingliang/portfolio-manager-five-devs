@@ -33,7 +33,7 @@ accountStore.fetchAccountInfo(3);
 <template>
   <nav class="fixed top-6 z-999 flex h-12 w-full justify-center">
     <div
-      class="mr-4 h-12 overflow-hidden rounded-full border bg-white/70 px-3 py-2 shadow-lg backdrop-blur-md"
+      class="mr-4 h-12 overflow-hidden rounded-full border bg-white/70 p-3 shadow-lg backdrop-blur-md"
     >
       <img
         src="../../assets/icon.png"

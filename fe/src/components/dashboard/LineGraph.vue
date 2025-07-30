@@ -1,14 +1,21 @@
 <template>
-  <div class="h-[350px] w-full">
-    <p class="mb-2 font-semibold">Financial Trends</p>
-    <div ref="chartRef" class="h-[300px] w-full" />
+  <div
+    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border p-4 shadow-lg"
+  >
+    <ChartLine class="size-4" />
+    Line Graph
   </div>
+  <div
+    ref="chartRef"
+    class="min-h-[300px] w-full rounded-2xl border px-4 pb-6"
+  />
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted, watch } from "vue";
 import * as echarts from "echarts";
 import { lineChartData } from "@/lib/data";
+import { ChartLine } from "lucide-vue-next";
 
 const chartRef = ref(null);
 let chart = null;
@@ -27,7 +34,7 @@ function renderChart() {
     textStyle: { fontFamily },
     tooltip: { trigger: "axis" },
     legend: { data: legendData, bottom: 0, left: "center" },
-    grid: { left: "3%", right: "4%", bottom: "12%", containLabel: true },
+    grid: { left: "3%", right: "3%", bottom: "12%", containLabel: true },
     xAxis: { type: "category", boundaryGap: false, data: xAxisData },
     yAxis: { type: "value" },
     series: lineChartData.map((item) => ({
