@@ -15,6 +15,9 @@ router.post("/account", AccountController.createAccount);
 // 获取账户详情接口
 router.get("/account/:id", AccountController.getAccountById);
 
+// 更新账户信息接口PATCH /account/{id}
+router.patch("/account/:id", AccountController.updateAccount);
+
 //删除账户
 router.delete("/account/:id", AccountController.deleteAccount);
 
