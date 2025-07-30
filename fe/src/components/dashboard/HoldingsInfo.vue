@@ -14,13 +14,13 @@ import BuyDrawer from "@/components/stock/BuyDrawer.vue";
 import SellDrawer from "@/components/stock/SellDrawer.vue";
 import eventBus from "@/lib/eventBus.js";
 
-// 当前登录账号ID（根据你的实际情况获取，这里写死为1）
+// 当前登录账号ID
 const accountId = 1;
 
-// 持仓资产
+// 资产数据
 const holdingAssets = ref([]);
 
-// 当前选中的资产
+// 当前操作资产
 const selectedProduct = ref(null);
 
 // Drawer 控制
@@ -31,16 +31,16 @@ const sellLoading = ref(false);
 const buyError = ref("");
 const sellError = ref("");
 
-// 总资产计算
-const totalValue = computed(() => {
-  return holdingAssets.value
+// 总资产
+const totalValue = computed(() =>
+  holdingAssets.value
     .reduce(
       (sum, item) =>
         sum + Number(item.quantity) * Number(item.current?.price_per_unit ?? 0),
       0,
     )
-    .toLocaleString(undefined, { maximumFractionDigits: 2 });
-});
+    .toLocaleString(undefined, { maximumFractionDigits: 2 }),
+);
 
 // 盈亏样式与文本
 const getProfitClass = (item) => {
@@ -53,7 +53,7 @@ const getProfitText = (item) => {
   return `${profit >= 0 ? "+" : ""}$${profit.toLocaleString()}`;
 };
 
-// 加载持仓数据
+// 加载资产
 const loadHoldings = () => {
   api
     .get("/portfolio/holding", { account_id: accountId })
@@ -66,10 +66,9 @@ const loadHoldings = () => {
     });
 };
 
-// 初次加载
 onMounted(loadHoldings);
 
-// 打开Drawer
+// 打开drawer
 function openBuyDrawer(item) {
   selectedProduct.value = item;
   buyDrawerOpen.value = true;
@@ -175,8 +174,8 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
             {{ item.ticker_type === 1 ? "Stock" : "Crypto/Fund" }}
           </div>
           <div class="font-bold">
-            <span>{{ item.name }}</span>
-            <span class="ml-2 text-gray-500">({{ item.ticker }})</span>
+            <p>{{ item.name }}</p>
+            <p class="mt-1 text-xs text-gray-500">{{ item.ticker }}</p>
           </div>
         </div>
         <!-- 当前价格 -->
@@ -224,13 +223,14 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
     @cancel="buyError = ''"
   />
 
-  <!-- 卖出Drawer -->
+  <!-- 卖出Drawer，关键是这里！holding 传持有份额 -->
   <SellDrawer
     v-if="selectedProduct"
     v-model:open="sellDrawerOpen"
     :stock="selectedProduct"
     :default-quantity="1"
     :default-price="Number(selectedProduct.current?.price_per_unit || 0)"
+    :holding="Number(selectedProduct.quantity)"
     :loading="sellLoading"
     :error="sellError"
     @confirm="handleSellConfirm"

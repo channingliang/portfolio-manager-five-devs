@@ -21,6 +21,7 @@ import { ref, watch, computed } from "vue";
 const props = defineProps({
   open: { type: Boolean, required: true },
   stock: { type: Object, required: true },
+  holding: { type: Number, required: true }, // 当前持有数量
   defaultQuantity: { type: Number, default: 1 },
   defaultPrice: { type: Number, default: null },
   loading: { type: Boolean, default: false },
@@ -35,10 +36,7 @@ const drawerOpen = computed({
 
 const sellQuantity = ref(props.defaultQuantity);
 const sellPrice = ref(
-  props.defaultPrice ??
-    (props.stock?.current?.price_per_unit
-      ? Number(props.stock.current.price_per_unit)
-      : 0),
+  props.defaultPrice ?? (props.stock?.price ? Number(props.stock.price) : 0),
 );
 
 watch(
@@ -46,8 +44,7 @@ watch(
   (val) => {
     sellQuantity.value = props.defaultQuantity;
     sellPrice.value =
-      props.defaultPrice ??
-      (val?.current?.price_per_unit ? Number(val.current.price_per_unit) : 0);
+      props.defaultPrice ?? (val?.price ? Number(val.price) : 0);
   },
 );
 watch(
@@ -57,11 +54,16 @@ watch(
       sellQuantity.value = props.defaultQuantity;
       sellPrice.value =
         props.defaultPrice ??
-        (props.stock?.current?.price_per_unit
-          ? Number(props.stock.current.price_per_unit)
-          : 0);
+        (props.stock?.price ? Number(props.stock.price) : 0);
     }
   },
+);
+
+const totalIncome = computed(
+  () => Number(sellQuantity.value) * Number(sellPrice.value) || 0,
+);
+const insufficientHolding = computed(
+  () => Number(sellQuantity.value) > Number(props.holding),
 );
 
 const handleConfirm = () => {
@@ -86,7 +88,7 @@ const handleCancel = () => {
             Sell {{ props.stock?.name }} ({{ props.stock?.ticker }})
           </DrawerTitle>
           <DrawerDescription>
-            Sell shares of this stock at your desired price.
+            Sell your holding of this stock at your desired price.
           </DrawerDescription>
         </DrawerHeader>
         <div class="px-4">
@@ -133,10 +135,27 @@ const handleCancel = () => {
                 </NumberFieldContent>
               </NumberField>
             </div>
-            <div v-if="props.error" class="mt-2 text-sm text-red-500">
+            <div class="mt-4 text-end text-xs text-gray-500">
+              <p class="mb-1">
+                Total: ${{
+                  totalIncome.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                  })
+                }}
+              </p>
+              <p>Holding: {{ props.holding }}</p>
+            </div>
+            <div
+              v-if="insufficientHolding"
+              class="mt-1 text-end text-xs text-red-500"
+            >
+              Not enough holding quantity
+            </div>
+            <div v-if="props.error" class="mt-2 text-end text-sm text-red-500">
               {{ props.error }}
             </div>
-            <div class="mt-6 flex justify-end gap-2">
+
+            <div class="mt-4 flex justify-end gap-2">
               <DrawerClose as-child>
                 <Button
                   size="icon"
@@ -152,7 +171,7 @@ const handleCancel = () => {
                 size="icon"
                 variant="outline"
                 @click="handleConfirm"
-                :disabled="props.loading"
+                :disabled="props.loading || insufficientHolding"
               >
                 <Loader2 v-if="props.loading" class="h-4 w-4 animate-spin" />
                 <Check v-else class="size-4 text-green-500" />

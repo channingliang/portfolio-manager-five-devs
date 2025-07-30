@@ -17,6 +17,7 @@ import {
   NumberFieldInput,
 } from "@/components/ui/number-field";
 import { ref, watch, computed } from "vue";
+import { useAccountStore } from "@/stores/account.js";
 
 const props = defineProps({
   open: { type: Boolean, required: true },
@@ -57,6 +58,26 @@ watch(
   },
 );
 
+// 余额自动获取
+const accountStore = useAccountStore();
+const balance = computed(() =>
+  typeof accountStore.balance === "number" ? accountStore.balance : 0,
+);
+
+// 购买总价
+const totalAmount = computed(
+  () => Number(buyQuantity.value) * Number(buyPrice.value),
+);
+
+// 按钮可用条件
+const canBuy = computed(
+  () =>
+    !props.loading &&
+    Number(buyQuantity.value) > 0 &&
+    Number(buyPrice.value) > 0 &&
+    balance.value >= totalAmount.value,
+);
+
 const handleConfirm = () => {
   emit("confirm", {
     quantity: Number(buyQuantity.value),
@@ -79,7 +100,7 @@ const handleCancel = () => {
             Buy {{ props.stock?.name }} ({{ props.stock?.ticker }})
           </DrawerTitle>
           <DrawerDescription>
-            Purchase shares of this stock at your desired price.
+            Purchase shares at your desired price.
           </DrawerDescription>
         </DrawerHeader>
         <div class="px-4">
@@ -104,7 +125,7 @@ const handleCancel = () => {
             </div>
             <div class="mb-2">
               <span class="mb-1 block text-sm font-medium text-gray-700"
-                >Buy Price</span
+                >Price Per Unit</span
               >
               <NumberField
                 v-model="buyPrice"
@@ -126,10 +147,35 @@ const handleCancel = () => {
                 </NumberFieldContent>
               </NumberField>
             </div>
-            <div v-if="props.error" class="mt-2 text-sm text-red-500">
+
+            <div class="mt-4 text-end text-xs text-gray-500">
+              <p class="mb-1">
+                Total: ${{
+                  totalAmount.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                }}
+              </p>
+              <p>
+                Balance: ${{
+                  balance.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                }}
+              </p>
+            </div>
+            <div
+              v-if="balance < totalAmount"
+              class="mt-1 text-end text-xs text-red-500"
+            >
+              Insufficient balance
+            </div>
+            <div v-if="props.error" class="mt-2 text-end text-sm text-red-500">
               {{ props.error }}
             </div>
-            <div class="mt-6 flex justify-end gap-2">
+            <div class="mt-4 flex justify-end gap-2">
               <DrawerClose as-child>
                 <Button
                   size="icon"
@@ -145,7 +191,7 @@ const handleCancel = () => {
                 size="icon"
                 variant="outline"
                 @click="handleConfirm"
-                :disabled="props.loading"
+                :disabled="!canBuy"
               >
                 <Loader2 v-if="props.loading" class="h-4 w-4 animate-spin" />
                 <Check v-else class="size-4 text-green-500" />

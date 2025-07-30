@@ -267,7 +267,7 @@ watch(
                       currencySign: 'accounting',
                       maximumFractionDigits: 2,
                     }"
-                    step="0.01"
+                    :step="0.01"
                     class="w-full"
                     :disabled="step2Completed || processing || processDone"
                   >
