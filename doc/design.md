@@ -50,6 +50,7 @@
 | related_id      | int           |                    | ID referencing a related portfolio transaction |
 | description     | varchar(255)  |                    | Notes or description of the transaction        |
 | occurred_at     | datetime      |                    | When the transaction occurred                  |
+| balance_after   | decimal(18,2) |                    | Account balance after the transaction          |
 
 ---
 
@@ -247,7 +248,7 @@ Response:
     "related_id": null,
     "description": "Initial deposit",
     "occurred_at": "2025-07-25T05:24:42.000Z",
-    "current_balance": 100.00
+    "balance_after": 100.00
   }
 }
 ```
