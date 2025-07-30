@@ -41,16 +41,16 @@
 
 ### `cash_transaction` Table
 
-| Column          | Type          | Attributes         | Description                                    |
-|-----------------|---------------|--------------------|------------------------------------------------|
-| cash_account_id | int           | auto increment, PK | Unique ID for the cash transaction             |
-| account_id      | int           | FK to account      | Related account's user ID                      |
-| type            | tinyint       |                    | Transaction type (e.g. deposit, withdraw)      |
-| amount          | decimal(18,2) | default = 0.00     | Transaction amount                             |
-| related_id      | int           |                    | ID referencing a related portfolio transaction |
-| description     | varchar(255)  |                    | Notes or description of the transaction        |
-| occurred_at     | datetime      |                    | When the transaction occurred                  |
-| balance_after   | decimal(18,2) |                    | Account balance after the transaction          |
+| Column              | Type          | Attributes         | Description                                    |
+|---------------------|---------------|--------------------|------------------------------------------------|
+| cash_transaction_id | int           | auto increment, PK | Unique ID for the cash transaction             |
+| account_id          | int           | FK to account      | Related account's user ID                      |
+| type                | tinyint       |                    | Transaction type (e.g. deposit, withdraw)      |
+| amount              | decimal(18,2) | default = 0.00     | Transaction amount                             |
+| related_id          | int           |                    | ID referencing a related portfolio transaction |
+| description         | varchar(255)  |                    | Notes or description of the transaction        |
+| occurred_at         | datetime      |                    | When the transaction occurred                  |
+| balance_after       | decimal(18,2) |                    | Account balance after the transaction          |
 
 ---
 

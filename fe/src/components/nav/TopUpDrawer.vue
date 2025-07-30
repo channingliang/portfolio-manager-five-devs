@@ -169,7 +169,7 @@ async function handlePaymentConfirm() {
 
     // 1. Promise for API
     const requestPromise = api
-      .post("/cash/deposit", {
+      .post("/cash", {
         account_id: 3,
         type: 1,
         amount: topupAmount.value,
@@ -229,7 +229,7 @@ watch(
 <template>
   <Drawer v-model:open="modelValue">
     <DrawerContent>
-      <div class="mx-auto h-full min-w-2xl pt-8">
+      <div class="mx-auto h-full min-w-2xl pt-8 pb-16">
         <DrawerHeader>
           <DrawerTitle>Top Up</DrawerTitle>
           <DrawerDescription>
@@ -241,7 +241,7 @@ watch(
         <div class="px-4">
           <Accordion
             type="single"
-            class="mx-auto mb-16 w-full rounded-2xl bg-white p-4 shadow-lg"
+            class="mx-auto w-full rounded-2xl bg-white p-4 shadow-lg"
             collapsible
             v-model="accordionValue"
           >
@@ -263,7 +263,9 @@ watch(
                       currency: 'USD',
                       currencyDisplay: 'code',
                       currencySign: 'accounting',
+                      maximumFractionDigits: 2,
                     }"
+                    step="0.01"
                     class="w-full"
                     :disabled="step2Completed || processing || processDone"
                   >
@@ -284,7 +286,7 @@ watch(
                       processDone
                     "
                   >
-                    <Check class="h-4 w-4" />
+                    <Check class="size-4 text-green-500" />
                   </Button>
                 </div>
               </AccordionContent>
@@ -293,7 +295,7 @@ watch(
             <AccordionItem :value="STEP2" :disabled="isStep2Disabled">
               <AccordionTrigger>
                 <span class="flex items-center gap-2">
-                  <Check v-if="step2Completed" class="h-5 w-5 text-green-500" />
+                  <Check v-if="step2Completed" class="size-4 text-green-500" />
                   {{ step2Text }}
                 </span>
               </AccordionTrigger>
@@ -329,7 +331,7 @@ watch(
                       processDone
                     "
                   >
-                    <Check class="h-4 w-4" />
+                    <Check class="size-4 text-green-500" />
                   </Button>
                 </div>
               </AccordionContent>

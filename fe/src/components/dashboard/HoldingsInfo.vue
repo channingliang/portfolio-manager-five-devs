@@ -1,185 +1,3 @@
-<template>
-  <div class="medium">
-    <!-- 标题 -->
-    <h2 class="mb-4 text-xl font-semibold text-gray-900">Account Overview</h2>
-
-    <!-- 投资资产行 -->
-    <div class="mb-6 flex items-center justify-between">
-      <div class="flex items-center space-x-2">
-        <!-- 投资资产图标 -->
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="20"
-          height="20"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          stroke-width="2"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          class="text-gray-600"
-        >
-          <rect x="3" y="10" width="4" height="11" rx="1"></rect>
-          <rect x="10" y="6" width="4" height="15" rx="1"></rect>
-          <rect x="17" y="2" width="4" height="19" rx="1"></rect>
-        </svg>
-        <span class="text-gray-600">Portfolio Assets</span>
-      </div>
-
-      <!-- 总资产 -->
-      <div class="font-bold text-gray-900">￥{{ totalValue }}</div>
-    </div>
-
-    <!-- 持仓产品 -->
-    <div class="mb-6">
-      <div
-        class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2"
-      >
-        <!-- 产品卡片 -->
-        <div
-          v-for="(item, index) in accountOverview"
-          :key="index"
-          class="relative rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
-        >
-          <!-- 产品名 -->
-          <div class="mb-2 text-sm text-gray-800">
-            <div>{{ item.name }}</div>
-            <div class="text-xs text-gray-500">({{ item.ticker }})</div>
-          </div>
-
-          <!-- 收益 -->
-          <div
-            class="mb-2 flex items-center text-sm"
-            :class="item.profit >= 0 ? 'text-green-600' : 'text-red-600'"
-          >
-            <ChartNoAxesCombined class="mr-1 size-4" />
-            {{ item.profit >= 0 ? "+" : "" }}￥{{
-              item.profit.toLocaleString()
-            }}
-          </div>
-
-          <!-- 持仓份额 -->
-          <div class="mb-2 flex items-center text-sm text-gray-600">
-            <Inbox class="mr-1 size-4" />
-            {{ item.amount.toLocaleString() }} shares
-          </div>
-
-          <!-- 当前价格 -->
-          <div class="mb-3 text-sm text-gray-700">
-            Current price:<br />${{ item.current_price.toLocaleString() }}
-          </div>
-
-          <!-- 操作按钮组 -->
-          <div class="flex justify-end space-x-2">
-            <Button variant="outline" size="icon" @click="openBuyDialog(item)">
-              <Plus />
-            </Button>
-            <Button variant="outline" size="icon" @click="openSellDialog(item)">
-              <Trash />
-            </Button>
-          </div>
-
-          <!-- 当前价格 + 卖出按钮 -->
-          <div class="flex flex-col space-x-2">
-            ￥{{ item.current_price.toLocaleString() }}
-          </div>
-          <Button variant="outline" size="icon" @click="openSellDialog(item)">
-            <Plus />
-          </Button>
-          <Button
-            Button
-            variant="outline"
-            size="icon"
-            @click="openBuyDialog(item)"
-          >
-            <Trash />
-          </Button>
-        </div>
-      </div>
-    </div>
-  </div>
-  <!-- 卖出弹窗 -->
-  <Dialog v-model:open="showDialog">
-    <DialogContent class="max-w-sm">
-      <DialogHeader>
-        <DialogTitle>Sell {{ selectedProduct?.name }}</DialogTitle>
-      </DialogHeader>
-
-      <div class="space-y-4">
-        <RadioGroup v-model="sellMode" class="flex space-x-4">
-          <div class="flex items-center space-x-2">
-            <RadioGroupItem value="shares" id="shares" />
-            <label for="shares">By shares</label>
-          </div>
-          <div class="flex items-center space-x-2">
-            <RadioGroupItem value="amount" id="amount" />
-            <label for="amount">By amount</label>
-          </div>
-        </RadioGroup>
-
-        <Input
-          v-model="sellValue"
-          placeholder="Please enter the quantity"
-          type="number"
-          min="0"
-          step="any"
-          class="w-full"
-        />
-      </div>
-
-      <DialogFooter>
-        <Button variant="secondary" @click="showDialog = false">Cancel</Button>
-        <Button class="text-black" variant="destructive" @click="confirmSell"
-          >Confirm</Button
-        >
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-
-  <!-- 买入弹窗 -->
-  <Dialog v-model:open="showBuyDialog">
-    <DialogContent class="max-w-sm">
-      <DialogHeader>
-        <DialogTitle>Buy {{ selectedProduct?.name }}</DialogTitle>
-      </DialogHeader>
-
-      <div class="space-y-4">
-        <RadioGroup v-model="buyMode" class="flex space-x-4">
-          <div class="flex items-center space-x-2">
-            <RadioGroupItem value="shares" id="buy-shares" />
-            <label for="buy-shares">By share</label>
-          </div>
-          <div class="flex items-center space-x-2">
-            <RadioGroupItem value="amount" id="buy-amount" />
-            <label for="buy-amount">By amount</label>
-          </div>
-        </RadioGroup>
-
-        <Input
-          v-model="buyValue"
-          placeholder="Please enter the quantity"
-          type="number"
-          min="0"
-          step="any"
-          class="w-full"
-        />
-      </div>
-
-      <DialogFooter>
-        <Button variant="secondary" @click="showBuyDialog = false"
-          >Cancel</Button
-        >
-        <Button
-          class="bg-green-600 text-black hover:bg-green-700"
-          @click="confirmBuy"
-        >
-          Confirm
-        </Button>
-      </DialogFooter>
-    </DialogContent>
-  </Dialog>
-</template>
-
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { Button } from "@/components/ui/button";
@@ -192,7 +10,13 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ChartNoAxesCombined, Inbox, Plus, Trash } from "lucide-vue-next";
+import {
+  Layers,
+  HandCoins,
+  Plus,
+  Minus,
+  ChartCandlestick,
+} from "lucide-vue-next";
 
 // 1. 响应式数据定义
 // 持仓数据（后期可从API加载）
@@ -483,17 +307,154 @@ async function confirmBuy() {
 }
 </script>
 
-<style scoped>
-.medium {
-  padding: 20px;
-  height: 100%;
-  overflow-y: auto; /* 允许滚动 */
-}
+<template>
+  <div
+    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border bg-white/70 p-4 shadow-lg backdrop-blur-md"
+  >
+    <div class="flex items-center gap-1">
+      <ChartCandlestick class="size-4" />
+      <span class="">Assets</span>
+    </div>
 
-/* 响应式调整 */
-@media (max-width: 640px) {
-  .grid-cols-1 {
-    grid-template-columns: repeat(1, minmax(0, 1fr));
-  }
-}
-</style>
+    <div class="mt-2 text-xl">${{ totalValue }}</div>
+  </div>
+
+  <div class="">
+    <div class="mb-6">
+      <div
+        class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-2"
+      >
+        <div
+          v-for="(item, index) in accountOverview"
+          :key="index"
+          class="relative rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
+        >
+          <!-- 产品名 -->
+          <div class="mb-2 text-sm text-gray-800">
+            <div>{{ item.name }}</div>
+            <div class="text-xs text-gray-500">({{ item.ticker }})</div>
+          </div>
+
+          <!-- 当前价格 -->
+          <div class="mb-3 text-sm text-gray-700">
+            ${{ item.current_price.toLocaleString() }}
+          </div>
+
+          <!-- 收益 -->
+
+          <!-- 持仓份额 -->
+          <div
+            class="mb-2 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm"
+          >
+            <div class="flex items-center gap-1">
+              <Layers class="size-4" />
+              {{ item.amount.toLocaleString() }}
+            </div>
+            <div class="flex items-center gap-1">
+              <HandCoins class="size-4" />
+              <span
+                :class="item.profit >= 0 ? 'text-green-600' : 'text-red-600'"
+              >
+                {{ item.profit >= 0 ? "+" : "" }}${{
+                  item.profit.toLocaleString()
+                }}
+              </span>
+            </div>
+          </div>
+
+          <!-- 操作按钮组 -->
+          <div class="flex justify-end space-x-2">
+            <Button variant="outline" size="icon" @click="openBuyDialog(item)">
+              <Plus />
+            </Button>
+            <Button variant="outline" size="icon" @click="openSellDialog(item)">
+              <Minus />
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- 卖出弹窗 -->
+  <Dialog v-model:open="showDialog">
+    <DialogContent class="max-w-sm">
+      <DialogHeader>
+        <DialogTitle>Sell {{ selectedProduct?.name }}</DialogTitle>
+      </DialogHeader>
+
+      <div class="space-y-4">
+        <RadioGroup v-model="sellMode" class="flex space-x-4">
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="shares" id="shares" />
+            <label for="shares">By shares</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="amount" id="amount" />
+            <label for="amount">By amount</label>
+          </div>
+        </RadioGroup>
+
+        <Input
+          v-model="sellValue"
+          placeholder="Please enter the quantity"
+          type="number"
+          min="0"
+          step="any"
+          class="w-full"
+        />
+      </div>
+
+      <DialogFooter>
+        <Button variant="secondary" @click="showDialog = false">Cancel</Button>
+        <Button class="text-black" variant="destructive" @click="confirmSell"
+          >Confirm
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+
+  <!-- 买入弹窗 -->
+  <Dialog v-model:open="showBuyDialog">
+    <DialogContent class="max-w-sm">
+      <DialogHeader>
+        <DialogTitle>Buy {{ selectedProduct?.name }}</DialogTitle>
+      </DialogHeader>
+
+      <div class="space-y-4">
+        <RadioGroup v-model="buyMode" class="flex space-x-4">
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="shares" id="buy-shares" />
+            <label for="buy-shares">By share</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="amount" id="buy-amount" />
+            <label for="buy-amount">By amount</label>
+          </div>
+        </RadioGroup>
+
+        <Input
+          v-model="buyValue"
+          placeholder="Please enter the quantity"
+          type="number"
+          min="0"
+          step="any"
+          class="w-full"
+        />
+      </div>
+
+      <DialogFooter>
+        <Button variant="secondary" @click="showBuyDialog = false"
+          >Cancel
+        </Button>
+        <Button
+          class="bg-green-600 text-black hover:bg-green-700"
+          @click="confirmBuy"
+        >
+          Confirm
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+</template>
+
+<style scoped></style>

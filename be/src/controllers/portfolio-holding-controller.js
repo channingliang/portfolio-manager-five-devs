@@ -1,246 +1,205 @@
+const fs = require("fs");
+const path = require("path");
 const { StatusCodes } = require("http-status-codes");
-const db = require('../models');
-// 创建投资组合持仓
-const createPortfolioHolding = async (req, res) => {
-    try {
-        const {
-            account_id,
-            ticker,
-            ticker_type,
-            transaction_type,
-            quantity,
-            price_per_unit
-        } = req.body;
+const db = require("../models");
 
-        // 验证必要字段
-        if (!account_id || !ticker || ticker_type === undefined || quantity === undefined) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                message: '缺少必要字段: account_id、ticker、ticker_type、quantity 是必需的',
-                error: {}
-            });
-        }
+function getDateArray(days) {
+  // 取days天的日期数组(从14天前到今天)
+  const arr = [];
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    arr.push(d.toISOString().slice(0, 10)); // 只要日期部分
+  }
+  return arr;
+}
 
-        // 检查是否已存在相同的持仓记录
-        const existingHolding = await db.PortfolioHolding.findOne({
-            where: { account_id, ticker, ticker_type }
-        });
+// 读取单个ticker的历史收盘价
+function loadEodData(ticker) {
+  const file = path.join(__dirname, "../data", `end-of-day-${ticker}.json`);
+  if (!fs.existsSync(file)) return {};
+  const raw = fs.readFileSync(file);
+  const arr = JSON.parse(raw);
+  // 返回 {日期:收盘价}
+  const obj = {};
+  arr.forEach((e) => {
+    obj[e.date.slice(0, 10)] = e.close;
+  });
+  return obj;
+}
 
-        if (existingHolding) {
-            return res.status(StatusCodes.CONFLICT).json({
-                success: false,
-                message: `该账户已存在 ${ticker} 的持仓记录`,
-                error: {}
-            });
-        }
-
-        // 创建持仓记录
-        const newHolding = await db.PortfolioHolding.create({
-            account_id,
-            ticker,
-            ticker_type,
-            quantity,
-            created_at: new Date(),
-            updated_at: new Date()
-        });
-
-        const newTransaction = await db.PortfolioTransaction.create({
-            account_id,
-            ticker,
-            ticker_type,
-            transaction_type,
-            quantity,
-            price_per_unit,
-            total_amount: quantity * price_per_unit,
-            cash_transaction_id: newHolding.portfolio_holding_id,
-            occurred_at: newHolding.created_at
-        });
-
-        const responseData = {
-            portfolio_holding_id: newHolding.portfolio_holding_id,
-            account_id: newHolding.account_id,
-            ticker: newHolding.ticker,
-            ticker_type: newHolding.ticker_type,
-            quantity: parseFloat(newHolding.quantity),
-            created_at: newHolding.created_at
-        };
-
-        return res.status(StatusCodes.CREATED).json({
-            success: true,
-            message: '投资组合持仓创建成功',
-            data: responseData
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '创建投资组合持仓失败',
-            error: error.message
-        });
+exports.getPortfolioWeeklyChange = async (req, res) => {
+  try {
+    // 1. 参数校验
+    const account_id = Number(
+      req.query.account_id || (req.body && req.body.account_id),
+    );
+    if (!account_id || isNaN(account_id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
+        code: 400,
+        msg: "Valid account_id is required.",
+      });
     }
-};
 
-// 获取单个投资组合持仓
-const getPortfolioHoldingById = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const holding = await db.PortfolioHolding.findByPk(id);
-
-        if (!holding) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
-            });
-        }
-
-        const responseData = {
-            portfolio_holding_id: holding.portfolio_holding_id,
-            account_id: holding.account_id,
-            ticker: holding.ticker,
-            ticker_type: holding.ticker_type,
-            quantity: parseFloat(holding.quantity),
-            created_at: new Date(holding.getDataValue('created_at')).toISOString(),
-            updated_at: holding.updated_at
-                ? new Date(holding.getDataValue('updated_at')).toISOString()
-                : null
-        };
-
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `获取${id}投资组合持仓`,
-            data: responseData
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '获取投资组合持仓失败',
-            error: error.message
-        });
+    // 2. 查所有持仓
+    const holdings = await db.PortfolioHolding.findAll({
+      where: { account_id },
+    });
+    if (!holdings || holdings.length === 0) {
+      return res.status(StatusCodes.OK).json({
+        code: 200,
+        msg: "No holdings found.",
+        data: [
+          { name: "Cash", data: Array(14).fill(0) },
+          { name: "Portfolio", data: Array(14).fill(0) },
+          { name: "Profit", data: Array(14).fill(0) },
+        ],
+      });
     }
-};
+    const tickers = holdings.map((h) => h.ticker);
 
-// 更新投资组合持仓
-const updatePortfolioHolding = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const { quantity } = req.body;
+    // 3. 计算每日portfolio加权成本
+    // 3.1 查所有portfolio_transaction
+    const allTxs = await db.PortfolioTransaction.findAll({
+      where: { account_id },
+    });
+    // 按ticker分组
+    const txByTicker = {};
+    for (const tx of allTxs) {
+      if (!txByTicker[tx.ticker]) txByTicker[tx.ticker] = [];
+      txByTicker[tx.ticker].push(tx);
+    }
 
-        if (quantity === undefined) {
-            return res.status(StatusCodes.BAD_REQUEST).json({
-                success: false,
-                message: '缺少必要字段: quantity 是必需的',
-                error: {}
-            });
+    // 4. 计算每日现金余额（根据现金流水来推算每日余额，初始用Account.balance）
+    // 先查最新Account余额
+    const account = await db.Account.findByPk(account_id);
+    let todayBalance = account ? Number(account.balance) : 0;
+    // 查全部 cash_transaction
+    const cashTxs = await db.Cash.findAll({
+      where: { account_id },
+      order: [["occurred_at", "DESC"]],
+    });
+
+    // 5. 日期数组（14天）
+    const dates = getDateArray(14);
+
+    // 6. 计算每天
+    const cashArr = [];
+    const portfolioArr = [];
+    const profitArr = [];
+
+    // 【预加载所有ticker的历史行情】
+    const priceMap = {};
+    for (const t of tickers) {
+      priceMap[t] = loadEodData(t);
+    }
+
+    // 【推算每天现金余额】
+    // cashTxs按时间倒序；往前推每天的balance
+    let dayBalances = {};
+    let dayBalance = todayBalance;
+    let cashTxIdx = 0;
+
+    // dates倒序推算（最新日期在最后）
+    for (let dIdx = dates.length - 1; dIdx >= 0; dIdx--) {
+      const d = dates[dIdx];
+      // 回到那天后，把那天之后发生的流水都加/减回来
+      while (
+        cashTxIdx < cashTxs.length &&
+        cashTxs[cashTxIdx].occurred_at.toISOString().slice(0, 10) > d
+      ) {
+        const tx = cashTxs[cashTxIdx];
+        if (tx.type === 1)
+          dayBalance -= Number(tx.amount); // money-in,之前余额减去
+        else if (tx.type === 2) dayBalance += Number(tx.amount); // money-out,之前余额加回来
+        cashTxIdx++;
+      }
+      dayBalances[d] = dayBalance;
+    }
+    // cashArr是顺序
+    for (let d of dates) cashArr.push(dayBalances[d]);
+
+    // 【推算每天持仓及portfolio市值】
+    // 逐天推
+    let holdingSnapshots = {}; // {ticker:持仓数量}
+    // 初始化，回溯所有交易获取每天的持仓
+    // 每天快照
+    for (let dIdx = 0; dIdx < dates.length; dIdx++) {
+      const d = dates[dIdx];
+      // 推算当天每只股票的持仓数量
+      let snapshot = {};
+      for (let t of tickers) snapshot[t] = 0;
+      for (let t of tickers) {
+        // 按每个ticker的所有交易，累计到当天为止的数量
+        let qty = 0;
+        for (let tx of txByTicker[t] || []) {
+          if (tx.occurred_at.slice(0, 10) <= d) {
+            if (tx.transaction_type === 1) qty += Number(tx.quantity);
+            if (tx.transaction_type === 2) qty -= Number(tx.quantity);
+          }
         }
+        snapshot[t] = qty;
+      }
+      holdingSnapshots[d] = snapshot;
+    }
 
-        const holding = await db.PortfolioHolding.findByPk(id);
+    // 【逐天计算portfolio市值&加权成本&利润】
+    for (let dIdx = 0; dIdx < dates.length; dIdx++) {
+      const d = dates[dIdx];
+      let portfolioValue = 0;
+      let totalCost = 0;
+      let totalQty = 0;
 
-        if (!holding) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
-            });
-        }
+      for (let t of tickers) {
+        const qty = holdingSnapshots[d][t];
+        if (qty > 0) {
+          // 当天收盘价
+          const price = priceMap[t][d] || 0;
+          portfolioValue += qty * price;
 
-        // 更新持仓数量
-        await holding.update({
-            quantity,
-            updated_at: new Date()
-        });
-
-        // 4. 关联查询 transaction 记录（按 account_id、ticker、ticker_type 关联，可根据实际调整）
-        const { account_id, ticker, ticker_type } = holding; // 从 holding 中获取关联字段
-        const relatedTransactions = await db.PortfolioTransaction.findAll({
-            where: { account_id, ticker, ticker_type } // 关联条件：保证同账户、同标的、同类型
-        });
-
-        if (relatedTransactions.length === 0) {
-            // 若没有关联的 transaction，可选择跳过或创建新记录（根据业务需求）
-            console.log(`未找到 account_id=${account_id}、ticker=${ticker} 的关联 transaction`);
-        } else {
-            // 5. 遍历关联的 transaction，累加 quantity（原有值 + 传入的 inputQuantity）
-            const updatePromises = relatedTransactions.map(transaction => {
-                // 获取 transaction 中原有的 quantity（转换为数字避免字符串拼接）
-                const originalQuantity = parseFloat(transaction.quantity) || 0;
-                // 计算新值：原有值 + 传入的 quantity 参数值
-                const newQuantity = originalQuantity + parseFloat(quantity);
-                // 更新 transaction 的 quantity
-                return transaction.update({
-                    quantity: newQuantity,
-                    updated_at: new Date() // 可选：更新交易的时间戳
-                });
-            });
-
-            // 6. 等待所有更新操作完成（Promise.all 用于并行执行）
-            await Promise.all(updatePromises);
-        }
-
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `投资组合持仓${id}更新成功`,
-            data: {
-                portfolio_holding_id: holding.portfolio_holding_id,
-                ticker: holding.ticker,
-                quantity: parseFloat(quantity),
-                updated_at: new Date().toISOString()
+          // 按当天前所有买入累加加权成本
+          let buyQty = 0,
+            buyAmount = 0;
+          for (let tx of txByTicker[t] || []) {
+            if (tx.occurred_at.slice(0, 10) <= d && tx.transaction_type === 1) {
+              buyQty += Number(tx.quantity);
+              buyAmount += Number(tx.quantity) * Number(tx.price_per_unit);
             }
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '更新投资组合持仓失败',
-            error: error.message
-        });
-    }
-};
-
-// 删除投资组合持仓
-const deletePortfolioHolding = async (req, res) => {
-    try {
-        const { id } = req.params;
-
-        const holding = await db.PortfolioHolding.findByPk(id);
-
-        if (!holding) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合持仓`
-            });
+          }
+          // 已卖出的数量
+          let sellQty = 0;
+          for (let tx of txByTicker[t] || []) {
+            if (tx.occurred_at.slice(0, 10) <= d && tx.transaction_type === 2) {
+              sellQty += Number(tx.quantity);
+            }
+          }
+          // 当前实际持仓
+          const holdingQty = qty;
+          // 持有的加权成本
+          const avgCost = buyQty > 0 ? buyAmount / buyQty : 0;
+          totalCost += holdingQty * avgCost;
+          totalQty += holdingQty;
         }
-
-        const transaction = await db.PortfolioTransaction.findByPk(id);
-
-        if (!transaction) {
-            return res.status(StatusCodes.NOT_FOUND).json({
-                success: false,
-                message: `未找到 ID 为 ${id} 的投资组合交易`
-            });
-        }
-
-        await transaction.destroy();
-
-        await holding.destroy();
-
-        return res.status(StatusCodes.OK).json({
-            success: true,
-            message: `删除 ID 为 ${id} 的投资组合持仓成功`
-        });
-    } catch (error) {
-        console.error(error);
-        return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
-            success: false,
-            message: '删除投资组合持仓失败',
-            error: error.message
-        });
+      }
+      portfolioArr.push(Number(portfolioValue.toFixed(2)));
+      profitArr.push(Number((portfolioValue - totalCost).toFixed(2)));
     }
-};
 
-module.exports = {
-    createPortfolioHolding,
-    getPortfolioHoldingById,
-    updatePortfolioHolding,
-    deletePortfolioHolding,
+    // 8. 返回
+    return res.status(StatusCodes.OK).json({
+      code: 200,
+      msg: "Portfolio weekly change retrieved successfully.",
+      data: [
+        { name: "Cash", data: cashArr },
+        { name: "Portfolio", data: portfolioArr },
+        { name: "Profit", data: profitArr },
+      ],
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      code: 500,
+      msg: "Server error.",
+    });
+  }
 };

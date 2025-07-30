@@ -4,10 +4,12 @@ const {
   InfoController,
   AccountController,
   CashController,
+  MarketController,
 } = require("../../controllers");
-const MarketController = require("../../controllers/market-controller");
-const PortfolioHoldingController = require("../../controllers/portfolio-holding-controller");
-const PortfolioTransactionController = require("../../controllers/portfolio-transaction-controller");
+// const PortfolioHoldingController = require("../../controllers/de-portfolio-holding-controller");
+// const PortfolioTransactionController = require("../../controllers/de-portfolio-transaction-controller");
+const PortfolioHoldingController = require("../../controllers/portfolio-transaction-controller");
+const PortfolioHoldingSummaryController = require("../../controllers/portfolio-holding-controller");
 
 const router = express.Router();
 
@@ -34,49 +36,70 @@ router.get("/cash", CashController.getCashTransactions);
 // 3. 获取现金分布（通过query参数account_id筛选）
 router.get("/cash/distribution", CashController.getCashDistribution);
 
-// 投资组合持仓接口
-router.post(
-  "/portfolio/holding",
-  PortfolioHoldingController.createPortfolioHolding
-);
-router.delete(
-  "/portfolio/holding/:id",
-  PortfolioHoldingController.deletePortfolioHolding
-);
-// 更新投资组合持仓
-router.patch(
-  "/portfolio/holding/:id",
-  PortfolioHoldingController.updatePortfolioHolding
-);
+// // 投资组合持仓接口
+// router.post(
+//   "/portfolio/holding",
+//   PortfolioHoldingController.createPortfolioHolding,
+// );
+// router.delete(
+//   "/portfolio/holding/:id",
+//   PortfolioHoldingController.deletePortfolioHolding,
+// );
+// // 更新投资组合持仓
+// router.patch(
+//   "/portfolio/holding/:id",
+//   PortfolioHoldingController.updatePortfolioHolding,
+// );
+//
+// // 投资组合交易接口
+// router.post(
+//   "/portfolio/transaction",
+//   PortfolioTransactionController.createPortfolioTransaction,
+// );
+// router.delete(
+//   "/portfolio/transaction/:id",
+//   PortfolioTransactionController.deletePortfolioTransaction,
+// );
+// // 更新投资组合交易
+// router.patch(
+//   "/portfolio/transaction/:id",
+//   PortfolioTransactionController.updatePortfolioTransaction,
+// );
+//
+// // 获取投资组合持仓详情
+// router.get(
+//   "/portfolio/holding/:id",
+//   PortfolioHoldingController.getPortfolioHoldingById,
+// );
+//
+// // 获取投资组合交易详情
+// router.get(
+//   "/portfolio/transaction/:id",
+//   PortfolioTransactionController.getPortfolioTransactionById,
+// );
+//
+// // 市场数据接口 - 新增内容
+// router.get("/market/stock", MarketController.getStockMarketData);
+//
+// //获取每周portfolio数据
+// router.get(
+//   "/portfolio/week/:id",
+//   PortfolioHoldingsWeeklyController.getPortfolioHoldingsWeeklyChange,
+// );
 
-// 投资组合交易接口
 router.post(
   "/portfolio/transaction",
-  PortfolioTransactionController.createPortfolioTransaction
-);
-router.delete(
-  "/portfolio/transaction/:id",
-  PortfolioTransactionController.deletePortfolioTransaction
-);
-// 更新投资组合交易
-router.patch(
-  "/portfolio/transaction/:id",
-  PortfolioTransactionController.updatePortfolioTransaction
+  PortfolioHoldingController.createPortfolioTransaction,
 );
 
-// 获取投资组合持仓详情
 router.get(
-  "/portfolio/holding/:id",
-  PortfolioHoldingController.getPortfolioHoldingById
+  "/portfolio/holding",
+  PortfolioHoldingController.getPortfolioHoldings,
 );
 
-// 获取投资组合交易详情
 router.get(
-  "/portfolio/transaction/:id",
-  PortfolioTransactionController.getPortfolioTransactionById
+  "/portfolio/summary",
+  PortfolioHoldingSummaryController.getPortfolioWeeklyChange,
 );
-
-// 市场数据接口 - 新增内容
-router.get("/market/stock", MarketController.getStockMarketData);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { StatusCodes } = require("http-status-codes");
+const { readFileAndSearch } = require("../data/search");
 const fs = require("fs").promises;
 const path = require("path");
 
@@ -39,13 +40,13 @@ const isCacheUpToDate = (cacheData) => {
   if (!cacheData || !cacheData.data || !cacheData.data.length) {
     return false;
   }
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   const latestCacheDate = new Date(cacheData.data[0].date);
   latestCacheDate.setHours(0, 0, 0, 0);
-  
+
   return today.getTime() === latestCacheDate.getTime();
 };
 
@@ -54,7 +55,7 @@ const getLastWeekRange = () => {
   const endDate = new Date();
   const startDate = new Date();
   startDate.setDate(endDate.getDate() - 7);
-  
+
   return {
     startDate: startDate.toISOString(),
     endDate: endDate.toISOString()
@@ -123,7 +124,7 @@ const getEndOfDayData = async (req, res) => {
 
     // 尝试读取缓存
     const cacheData = await readCache();
-    
+
     // 如果缓存存在且是最新的，直接返回
     if (cacheData && isCacheUpToDate(cacheData)) {
       console.log("Returning cached data");
@@ -136,7 +137,7 @@ const getEndOfDayData = async (req, res) => {
 
     // 计算过去一周的日期范围
     const { startDate, endDate } = getLastWeekRange();
-    
+
     // 构建请求URL
     const url = `${TIINGO_BASE_URL}/tiingo/daily/${ticker}/prices`;
     const queryParams = new URLSearchParams({

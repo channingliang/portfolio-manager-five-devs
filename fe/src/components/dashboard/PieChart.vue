@@ -1,127 +1,74 @@
 <template>
-  <div class="pie-chart-container">
-    <!-- 饼图容器 -->
-    <p>Data Statistics</p>
-    <div ref="chartRef" class="chart-box"></div>
+  <div
+    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border p-4 shadow-lg"
+  >
+    <ChartPie class="size-4" />
+    Pie Chart
   </div>
+  <div
+    ref="chartRef"
+    class="mx-auto min-h-[300px] w-auto rounded-2xl border pt-4 pb-6"
+  />
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted, watchEffect, nextTick } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import * as echarts from "echarts";
 import { pieChartData } from "@/lib/data";
+import { ChartPie } from "lucide-vue-next";
 
 const chartRef = ref(null);
-let myChart = null;
+let chart = null;
 
-// 响应式调整图表大小
-const handleResize = () => {
-  if (myChart) {
-    myChart.resize();
-  }
-};
+// 统一字体
+const fontFamily = "Merriweather, serif";
 
-// 初始化图表
-const initChart = () => {
+// 渲染/重渲染
+function renderChart() {
   if (!chartRef.value) return;
+  chart?.dispose();
+  chart = echarts.init(chartRef.value);
 
-  // 销毁旧实例
-  if (myChart) {
-    myChart.dispose();
-  }
-
-  // 初始化图表
-  myChart = echarts.init(chartRef.value);
-
-  // 计算总和
   const total = pieChartData.reduce((sum, item) => sum + item.value, 0);
 
-  const option = {
-    color: ["#5470c6", "#91cc75", "#fac858"], // 自定义颜色
-    title: {
-      left: "center",
-    },
+  chart.setOption({
+    textStyle: { fontFamily },
+    color: ["#5470c6", "#91cc75", "#fac858"],
     tooltip: {
       trigger: "item",
-      // 自定义tooltip内容
       formatter: ({ name, value }) => {
-        const percentage = ((value / total) * 100).toFixed(1);
-        return `${name}<br/>占比: ${percentage}%<br/>数值: ${value}`;
+        const pct = ((value / total) * 100).toFixed(1);
+        return `${name}<br/>占比: ${pct}%<br/>数值: ${value}`;
       },
     },
     legend: {
-      orient: "vertical",
-      left: "left",
-      // 若需要隐藏图例，可设置 show: false
-      // show: false
+      orient: "horizontal",
+      bottom: 0, // 或 'top'
+      left: "center", // 居中对齐
     },
     series: [
       {
-        name: "Access From",
         type: "pie",
-        radius: "50%", // 改为单一值，显示为普通饼图，可根据需求调整大小
-        center: ["50%", "50%"],
+        radius: "60%",
+        center: ["48%", "45%"],
         data: pieChartData,
         label: {
           show: true,
-          // 自定义标签格式：名称 + 百分比
           formatter: ({ name, value }) => {
-            const percentage = ((value / total) * 100).toFixed(1);
-            return `${name}\n${percentage}%`;
+            const pct = ((value / total) * 100).toFixed(1);
+            return `${name}\n${pct}%`;
           },
-          rich: {
-            // 自定义标签样式
-            name: {
-              fontSize: 14,
-              fontWeight: "bold",
-            },
-            value: {
-              fontSize: 12,
-              color: "#666",
-            },
-          },
-        },
-        labelLine: {
-          show: true,
+          fontFamily,
         },
       },
     ],
-  };
-
-  myChart.setOption(option);
-};
+  });
+}
 
 onMounted(() => {
-  nextTick(() => {
-    initChart();
-    window.addEventListener("resize", handleResize);
-  });
+  renderChart();
+  window.addEventListener("resize", () => chart?.resize());
 });
-
-watchEffect(() => {
-  if (pieChartData.length) {
-    initChart();
-  }
-});
-
-onUnmounted(() => {
-  if (myChart) {
-    myChart.dispose();
-  }
-  window.removeEventListener("resize", handleResize);
-});
+onUnmounted(() => chart?.dispose());
+watch(() => pieChartData, renderChart, { deep: true });
 </script>
-
-<style scoped>
-.pie-chart-container {
-  width: 100%;
-  height: 400px;
-  padding: 20px;
-  box-sizing: border-box;
-}
-
-.chart-box {
-  width: 100%;
-  height: 100%;
-}
-</style>

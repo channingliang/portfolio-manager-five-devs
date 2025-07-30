@@ -36,8 +36,8 @@ async function readFileAndSearch(searchTerm) {
       throw new Error("JSON文件内容不是一个数组");
     }
 
-    const results = fuzzySearch(data, searchTerm);
-    return results;
+    // const results = fuzzySearch(data, searchTerm);
+    return searchTerm ? fuzzySearch(data, searchTerm) : data;
   } catch (error) {
     console.error("处理过程中发生错误：", error.message);
     return [];

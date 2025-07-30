@@ -1,48 +1,30 @@
 <script setup>
-import Portfolio from "@/components/dashboard/PortfolioCard.vue";
+import HoldingsInfo from "@/components/dashboard/HoldingsInfo.vue";
 import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vue";
-import DataTable from "@/components/dashboard/DataTable.vue";
-import LitCard from "@/components/dashboard/LitCard.vue";
-import Overview from "@/components/dashboard/Overview.vue";
+import CashInfo from "@/components/dashboard/CashInfo.vue";
+import LineGraph from "@/components/dashboard/LineGraph.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
+import GraphsCarousel from "@/components/dashboard/GraphsCarousel.vue";
 </script>
 
 <template>
-  <!-- 整体容器，高度占满屏幕 -->
-  <div
-    class="flex flex-col gap-8"
-  >
-    <!-- 上半部分：三栏，高度固定 -->
-    <div class="grid h-[calc(100vh-120px)] grid-cols-3 gap-8">
-      <!-- 左侧 -->
-      <div
-        class="overflow-y-auto p-6 "
-      >
-        <LitCard />
-        <DataTable />
-      </div>
-
-      <!-- 中间：Portfolio Assets -->
-      <div
-        class="overflow-y-auto p-6"
-      >
-        <Portfolio />
-      </div>
-
-      <!-- 右侧 -->
-      <div
-          class="overflow-y-auto p-6"
-      >
-        <PieChart />
-        <Overview />
+  <div class="flex min-h-screen gap-4">
+    <div class="w-[400px]">
+      <div class="sticky top-24">
+        <CashInfo />
       </div>
     </div>
 
-    <!-- 下半部分：交易历史，自适应剩余空间 -->
-    <div
-      class="flex-1 overflow-y-auto p-4 "
-    >
-      <PortfolioTransaction />
+    <div class="sticky top-24 h-auto min-w-[400px] flex-1">
+      <HoldingsInfo />
+    </div>
+
+    <div class="w-[400px]">
+      <div class="sticky top-24 space-y-4">
+        <!--<GraphsCarousel />-->
+        <PieChart />
+        <LineGraph />
+      </div>
     </div>
   </div>
 </template>
@@ -52,6 +34,7 @@ import PieChart from "@/components/dashboard/PieChart.vue";
 ::-webkit-scrollbar {
   width: 6px;
 }
+
 ::-webkit-scrollbar-thumb {
   background-color: rgba(100, 100, 100, 0.2);
   border-radius: 3px;
