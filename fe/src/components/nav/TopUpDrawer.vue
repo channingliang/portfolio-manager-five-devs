@@ -169,7 +169,7 @@ async function handlePaymentConfirm() {
 
     // 1. Promise for API
     const requestPromise = api
-      .post("/cash/deposit", {
+      .post("/cash", {
         account_id: 3,
         type: 1,
         amount: topupAmount.value,

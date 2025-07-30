@@ -9,10 +9,10 @@ import { Accordion } from "@/components/ui/accordion/index.js";
 import { Button } from "@/components/ui/button";
 import KLine from "@/components/stock/KLine.vue";
 import BuyDrawer from "@/components/stock/BuyDrawer.vue";
-import { mockStocks } from "@/lib/api.js";
 import { Loader2, ShoppingCart, X, Search } from "lucide-vue-next";
 import { useAccountStore } from "@/stores/account.js";
 import { Input } from "@/components/ui/input";
+import api from "@/lib/request.js";
 
 // 账户信息
 const accountStore = useAccountStore();
@@ -21,29 +21,51 @@ const allStocks = ref([]);
 const searchInput = ref("");
 const searching = ref(false);
 
-// 搜索处理
+// 格式化后端数据
+const formatStockList = (arr) =>
+  arr.map((stock) => {
+    const detail = stock.detail || [];
+    const len = detail.length;
+    const price = len > 0 ? Number(detail[len - 1].close ?? "--") : "--";
+    const prevPrice = len > 1 ? Number(detail[len - 2].close ?? price) : price;
+    const priceChange =
+      price !== "--" && prevPrice !== "--" ? price - prevPrice : 0;
+    return {
+      ticker: stock.ticker,
+      name: stock.name,
+      price,
+      priceChange,
+      kline: detail,
+    };
+  });
+
+// debounce + 后端请求
 let debounceTimer = null;
 const handleSearch = () => {
   searching.value = true;
   clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(() => {
-    allStocks.value = mockStocks.map((s) => ({
-      ...s,
-      price: s.kline?.[s.kline.length - 1]?.close || "--",
-    }));
+  debounceTimer = setTimeout(async () => {
+    try {
+      let params = {};
+      if (searchInput.value.trim()) {
+        params.search = searchInput.value.trim();
+      }
+      const res = await api.get("/market/stock", params);
+      allStocks.value = formatStockList(res);
+    } catch {
+      allStocks.value = [];
+    }
     searching.value = false;
   }, 300);
 };
 
-// 过滤后stocks
-const stocks = computed(() => {
-  if (!searchInput.value) return allStocks.value;
-  return allStocks.value.filter((s) =>
-    (s.ticker + s.name)
-      .toLowerCase()
-      .includes(searchInput.value.trim().toLowerCase()),
-  );
+// 初始化加载（获取全量）
+onMounted(() => {
+  handleSearch();
 });
+
+// stocks 直接渲染后端结果，不再做本地 filter
+const stocks = computed(() => allStocks.value);
 
 // Accordion展开项
 const expandedItems = ref([]);
@@ -53,13 +75,6 @@ const buyDrawerOpen = ref(false);
 const buyLoading = ref(false);
 const buyError = ref("");
 const selectedStock = ref(null);
-
-onMounted(() => {
-  allStocks.value = mockStocks.map((s) => ({
-    ...s,
-    price: s.kline?.[s.kline.length - 1]?.close || "--",
-  }));
-});
 
 const openBuyDrawer = (stock) => {
   selectedStock.value = stock;
@@ -93,6 +108,12 @@ const handleBuyConfirm = async ({ quantity, price, stock }) => {
 const handleBuyCancel = () => {
   buyError.value = "";
 };
+
+const formatPriceChange = (delta) => {
+  const abs = Math.abs(delta).toFixed(2);
+  if (Number(delta) === 0) return "0.00";
+  return (delta > 0 ? "+" : "-") + abs;
+};
 </script>
 
 <template>
@@ -100,11 +121,10 @@ const handleBuyCancel = () => {
     <!-- 顶部搜索栏 -->
     <div class="sticky top-24 z-888 flex items-center justify-between gap-2">
       <p
-        class="flex h-10 items-center justify-center rounded-4xl border bg-white/70 px-4 shadow-lg backdrop-blur-md"
+        class="flex h-10 items-center justify-center rounded-4xl border bg-white/70 px-6 shadow-lg backdrop-blur-md"
       >
-        Market / Stock
+        Market <span class="mx-3">/</span> Stock
       </p>
-      <!-- 搜索栏 -->
       <div class="flex items-center gap-3">
         <Input
           v-model="searchInput"
@@ -146,13 +166,26 @@ const handleBuyCancel = () => {
                 <span class="font-bold">{{ stock.name }}</span>
                 <span class="text-xs text-gray-500">({{ stock.ticker }})</span>
               </div>
-              <div class="mr-8 min-w-[80px] text-right">
-                {{ stock.price !== "--" ? "$" + stock.price : "--" }}
+              <div class="mr-2 min-w-[80px] text-right">
+                <span>
+                  {{ stock.price !== "--" ? "$" + stock.price : "--" }}
+                </span>
+              </div>
+              <div class="mr-8 min-w-[64px] text-right">
+                <span
+                  :class="{
+                    'text-green-600': stock.priceChange > 0,
+                    'text-red-500': stock.priceChange < 0,
+                    'text-gray-500': stock.priceChange === 0,
+                  }"
+                >
+                  {{ formatPriceChange(stock.priceChange) }}
+                </span>
               </div>
               <Button
                 variant="outline"
                 size="icon"
-                class="ml-2"
+                class="ml-2 rounded-full"
                 @click.stop="openBuyDrawer(stock)"
               >
                 <ShoppingCart class="h-5 w-5" />
