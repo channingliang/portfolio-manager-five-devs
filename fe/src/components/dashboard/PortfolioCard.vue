@@ -1,5 +1,5 @@
 <template>
-  <div class="medium">
+  <div class="medium rounded-2xl border">
     <!-- 标题 -->
     <h2 class="mb-4 text-xl font-semibold text-gray-900">Account Overview</h2>
 
@@ -78,22 +78,6 @@
               <Trash />
             </Button>
           </div>
-
-          <!-- 当前价格 + 卖出按钮 -->
-          <div class="flex flex-col space-x-2">
-            ￥{{ item.current_price.toLocaleString() }}
-          </div>
-          <Button variant="outline" size="icon" @click="openSellDialog(item)">
-            <Plus />
-          </Button>
-          <Button
-            Button
-            variant="outline"
-            size="icon"
-            @click="openBuyDialog(item)"
-          >
-            <Trash />
-          </Button>
         </div>
       </div>
     </div>

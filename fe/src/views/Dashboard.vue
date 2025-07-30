@@ -1,33 +1,29 @@
 <script setup>
 import Portfolio from "@/components/dashboard/PortfolioCard.vue";
 import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vue";
-import DataTable from "@/components/dashboard/DataTable.vue";
-import LitCard from "@/components/dashboard/LitCard.vue";
+import CashInfo from "@/components/dashboard/CashInfo.vue";
 import Overview from "@/components/dashboard/Overview.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
 </script>
 
 <template>
-  <!-- 整体容器，高度占满屏幕 -->
-  <div class="flex flex-col gap-8">
-    <!-- 上半部分：三栏，高度固定 -->
-    <div class="grid grid-cols-3 gap-8">
-      <!-- 左侧 -->
-      <div class="overflow-y-auto p-6">
-        <LitCard />
-        <DataTable />
-      </div>
+  <div class="flex gap-4">
+    <!-- 左侧：固定宽度 -->
+    <div
+      class="sticky top-24 h-[calc(100vh-160px)] max-w-[400px] min-w-[300px] pr-2"
+    >
+      <CashInfo />
+    </div>
 
-      <!-- 中间：Portfolio Assets -->
-      <div class="overflow-y-auto p-6">
-        <Portfolio />
-      </div>
+    <!-- 中间：自适应 -->
+    <div class="min-w-0 flex-1">
+      <Portfolio />
+    </div>
 
-      <!-- 右侧 -->
-      <div class="overflow-y-auto p-6">
-        <PieChart />
-        <Overview />
-      </div>
+    <!-- 右侧：固定宽度 -->
+    <div class="max-w-[300px] overflow-y-auto">
+      <PieChart />
+      <Overview />
     </div>
   </div>
 </template>
