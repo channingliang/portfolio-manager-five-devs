@@ -1,6 +1,11 @@
 const express = require("express");
 
-const { InfoController, AccountController, CashController, TiingoController } = require("../../controllers");
+const {
+  InfoController,
+  AccountController,
+  CashController,
+} = require("../../controllers");
+const MarketController = require("../../controllers/market-controller");
 const PortfolioHoldingController = require("../../controllers/portfolio-holding-controller");
 const PortfolioTransactionController = require("../../controllers/portfolio-transaction-controller");
 
@@ -29,32 +34,49 @@ router.get("/cash", CashController.getCashTransactions);
 // 3. 获取现金分布（通过query参数account_id筛选）
 router.get("/cash/distribution", CashController.getCashDistribution);
 
-
 // 投资组合持仓接口
-router.post("/portfolio/holding", PortfolioHoldingController.createPortfolioHolding);
-router.delete("/portfolio/holding/:id", PortfolioHoldingController.deletePortfolioHolding);
+router.post(
+  "/portfolio/holding",
+  PortfolioHoldingController.createPortfolioHolding
+);
+router.delete(
+  "/portfolio/holding/:id",
+  PortfolioHoldingController.deletePortfolioHolding
+);
 // 更新投资组合持仓
-router.patch("/portfolio/holding/:id", PortfolioHoldingController.updatePortfolioHolding);
-
+router.patch(
+  "/portfolio/holding/:id",
+  PortfolioHoldingController.updatePortfolioHolding
+);
 
 // 投资组合交易接口
-router.post("/portfolio/transaction", PortfolioTransactionController.createPortfolioTransaction);
-router.delete("/portfolio/transaction/:id", PortfolioTransactionController.deletePortfolioTransaction);
+router.post(
+  "/portfolio/transaction",
+  PortfolioTransactionController.createPortfolioTransaction
+);
+router.delete(
+  "/portfolio/transaction/:id",
+  PortfolioTransactionController.deletePortfolioTransaction
+);
 // 更新投资组合交易
-router.patch("/portfolio/transaction/:id", PortfolioTransactionController.updatePortfolioTransaction);
+router.patch(
+  "/portfolio/transaction/:id",
+  PortfolioTransactionController.updatePortfolioTransaction
+);
 
 // 获取投资组合持仓详情
-router.get("/portfolio/holding/:id", PortfolioHoldingController.getPortfolioHoldingById);
+router.get(
+  "/portfolio/holding/:id",
+  PortfolioHoldingController.getPortfolioHoldingById
+);
 
 // 获取投资组合交易详情
-router.get("/portfolio/transaction/:id", PortfolioTransactionController.getPortfolioTransactionById);
+router.get(
+  "/portfolio/transaction/:id",
+  PortfolioTransactionController.getPortfolioTransactionById
+);
 
-//tiingo数据接口
-router.post("/tiingo", TiingoController.getTiingoData);
-router.post("/tiingo/end_of_day", TiingoController.getEndOfDayData);
-router.post("/tiingo/def", TiingoController.getDefinitionsData);
-router.post("/tiingo/foud_overview", TiingoController.getFundOverview);
-router.post("/tiingo/metaEndpoint", TiingoController.getMetaEndpoint);
-
+// 市场数据接口 - 新增内容
+router.get("/market/stock", MarketController.getStockMarketData);
 
 module.exports = router;
