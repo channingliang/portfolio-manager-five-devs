@@ -22,19 +22,25 @@ import {
   Ellipsis,
 } from "lucide-vue-next";
 import TopUpDrawer from "@/components/nav/TopUpDrawer.vue";
-import api from "@/lib/request.js";
 
 const accountStore = useAccountStore();
 
 const drawerOpen = ref(false);
 
-api.get("account/3").then((res) => {
-  accountStore.setBalance(res.balance);
-});
+accountStore.fetchAccountInfo(3);
 </script>
 
 <template>
   <nav class="fixed top-6 z-999 flex h-12 w-full justify-center">
+    <div
+      class="mr-4 h-12 overflow-hidden rounded-full border bg-white/70 p-3 shadow-lg backdrop-blur-md"
+    >
+      <img
+        src="../../assets/icon.png"
+        alt="avatar"
+        class="h-full w-full object-cover"
+      />
+    </div>
     <div
       class="flex min-w-[500px] justify-center rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
     >
@@ -168,7 +174,9 @@ api.get("account/3").then((res) => {
                       class="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-gradient-to-b p-6 no-underline outline-none select-none focus:shadow-md"
                     >
                       <User class="size-6" />
-                      <div class="mt-2 mb-1 text-lg font-medium">Profile</div>
+                      <div class="mt-2 mb-1 text-lg font-medium">
+                        {{ accountStore.name }}
+                      </div>
                       <p class="text-muted-foreground text-sm leading-tight">
                         Edit your profile, change password, and more.
                       </p>

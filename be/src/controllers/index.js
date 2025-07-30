@@ -6,4 +6,5 @@ module.exports = {
   PortfolioTransactionController: require("./portfolio-transaction-controller"),
   TiingoController: require("./tiingoController"),
   PortfolioHoldingsWeeklyController: require("./get-portfolio-holdings-weekly-change")
+  MarketController: require("./market-controller"),
 };

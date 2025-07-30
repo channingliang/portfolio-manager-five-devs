@@ -1,36 +1,60 @@
 // 模拟股票数据
+// --- Complete Fake Stock Data (30 days for each) ---
+function genKLine(startPrice) {
+  const result = [];
+  let price = startPrice;
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const date = new Date(today.getTime() - i * 24 * 3600 * 1000);
+    const open = +(price + (Math.random() - 0.5) * 3).toFixed(2);
+    const close = +(open + (Math.random() - 0.5) * 5).toFixed(2);
+    const high = Math.max(open, close) + +(Math.random() * 3).toFixed(2);
+    const low = Math.min(open, close) - +(Math.random() * 3).toFixed(2);
+    price = close; // chain effect
+    result.unshift({
+      date: date.toISOString().slice(0, 10),
+      open: open,
+      close: close,
+      low: +low.toFixed(2),
+      high: +high.toFixed(2),
+      volume: Math.floor(30000000 + Math.random() * 10000000),
+      adjClose: close,
+      adjHigh: high,
+      adjLow: low,
+      adjOpen: open,
+      adjVolume: Math.floor(30000000 + Math.random() * 10000000),
+      divCash: 0,
+      splitFactor: 1,
+    });
+  }
+  return result;
+}
+
 export const mockStocks = [
-  { ticker: "AAPL", name: "Apple Inc.", price: 175.6 },
-  { ticker: "TSLA", name: "Tesla Inc.", price: 225.3 },
-  { ticker: "AMZN", name: "Amazon.com Inc.", price: 135.8 },
-  { ticker: "BABA", name: "Alibaba Group", price: 95.2 },
-  { ticker: "MSFT", name: "Microsoft Corp.", price: 315.7 },
-  { ticker: "GOOG", name: "Alphabet Inc.", price: 2800.4 },
-  { ticker: "NVDA", name: "NVIDIA Corp.", price: 450.5 },
-  { ticker: "META", name: "Meta Platforms", price: 330.6 },
-  { ticker: "NFLX", name: "Netflix Inc.", price: 440.1 },
-  { ticker: "ORCL", name: "Oracle Corp.", price: 120.8 },
-  { ticker: "INTC", name: "Intel Corp.", price: 35.9 },
-  { ticker: "AMD", name: "Advanced Micro Devices", price: 105.4 },
-  { ticker: "UBER", name: "Uber Technologies", price: 45.7 },
-  { ticker: "LYFT", name: "Lyft Inc.", price: 12.3 },
-  { ticker: "DIS", name: "Walt Disney Co.", price: 98.5 },
-  { ticker: "SONY", name: "Sony Group Corp.", price: 88.4 },
-  { ticker: "PFE", name: "Pfizer Inc.", price: 38.2 },
-  { ticker: "JNJ", name: "Johnson & Johnson", price: 165.4 },
-  { ticker: "MRNA", name: "Moderna Inc.", price: 120.3 },
-  { ticker: "BA", name: "Boeing Co.", price: 210.7 },
-  { ticker: "XOM", name: "Exxon Mobil Corp.", price: 105.2 },
-  { ticker: "CVX", name: "Chevron Corp.", price: 160.1 },
-  { ticker: "BP", name: "BP Plc", price: 35.8 },
-  { ticker: "T", name: "AT&T Inc.", price: 14.7 },
-  { ticker: "VZ", name: "Verizon Communications", price: 34.5 },
-  { ticker: "SHOP", name: "Shopify Inc.", price: 70.2 },
-  { ticker: "JD", name: "JD.com Inc.", price: 32.5 },
-  { ticker: "PDD", name: "Pinduoduo Inc.", price: 145.6 },
-  { ticker: "NIO", name: "NIO Inc.", price: 9.4 },
-  { ticker: "LI", name: "Li Auto Inc.", price: 27.3 },
+  {
+    ticker: "AAPL",
+    name: "Apple Inc.",
+    price: null, // fill below
+    kline: genKLine(215),
+  },
+  {
+    ticker: "GOOG",
+    name: "Alphabet Inc.",
+    price: null,
+    kline: genKLine(2850),
+  },
+  {
+    ticker: "TSLA",
+    name: "Tesla Inc.",
+    price: null,
+    kline: genKLine(750),
+  },
 ];
+
+// Patch price with last close for each stock
+mockStocks.forEach((s) => {
+  s.price = s.kline[s.kline.length - 1].close;
+});
 
 // 随机生成每只股票 30 天的价格数据
 function generatePriceSeries(days = 30, base = 100) {

@@ -1,12 +1,13 @@
-<script setup >
-
+<script setup>
 import NavigationBar from "@/components/nav/NavigationBar.vue";
 </script>
 
 <template>
-  <div class="w-full max-w-screen-2xl min-h-[100vh] h-full mx-auto">
-    <main class="w-full h-full flex items-center justify-center pt-24">
-      <NavigationBar />
+  <div
+    class="mx-auto flex h-full min-h-[100vh] w-full max-w-screen-2xl justify-center px-16"
+  >
+    <NavigationBar />
+    <main class="h-full w-full pt-24">
       <router-view />
     </main>
   </div>
