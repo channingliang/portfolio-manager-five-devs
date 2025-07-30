@@ -78,11 +78,26 @@
               <Trash />
             </Button>
           </div>
+
+          <!-- 当前价格 + 卖出按钮 -->
+          <div class="flex flex-col space-x-2">
+            ￥{{ item.current_price.toLocaleString() }}
+          </div>
+          <Button variant="outline" size="icon" @click="openSellDialog(item)">
+            <Plus />
+          </Button>
+          <Button
+            Button
+            variant="outline"
+            size="icon"
+            @click="openBuyDialog(item)"
+          >
+            <Trash />
+          </Button>
         </div>
       </div>
     </div>
   </div>
-
   <!-- 卖出弹窗 -->
   <Dialog v-model:open="showDialog">
     <DialogContent class="max-w-sm">

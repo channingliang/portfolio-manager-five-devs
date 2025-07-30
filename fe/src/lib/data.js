@@ -81,7 +81,7 @@ export const accountOverview = [
     amount: 500,
     profit: 120,
     current_price: 3.15,
-  },
+  }
 ];
 
 // crypto meta 用 https://api.tiingo.com/tiingo/crypto?tickers=curebtc&token=2024e73ccc9807945e3d335776aec49535858db3
