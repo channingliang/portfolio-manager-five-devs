@@ -347,7 +347,8 @@ Response:
       "created_at": "2025-07-25T05:24:42.000Z",
       "updated_at": null,
       "current": {
-        "price_per_unit": 150.00
+        "price_per_unit": 150.00,
+        "profit_loss": -10
       },
       "transactions": [
         {
@@ -441,9 +442,9 @@ Response:
 }
 ```
 
-#### Get Portfolio Holdings Weekly Change
+#### Get Portfolio Holdings Weekly Summary
 
-`GET /portfolio/week`
+`GET /portfolio/summary`
 
 Request parameters:
 

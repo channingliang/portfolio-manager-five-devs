@@ -78,8 +78,8 @@ router.get("/cash/distribution", CashController.getCashDistribution);
 //   PortfolioTransactionController.getPortfolioTransactionById,
 // );
 //
-// // 市场数据接口 - 新增内容
-// router.get("/market/stock", MarketController.getStockMarketData);
+// 市场数据接口 - 新增内容
+router.get("/market/stock", MarketController.getStockMarketData);
 //
 // //获取每周portfolio数据
 // router.get(

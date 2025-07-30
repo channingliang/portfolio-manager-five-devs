@@ -7,7 +7,7 @@
   </div>
   <div
     ref="chartRef"
-    class="min-h-[300px] w-full rounded-2xl border px-4 pb-6"
+    class="min-h-[300px] w-full rounded-2xl border px-4 pb-6 shadow-lg"
   />
 </template>
 

@@ -93,7 +93,7 @@ const handleBuyConfirm = async ({ quantity, price, stock }) => {
   try {
     await new Promise((resolve) => setTimeout(resolve, 800));
     buyDrawerOpen.value = false;
-    await accountStore.fetchAccountInfo();
+    await accountStore.fetchAccountInfo(1);
     // // 真实api可用如下方式
     // const payload = { type: "buy", ticker: stock.ticker, quantity, price };
     // const res = await api.post("/portfolio/transaction", payload);

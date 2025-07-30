@@ -27,7 +27,7 @@ const accountStore = useAccountStore();
 
 const drawerOpen = ref(false);
 
-accountStore.fetchAccountInfo(3);
+accountStore.fetchAccountInfo(1);
 </script>
 
 <template>
