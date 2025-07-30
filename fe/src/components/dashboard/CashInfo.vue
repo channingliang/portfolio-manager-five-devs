@@ -8,6 +8,7 @@ import {
 } from "@/components/ui/accordion";
 import api from "@/lib/request.js";
 import { useAccountStore } from "@/stores/account.js";
+import { BadgeDollarSign } from "lucide-vue-next";
 
 const transactionHistory = ref([]);
 
@@ -54,7 +55,10 @@ const formatDate = (dateString) => {
     <div
       class="sticky top-0 z-888 w-full rounded-t-2xl bg-white/90 p-4 shadow-lg"
     >
-      <p>Transactions</p>
+      <div class="flex items-center gap-1">
+        <BadgeDollarSign class="size-4" />
+        Transactions
+      </div>
       <div class="mt-2 text-xl">
         {{ formattedBalance }}
       </div>

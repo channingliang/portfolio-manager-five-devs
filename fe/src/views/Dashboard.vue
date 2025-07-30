@@ -1,9 +1,10 @@
 <script setup>
-import Portfolio from "@/components/dashboard/PortfolioCard.vue";
+import HoldingsInfo from "@/components/dashboard/HoldingsInfo.vue";
 import PortfolioTransaction from "@/components/dashboard/PortfolioTransaction.vue";
 import CashInfo from "@/components/dashboard/CashInfo.vue";
-import Overview from "@/components/dashboard/Overview.vue";
+import LineGraph from "@/components/dashboard/LineGraph.vue";
 import PieChart from "@/components/dashboard/PieChart.vue";
+import GraphsCarousel from "@/components/dashboard/GraphsCarousel.vue";
 </script>
 
 <template>
@@ -16,14 +17,15 @@ import PieChart from "@/components/dashboard/PieChart.vue";
     </div>
 
     <!-- 中间：自适应 -->
-    <div class="min-w-0 flex-1">
-      <Portfolio />
+    <div class="sticky top-24 h-auto flex-1">
+      <HoldingsInfo />
     </div>
 
     <!-- 右侧：固定宽度 -->
-    <div class="max-w-[300px] overflow-y-auto">
-      <PieChart />
-      <Overview />
+    <div class="sticky top-24 max-w-[500px] min-w-[400px]">
+      <!--<PieChart />-->
+      <!--<LineGraph />-->
+      <GraphsCarousel />
     </div>
   </div>
 </template>
