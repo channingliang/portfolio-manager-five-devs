@@ -1,9 +1,7 @@
 <template>
   <div class="medium">
     <!-- 标题 -->
-    <!-- 标题 -->
     <h2 class="mb-4 text-xl font-semibold text-gray-900">Account Overview</h2>
-    <h3 class="text-primary mb-4 flex items-center text-lg font-bold"></h3>
 
     <!-- 投资资产行 -->
     <div class="flex items-center justify-between">
@@ -21,7 +19,6 @@
           stroke-linejoin="round"
           class="text-gray-600"
         >
-          <!-- 三个柱状条 -->
           <rect x="3" y="10" width="4" height="11" rx="1"></rect>
           <rect x="10" y="6" width="4" height="15" rx="1"></rect>
           <rect x="17" y="2" width="4" height="19" rx="1"></rect>
@@ -29,127 +26,217 @@
         <span class="text-gray-600">Portfolio Assets</span>
       </div>
 
-      <!-- 金额 -->
-      <div class="text-2xl font-bold text-gray-900">
-        ￥{{ portfolioValue.toLocaleString() }}
+      <!-- 总资产 -->
+      <div class="font-bold text-gray-900">
+        ￥{{ totalValue.toLocaleString() }}
       </div>
     </div>
 
     <!-- 持仓产品 -->
     <div class="mb-6">
       <div class="grid grid-cols-2 gap-4">
-        <!-- 动态生成产品卡片 -->
+        <!-- 产品卡片 -->
         <div
-          v-for="(item, index) in holdings"
+          v-for="(item, index) in accountOverview"
           :key="index"
-          class="relative rounded-lg border bg-white p-4 transition-shadow hover:shadow-lg"
-          @mouseenter="hoverIndex = index"
-          @mouseleave="hoverIndex = null"
+          class="relative rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
         >
-          <!-- 卡片头部 -->
-          <div class="flex justify-between">
-            <div class="text-xs font-medium text-gray-800">
-              Product Name:
-              <br />
-              {{ item.name }}
-            </div>
-            <div
-              class="font-mono text-xs"
-              :class="item.yield >= 0 ? 'text-green-600' : 'text-red-600'"
-            >
-              Yield rate:
-              <br />
-              {{ item.yield >= 0 ? "+" : "" }}{{ item.yield }}%
-            </div>
+          <!-- 产品名 -->
+          <div class="text-sm text-gray-800">
+            <div>{{ item.name }}</div>
+            <div class="text-xs text-gray-500">({{ item.ticker }})</div>
           </div>
 
-          <!-- 市值 -->
-          <div class="mt-2 font-mono text-sm">
-            Market capitalization: ￥{{ item.marketValue.toLocaleString() }}
-          </div>
-
-          <!-- Hover显示详情：只显示当前悬停的卡片 -->
+          <!-- 收益 -->
           <div
-            v-if="hoverIndex === index"
-            class="absolute top-full left-0 z-10 mt-2 w-full rounded-lg border bg-white p-4 shadow-lg"
+            class="flex items-center text-sm"
+            :class="item.profit >= 0 ? 'text-green-600' : 'text-red-600'"
           >
-            <table class="w-full text-xs">
-              <tbody>
-                <tr>
-                  <td class="py-1 text-gray-500">Latest net value</td>
-                  <td class="py-1 font-mono">{{ item.nav }}</td>
-                </tr>
-                <tr>
-                  <td class="py-1 text-gray-500">Holding shares</td>
-                  <td class="py-1 font-mono">
-                    {{ item.shares.toLocaleString() }}
-                  </td>
-                </tr>
-                <tr>
-                  <td class="py-1 text-gray-500">Annualized return</td>
-                  <td
-                    class="py-1 font-mono"
-                    :class="
-                      item.annualYield >= 0 ? 'text-green-600' : 'text-red-600'
-                    "
-                  >
-                    {{ item.annualYield >= 0 ? "+" : ""
-                    }}{{ item.annualYield }}%
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <ChartNoAxesCombined class="size-4" />
+            ￥{{ item.profit.toLocaleString() }}
           </div>
+
+          <!-- 持仓份额 -->
+          <div class="flex items-center text-sm text-gray-600">
+            <Inbox class="size-4" />
+            {{ item.amount.toLocaleString() }}
+          </div>
+
+          <!-- 当前价格 + 卖出按钮 -->
+          <div class="flex flex-col space-x-2">
+            ￥{{ item.current_price.toLocaleString() }}
+          </div>
+          <Button variant="outline" size="icon" @click="openSellDialog(item)">
+            <Plus />
+          </Button>
+          <Button
+            Button
+            variant="outline"
+            size="icon"
+            @click="openBuyDialog(item)"
+          >
+            <Trash />
+          </Button>
         </div>
       </div>
     </div>
   </div>
+
+  <!-- 卖出弹窗 -->
+  <Dialog v-model:open="showDialog">
+    <DialogContent class="max-w-sm">
+      <DialogHeader>
+        <DialogTitle>Sell {{ selectedProduct?.name }}</DialogTitle>
+      </DialogHeader>
+
+      <div class="space-y-4">
+        <RadioGroup v-model="sellMode" class="flex space-x-4">
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="shares" id="shares" />
+            <label for="shares">By shares</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="amount" id="amount" />
+            <label for="amount">By amount</label>
+          </div>
+        </RadioGroup>
+
+        <Input
+          v-model="sellValue"
+          placeholder="Please enter the quantity"
+          type="number"
+          class="w-full"
+        />
+      </div>
+
+      <DialogFooter>
+        <Button variant="secondary" @click="showDialog = false">Cancel</Button>
+        <Button class="text-black" variant="destructive" @click="confirmSell"
+          >Confirm</Button
+        >
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
+
+  <!-- 买入弹窗 -->
+  <Dialog v-model:open="showBuyDialog">
+    <DialogContent class="max-w-sm">
+      <DialogHeader>
+        <DialogTitle>Buy {{ selectedProduct?.name }}</DialogTitle>
+      </DialogHeader>
+
+      <div class="space-y-4">
+        <RadioGroup v-model="buyMode" class="flex space-x-4">
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="shares" id="buy-shares" />
+            <label for="buy-shares">By share</label>
+          </div>
+          <div class="flex items-center space-x-2">
+            <RadioGroupItem value="amount" id="buy-amount" />
+            <label for="buy-amount">By amount</label>
+          </div>
+        </RadioGroup>
+
+        <Input
+          v-model="buyValue"
+          placeholder="Please enter the quantity"
+          type="number"
+          class="w-full"
+        />
+      </div>
+
+      <DialogFooter>
+        <Button variant="secondary" @click="showBuyDialog = false"
+          >Cancel</Button
+        >
+        <Button
+          class="bg-green-600 text-black hover:bg-green-700"
+          @click="confirmBuy"
+        >
+          Confirm
+        </Button>
+      </DialogFooter>
+    </DialogContent>
+  </Dialog>
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { accountOverview } from "@/lib/data.js"; // 引入你的API数据
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogFooter,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { ArrowDownUp } from "lucide-vue-next";
+import {
+  ChartNoAxesCombined,
+  Inbox,
+  ArrowBigDown,
+  ArrowBigUp,
+  Plus,
+  Trash,
+} from "lucide-vue-next";
 
-// 当前悬停的卡片索引
-const hoverIndex = ref(null);
+// 卖出弹窗
+const showDialog = ref(false);
+const sellMode = ref("shares"); // "shares" or "amount"
+const sellValue = ref("");
+const selectedProduct = ref(null);
 
-// 模拟持仓数据，可以替换为 API 获取
-const portfolioValue = ref(10000000);
+// 买入弹窗相关
+const showBuyDialog = ref(false);
+const buyMode = ref("shares");
+const buyValue = ref("");
 
-const holdings = ref([
-  {
-    name: "Product A",
-    yield: 5.0,
-    marketValue: 2500000,
-    nav: 3.2567,
-    shares: 129857.25,
-    annualYield: 12.15,
-  },
-  {
-    name: "Product B",
-    yield: -5.0,
-    marketValue: 1500000,
-    nav: 2.1356,
-    shares: 98574.1,
-    annualYield: -3.2,
-  },
-  {
-    name: "Product C",
-    yield: -5.0,
-    marketValue: 3800000,
-    nav: 1.8765,
-    shares: 189321.4,
-    annualYield: 6.5,
-  },
-  {
-    name: "Product D",
-    yield: -5.0,
-    marketValue: 2200000,
-    nav: 3.4521,
-    shares: 115632.2,
-    annualYield: 8.3,
-  },
-]);
+// 打开卖出弹窗
+function openSellDialog(item) {
+  selectedProduct.value = item;
+  sellValue.value = "";
+  sellMode.value = "shares";
+  showDialog.value = true;
+}
+
+// 打开买入弹窗
+function openBuyDialog(item) {
+  selectedProduct.value = item;
+  buyValue.value = "";
+  buyMode.value = "shares";
+  showBuyDialog.value = true;
+}
+
+// 确认卖出
+function confirmSell() {
+  console.log(
+    `Selling ${sellValue.value} ${sellMode.value === "shares" ? "份额" : "金额"} of`,
+    selectedProduct.value?.name,
+  );
+  showDialog.value = false;
+}
+
+// 确认买入
+function confirmBuy() {
+  console.log(
+    `Buying ${buyValue.value} ${
+      buyMode.value === "shares" ? "份额" : "金额"
+    } of ${selectedProduct.value?.name}`,
+  );
+  showBuyDialog.value = false;
+}
+
+// 总资产计算
+const totalValue = computed(() =>
+  accountOverview.reduce(
+    (sum, item) => sum + item.amount * item.current_price,
+    0,
+  ),
+);
 </script>
 
 <style scoped>
