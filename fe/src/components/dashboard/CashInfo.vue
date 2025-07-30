@@ -67,7 +67,7 @@ onUnmounted(() => {
   <div class="z-888 mb-4 w-full rounded-2xl border p-4 shadow-lg">
     <div class="flex items-center gap-1">
       <BadgeDollarSign class="size-4" />
-      Transactions
+      Balance
     </div>
     <div class="mt-2 text-xl">
       {{ formattedBalance }}

@@ -16,6 +16,7 @@ import {
   NumberFieldIncrement,
   NumberFieldInput,
 } from "@/components/ui/number-field";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ref, watch, computed } from "vue";
 import { useAccountStore } from "@/stores/account.js";
 
@@ -39,11 +40,20 @@ const buyPrice = ref(
   props.defaultPrice ?? (props.stock?.price ? Number(props.stock.price) : 0),
 );
 
+const isMarketOrder = ref(false); // 市价买入
+const marketPriceSnapshot = ref(props.stock?.price ?? props.defaultPrice ?? 0);
+
 watch(
   () => props.stock,
   (val) => {
     buyQuantity.value = props.defaultQuantity;
     buyPrice.value = props.defaultPrice ?? (val?.price ? Number(val.price) : 0);
+    isMarketOrder.value = false;
+    marketPriceSnapshot.value =
+      val?.price ??
+      val?.price_per_unit ??
+      props.defaultPrice ??
+      Number(buyPrice.value);
   },
 );
 watch(
@@ -54,6 +64,12 @@ watch(
       buyPrice.value =
         props.defaultPrice ??
         (props.stock?.price ? Number(props.stock.price) : 0);
+      isMarketOrder.value = false;
+      marketPriceSnapshot.value =
+        props.stock?.price ??
+        props.stock?.price_per_unit ??
+        props.defaultPrice ??
+        Number(buyPrice.value);
     }
   },
 );
@@ -66,7 +82,11 @@ const balance = computed(() =>
 
 // 购买总价
 const totalAmount = computed(
-  () => Number(buyQuantity.value) * Number(buyPrice.value),
+  () =>
+    Number(buyQuantity.value) *
+    (isMarketOrder.value
+      ? Number(marketPriceSnapshot.value)
+      : Number(buyPrice.value)),
 );
 
 // 按钮可用条件
@@ -74,15 +94,18 @@ const canBuy = computed(
   () =>
     !props.loading &&
     Number(buyQuantity.value) > 0 &&
-    Number(buyPrice.value) > 0 &&
+    (isMarketOrder.value || Number(buyPrice.value) > 0) &&
     balance.value >= totalAmount.value,
 );
 
 const handleConfirm = () => {
   emit("confirm", {
     quantity: Number(buyQuantity.value),
-    price: Number(buyPrice.value),
+    price: isMarketOrder.value
+      ? Number(marketPriceSnapshot.value)
+      : Number(buyPrice.value),
     stock: props.stock,
+    market: isMarketOrder.value,
   });
 };
 const handleCancel = () => {
@@ -100,7 +123,7 @@ const handleCancel = () => {
             Buy {{ props.stock?.name }} ({{ props.stock?.ticker }})
           </DrawerTitle>
           <DrawerDescription>
-            Purchase shares at your desired price.
+            Purchase shares at your desired price or at market price.
           </DrawerDescription>
         </DrawerHeader>
         <div class="px-4">
@@ -137,7 +160,7 @@ const handleCancel = () => {
                   currencyDisplay: 'code',
                   minimumFractionDigits: 2,
                 }"
-                :disabled="props.loading"
+                :disabled="props.loading || isMarketOrder"
                 class="w-full"
               >
                 <NumberFieldContent>
@@ -148,6 +171,18 @@ const handleCancel = () => {
               </NumberField>
             </div>
 
+            <div class="mt-4 flex items-center gap-x-2">
+              <Checkbox
+                :id="'market-order'"
+                v-model:modelValue="isMarketOrder"
+              />
+              <label
+                for="market-order"
+                class="cursor-pointer text-sm font-medium select-none"
+              >
+                Buy at market price
+              </label>
+            </div>
             <div class="mt-4 text-end text-xs text-gray-500">
               <p class="mb-1">
                 Total: ${{

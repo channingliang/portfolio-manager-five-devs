@@ -3,12 +3,15 @@ import { ref, onMounted, onUnmounted, watch } from "vue";
 import * as echarts from "echarts";
 import { ChartPie } from "lucide-vue-next";
 import api from "@/lib/request.js";
-import eventBus from "@/lib/eventBus.js"; // 需有全局 eventBus 实现
+import eventBus from "@/lib/eventBus.js";
+import { useAccountStore } from "@/stores/account.js"; // 需有全局 eventBus 实现
+
+const accountStore = useAccountStore();
 
 const chartRef = ref(null);
 let chart = null;
 const pieData = ref([]);
-const accountId = 1;
+const accountId = accountStore.id;
 const fontFamily = "Merriweather, serif";
 
 function renderChart() {

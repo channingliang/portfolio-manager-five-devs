@@ -20,8 +20,10 @@ import {
 } from "@/components/ui/popover";
 import eventBus from "@/lib/eventBus.js";
 
+const accountStore = useAccountStore();
+
 // 当前登录账号ID
-const accountId = 1;
+const accountId = accountStore.id;
 
 const holdingAssets = ref([]);
 
@@ -180,7 +182,7 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
 
 <template>
   <div
-    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border bg-white/70 p-4 shadow-lg"
+    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border bg-white/70 p-4 shadow-lg backdrop-blur-md"
   >
     <div class="flex items-center gap-1">
       <ChartCandlestick class="size-4" />
@@ -211,7 +213,9 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
             <!-- 产品名和代码 -->
             <div class="mb-2 text-sm">
               <div class="text-end text-xs text-gray-500">
-                {{ item.ticker_type === 1 ? "Stock" : "Crypto/Fund" }}
+                <span class="rounded-xl border px-3 py-1">{{
+                  item.ticker_type === 1 ? "Stock" : "Crypto/Fund"
+                }}</span>
               </div>
               <div class="font-bold">
                 <p>{{ item.name }}</p>
@@ -224,7 +228,7 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
             </div>
             <!-- 持仓份额&盈亏 -->
             <div
-              class="mb-2 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm"
+              class="mb-4 flex flex-wrap items-center justify-end gap-x-4 gap-y-2 text-sm"
             >
               <div class="flex items-center gap-1">
                 <Layers class="size-4" />

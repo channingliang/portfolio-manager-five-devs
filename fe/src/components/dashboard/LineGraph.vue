@@ -17,6 +17,9 @@ import * as echarts from "echarts";
 import { ChartLine } from "lucide-vue-next";
 import api from "@/lib/request.js";
 import eventBus from "@/lib/eventBus.js";
+import { useAccountStore } from "@/stores/account.js";
+
+const accountStore = useAccountStore();
 
 const chartRef = ref(null);
 let chart = null;
@@ -68,7 +71,7 @@ function renderChart() {
 // 拉取真实数据
 const fetchData = () => {
   api
-    .get("/portfolio/summary", { account_id: 1 })
+    .get("/portfolio/summary", { account_id: accountStore.id })
     .then((res) => {
       chartData.value = Array.isArray(res) ? res : [];
       renderChart();
