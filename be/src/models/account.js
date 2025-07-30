@@ -43,7 +43,7 @@ module.exports = (sequelize, DataTypes) => {
     tableName: 'account' // 对应数据库表名
   });
 
-  console.log('Account model initialized with fields:', Account.rawAttributes);
+  // console.log('Account model initialized with fields:', Account.rawAttributes);
 
   return Account;
 };
