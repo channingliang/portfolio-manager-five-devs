@@ -47,7 +47,7 @@ const processMessage = ref("");
 
 //   loading.value = true;
 //   api
-//     .post("/tiingo", {
+//     .get("/market/stock", {
 //       ticker: searchQuery.value,
 //       startDate: "2025-01-01T00:00:00.000Z",
 //       endDate: "2025-07-28T23:59:59.999Z",

@@ -562,9 +562,10 @@ Response:
 ### Get Stock Market Data
 
 1. User enters stock market page
-2. Frontend will send `GET /market/stock` request
+2. Frontend will send `GET /market/stock` request with optional search parameters:
+    - `search`: Optional search term to filter stocks by ticker or name
 3. Backend will process the request
-4. Find all stock companies in the database
+4. If `search` is provided, filter the stock companies by ticker or name. Otherwise, return all stock companies
 5. Get the latest 30 days stock data for each company and return it
 
 ### Buy Stock
