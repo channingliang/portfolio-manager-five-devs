@@ -11,6 +11,10 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.INTEGER,
         allowNull: false,
       },
+      name: {
+        type: DataTypes.STRING(128),
+        allowNull: false,
+      },
       ticker: {
         type: DataTypes.STRING(16),
         allowNull: false,

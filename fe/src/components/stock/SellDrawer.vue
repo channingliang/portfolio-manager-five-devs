@@ -18,11 +18,11 @@ import {
 } from "@/components/ui/number-field";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ref, watch, computed } from "vue";
-import { useAccountStore } from "@/stores/account.js";
 
 const props = defineProps({
   open: { type: Boolean, required: true },
   stock: { type: Object, required: true },
+  holding: { type: Number, required: true }, // 当前持有数量
   defaultQuantity: { type: Number, default: 1 },
   defaultPrice: { type: Number, default: null },
   loading: { type: Boolean, default: false },
@@ -35,75 +35,57 @@ const drawerOpen = computed({
   set: (val) => emit("update:open", val),
 });
 
-const buyQuantity = ref(props.defaultQuantity);
-const buyPrice = ref(
+const sellQuantity = ref(props.defaultQuantity);
+const sellPrice = ref(
   props.defaultPrice ?? (props.stock?.price ? Number(props.stock.price) : 0),
 );
 
-const isMarketOrder = ref(false); // 市价买入
-const marketPriceSnapshot = ref(props.stock?.price ?? props.defaultPrice ?? 0);
+const isMarketOrder = ref(false);
+const marketPriceSnapshot = ref(
+  props.stock?.price ?? props.stock?.price_per_unit ?? props.defaultPrice ?? 0,
+);
 
-watch(
-  () => props.stock,
-  (val) => {
-    buyQuantity.value = props.defaultQuantity;
-    buyPrice.value = props.defaultPrice ?? (val?.price ? Number(val.price) : 0);
+// 初始化和弹窗重新打开都赋值
+watch([() => props.open, () => props.stock], ([open]) => {
+  if (open) {
+    sellQuantity.value = props.defaultQuantity;
+    sellPrice.value =
+      props.defaultPrice ??
+      (props.stock?.price ? Number(props.stock.price) : 0);
     isMarketOrder.value = false;
     marketPriceSnapshot.value =
-      val?.price ??
-      val?.price_per_unit ??
+      props.stock?.price ??
+      props.stock?.price_per_unit ??
       props.defaultPrice ??
-      Number(buyPrice.value);
-  },
-);
-watch(
-  () => props.open,
-  (v) => {
-    if (v) {
-      buyQuantity.value = props.defaultQuantity;
-      buyPrice.value =
-        props.defaultPrice ??
-        (props.stock?.price ? Number(props.stock.price) : 0);
-      isMarketOrder.value = false;
-      marketPriceSnapshot.value =
-        props.stock?.price ??
-        props.stock?.price_per_unit ??
-        props.defaultPrice ??
-        Number(buyPrice.value);
-    }
-  },
-);
+      Number(sellPrice.value);
+  }
+});
 
-// 余额自动获取
-const accountStore = useAccountStore();
-const balance = computed(() =>
-  typeof accountStore.balance === "number" ? accountStore.balance : 0,
-);
-
-// 购买总价
-const totalAmount = computed(
+const totalIncome = computed(
   () =>
-    Number(buyQuantity.value) *
-    (isMarketOrder.value
-      ? Number(marketPriceSnapshot.value)
-      : Number(buyPrice.value)),
+    Number(sellQuantity.value) *
+      (isMarketOrder.value
+        ? Number(marketPriceSnapshot.value)
+        : Number(sellPrice.value)) || 0,
+);
+const insufficientHolding = computed(
+  () => Number(sellQuantity.value) > Number(props.holding),
 );
 
-// 按钮可用条件
-const canBuy = computed(
+const canSell = computed(
   () =>
     !props.loading &&
-    Number(buyQuantity.value) > 0 &&
-    (isMarketOrder.value || Number(buyPrice.value) > 0) &&
-    balance.value >= totalAmount.value,
+    Number(sellQuantity.value) > 0 &&
+    (isMarketOrder.value || Number(sellPrice.value) > 0) &&
+    !insufficientHolding.value,
 );
 
 const handleConfirm = () => {
   emit("confirm", {
-    quantity: Number(buyQuantity.value),
+    quantity: Number(sellQuantity.value),
     price: isMarketOrder.value
       ? Number(marketPriceSnapshot.value)
-      : Number(buyPrice.value),
+      : Number(sellPrice.value),
     stock: props.stock,
     market: isMarketOrder.value,
   });
@@ -120,10 +102,10 @@ const handleCancel = () => {
       <div class="mx-auto h-full max-w-md min-w-[320px] pt-8 pb-16">
         <DrawerHeader>
           <DrawerTitle>
-            Buy {{ props.stock?.name }} ({{ props.stock?.ticker }})
+            Sell {{ props.stock?.name }} ({{ props.stock?.ticker }})
           </DrawerTitle>
           <DrawerDescription>
-            Purchase shares at your desired price or at market price.
+            Sell your holding at your desired price or at market price.
           </DrawerDescription>
         </DrawerHeader>
         <div class="px-4">
@@ -133,7 +115,7 @@ const handleCancel = () => {
                 >Quantity</span
               >
               <NumberField
-                v-model="buyQuantity"
+                v-model="sellQuantity"
                 :min="1"
                 :step="1"
                 :disabled="props.loading"
@@ -148,10 +130,10 @@ const handleCancel = () => {
             </div>
             <div class="mb-2">
               <span class="mb-1 block text-sm font-medium text-gray-700"
-                >Price Per Unit</span
+                >Sell Price</span
               >
               <NumberField
-                v-model="buyPrice"
+                v-model="sellPrice"
                 :min="0"
                 :step="0.01"
                 :format-options="{
@@ -173,39 +155,32 @@ const handleCancel = () => {
 
             <div class="mt-4 flex items-center gap-x-2">
               <Checkbox
-                :id="'market-order'"
+                :id="'market-order-sell'"
                 v-model:modelValue="isMarketOrder"
               />
               <label
-                for="market-order"
+                for="market-order-sell"
                 class="cursor-pointer text-sm font-medium select-none"
               >
-                Buy at market price
+                Sell at market price
               </label>
             </div>
+
             <div class="mt-4 text-end text-xs text-gray-500">
               <p class="mb-1">
                 Total: ${{
-                  totalAmount.toLocaleString(undefined, {
+                  totalIncome.toLocaleString(undefined, {
                     minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
                   })
                 }}
               </p>
-              <p>
-                Balance: ${{
-                  balance.toLocaleString(undefined, {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                }}
-              </p>
+              <p>Holding: {{ props.holding }}</p>
             </div>
             <div
-              v-if="balance < totalAmount"
+              v-if="insufficientHolding"
               class="mt-1 text-end text-xs text-red-500"
             >
-              Insufficient balance
+              Not enough holding quantity
             </div>
             <div v-if="props.error" class="mt-2 text-end text-sm text-red-500">
               {{ props.error }}
@@ -226,7 +201,7 @@ const handleCancel = () => {
                 size="icon"
                 variant="outline"
                 @click="handleConfirm"
-                :disabled="!canBuy"
+                :disabled="!canSell"
               >
                 <Loader2 v-if="props.loading" class="h-4 w-4 animate-spin" />
                 <Check v-else class="size-4 text-green-500" />

@@ -4,11 +4,17 @@ const fs = require("fs").promises;
 const path = require("path");
 const { readFileAndSearch } = require("../data/search");
 
+// 辅助函数：以基准价上下浮动一定比例
+function randomPrice(basePrice) {
+  if (typeof basePrice !== "number" || isNaN(basePrice)) return null;
+  // ±20% 区间
+  const delta = basePrice * (Math.random() * 0.4 - 0.2);
+  return Number((basePrice + delta).toFixed(2));
+}
+
 class MarketController {
   /**
    * 查询市场股票数据
-   * @param {express.Request} req - 请求对象
-   * @param {express.Response} res - 响应对象
    */
   static async getStockMarketData(req, res) {
     try {
@@ -64,9 +70,17 @@ class MarketController {
             detail = [];
           }
 
+          // 取最新收盘价
+          let price_per_unit = null;
+          if (detail.length > 0) {
+            const latestClose = Number(detail[detail.length - 1].close);
+            price_per_unit = randomPrice(latestClose);
+          }
+
           return {
             ticker: stockItem.ticker.toUpperCase(),
             name: stockItem.name,
+            price_per_unit: price_per_unit,
             detail,
           };
         }),
@@ -92,8 +106,6 @@ class MarketController {
 
   /**
    * 获取单支股票市场数据
-   * @param {express.Request} req
-   * @param {express.Response} res
    */
   static async getStockByTicker(req, res) {
     try {
@@ -140,12 +152,20 @@ class MarketController {
         detail = [];
       }
 
+      // 取最新收盘价
+      let price_per_unit = null;
+      if (detail.length > 0) {
+        const latestClose = Number(detail[detail.length - 1].close);
+        price_per_unit = randomPrice(latestClose);
+      }
+
       res.status(200).json({
         code: 200,
         msg: "Stock market data retrieved successfully.",
         data: {
           ticker: stockItem.ticker.toUpperCase(),
           name: stockItem.name,
+          price_per_unit: price_per_unit,
           detail,
         },
       });

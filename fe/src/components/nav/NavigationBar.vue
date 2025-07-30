@@ -27,7 +27,7 @@ const accountStore = useAccountStore();
 
 const drawerOpen = ref(false);
 
-accountStore.fetchAccountInfo(3);
+accountStore.fetchAccountInfo(1);
 </script>
 
 <template>
@@ -83,7 +83,7 @@ accountStore.fetchAccountInfo(3);
                   </router-link>
                 </li>
                 <li>
-                  <router-link to="/fund">
+                  <router-link to="/stock">
                     <NavigationMenuLink as-child>
                       <div
                         class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"
@@ -106,7 +106,7 @@ accountStore.fetchAccountInfo(3);
                   </router-link>
                 </li>
                 <li>
-                  <router-link to="/crypto">
+                  <router-link to="/stock">
                     <NavigationMenuLink as-child>
                       <div
                         class="hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground block space-y-1 rounded-md p-3 leading-none no-underline transition-colors outline-none select-none"

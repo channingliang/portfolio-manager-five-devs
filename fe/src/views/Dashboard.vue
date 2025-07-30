@@ -8,7 +8,7 @@ import GraphsCarousel from "@/components/dashboard/GraphsCarousel.vue";
 </script>
 
 <template>
-  <div class="flex min-h-screen gap-4">
+  <div class="flex min-h-[calc(100vh-120px)] gap-4">
     <div class="w-[400px]">
       <div class="sticky top-24">
         <CashInfo />

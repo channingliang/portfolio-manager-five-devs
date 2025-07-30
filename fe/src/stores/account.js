@@ -4,6 +4,7 @@ import api from "@/lib/request.js";
 // Define a store for user info, including wallet balance
 export const useAccountStore = defineStore("account", {
   state: () => ({
+    id: 1, // User ID
     name: null, // User's name
     currency: "USD", // Default currency
     balance: null, // Wallet balance
@@ -18,7 +19,7 @@ export const useAccountStore = defineStore("account", {
     setCurrency(currency) {
       this.currency = currency;
     },
-    async fetchAccountInfo(id) {
+    async fetchAccountInfo(id = this.id) {
       console.log("Fetching account info for ID:", id);
       const res = await api.get("/account/" + id, {});
       this.balance = res.balance;

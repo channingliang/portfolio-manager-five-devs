@@ -1,5 +1,5 @@
 <script setup>
-import { ref, computed, onMounted } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import {
   Accordion,
   AccordionItem,
@@ -15,7 +15,7 @@ const transactionHistory = ref([]);
 // 查询交易历史（标准api调用）
 const fetchTransactions = () => {
   api
-    .get("/cash", { account_id: 3 })
+    .get("/cash", { account_id: 1 })
     .then((res) => {
       transactionHistory.value = Array.isArray(res) ? res : [];
     })
@@ -51,13 +51,23 @@ const formatDate = (dateString) => {
   const min = String(d.getMinutes()).padStart(2, "0");
   return `${yyyy}-${mm}-${dd} ${hh}:${min}`;
 };
+
+import eventBus from "@/lib/eventBus.js";
+
+onMounted(() => {
+  fetchTransactions();
+  eventBus.on("cash-updated", fetchTransactions);
+});
+onUnmounted(() => {
+  eventBus.off("cash-updated", fetchTransactions);
+});
 </script>
 
 <template>
   <div class="z-888 mb-4 w-full rounded-2xl border p-4 shadow-lg">
     <div class="flex items-center gap-1">
       <BadgeDollarSign class="size-4" />
-      Transactions
+      Balance
     </div>
     <div class="mt-2 text-xl">
       {{ formattedBalance }}

@@ -1,6 +1,24 @@
 // controllers/portfolioController.js
 const { StatusCodes } = require("http-status-codes");
 const db = require("../models"); // Sequelize
+const fs = require("fs");
+const path = require("path");
+
+// 工具函数：通过 ticker 获取公司名称
+function getCompanyNameByTicker(ticker) {
+  try {
+    const metaPath = path.join(__dirname, "../data/stock-meta.json");
+    const content = fs.readFileSync(metaPath, "utf8");
+    const stockMeta = JSON.parse(content);
+    const found = (stockMeta || []).find(
+      (item) =>
+        (item.ticker || "").toLowerCase() === (ticker || "").toLowerCase(),
+    );
+    return found ? found.name : "";
+  } catch (e) {
+    return "";
+  }
+}
 
 exports.createPortfolioTransaction = async (req, res) => {
   const t = await db.sequelize.transaction();
@@ -143,6 +161,7 @@ exports.createPortfolioTransaction = async (req, res) => {
           {
             quantity: Number(holding.quantity) + Number(quantity),
             updated_at: new Date(),
+            name: getCompanyNameByTicker(ticker), // 防止公司名变化
           },
           { transaction: t },
         );
@@ -153,6 +172,7 @@ exports.createPortfolioTransaction = async (req, res) => {
             ticker,
             ticker_type,
             quantity,
+            name: getCompanyNameByTicker(ticker), // 新增
             created_at: new Date(),
           },
           { transaction: t },
@@ -238,6 +258,7 @@ exports.createPortfolioTransaction = async (req, res) => {
           {
             quantity: remaining,
             updated_at: new Date(),
+            name: getCompanyNameByTicker(ticker), // 防止公司名变化
           },
           { transaction: t },
         );
@@ -273,6 +294,7 @@ exports.createPortfolioTransaction = async (req, res) => {
   }
 };
 
+// 查询持仓列表时也要带name字段并保证正确
 exports.getPortfolioHoldings = async (req, res) => {
   try {
     // 支持 GET 参数和 query/body 方式
@@ -338,11 +360,18 @@ exports.getPortfolioHoldings = async (req, res) => {
           ((current_price - avg_cost) * Number(holding.quantity)).toFixed(2),
         );
 
+        // 确保 name 字段实时正确
+        const holdingName =
+          holding.name && holding.name.trim()
+            ? holding.name
+            : getCompanyNameByTicker(holding.ticker);
+
         return {
           portfolio_holding_id: holding.portfolio_holding_id,
           account_id: holding.account_id,
           ticker: holding.ticker,
           ticker_type: holding.ticker_type,
+          name: holdingName,
           quantity: Number(holding.quantity),
           created_at: holding.created_at,
           updated_at: holding.updated_at,

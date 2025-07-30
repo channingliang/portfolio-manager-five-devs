@@ -33,6 +33,7 @@ import {
 import { Check, Loader2, X } from "lucide-vue-next";
 import { Button } from "@/components/ui/button/index.js";
 import api from "@/lib/request.js";
+import eventBus from "@/lib/eventBus.js";
 
 const props = defineProps({
   open: Boolean,
@@ -170,13 +171,14 @@ async function handlePaymentConfirm() {
     // 1. Promise for API
     const requestPromise = api
       .post("/cash", {
-        account_id: 3,
+        account_id: accountStore.id,
         type: 1,
         amount: topupAmount.value,
         description: "Top-up via Virtual Payment",
       })
       .then((res) => {
-        accountStore.setBalance(res.current_balance);
+        accountStore.setBalance(res.balance_after);
+        eventBus.emit("cash-updated");
         apiResult.value = true;
         processMessage.value = "Your deposit was successful!";
       })
@@ -265,7 +267,7 @@ watch(
                       currencySign: 'accounting',
                       maximumFractionDigits: 2,
                     }"
-                    step="0.01"
+                    :step="0.01"
                     class="w-full"
                     :disabled="step2Completed || processing || processDone"
                   >
