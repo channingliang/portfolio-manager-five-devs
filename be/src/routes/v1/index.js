@@ -22,9 +22,12 @@ router.patch("/account/:id", AccountController.updateAccount);
 router.delete("/account/:id", AccountController.deleteAccount);
 
 // 现金交易接口
-router.post("/cash/deposit", CashController.depositCash);
-router.post("/cash/spend", CashController.spendCash);
-router.get("/cash/account/:account_id", CashController.getCashTransactionsByAccount);
+// 1. 创建现金交易（统一处理存款/支出，通过请求体type区分）
+router.post("/cash", CashController.createCashTransaction);
+// 2. 获取现金交易记录（通过query参数account_id筛选）
+router.get("/cash", CashController.getCashTransactions);
+// 3. 获取现金分布（通过query参数account_id筛选）
+router.get("/cash/distribution", CashController.getCashDistribution);
 
 
 // 投资组合持仓接口
