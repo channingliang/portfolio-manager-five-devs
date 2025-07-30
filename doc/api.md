@@ -24,7 +24,7 @@ POST /account
   "code": 200,
   "msg": "Account create successfully.",
   "data": {
-    "user_id": 1,
+    "account_id": 1,
     "name": "Alice",
     "currency": "USD",
     "balance": 0.00,
@@ -54,7 +54,7 @@ GET /account/{id}
   "code": 200,
   "msg": "获取账户信息成功",
   "data": {
-    "user_id": 10,
+    "account_id": 10,
     "name": "li",
     "currency": "USD",
     "balance": 0,

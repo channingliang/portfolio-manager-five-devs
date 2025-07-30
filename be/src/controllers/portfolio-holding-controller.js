@@ -117,7 +117,9 @@ exports.getPortfolioWeeklyChange = async (req, res) => {
       dayBalances[d] = dayBalance;
     }
     // cashArr是顺序
-    for (let d of dates) cashArr.push(dayBalances[d]);
+    for (let d of dates) {
+      cashArr.push(Number(dayBalances[d].toFixed(2)));
+    }
 
     // 【推算每天持仓及portfolio市值】
     // 逐天推
