@@ -1,5 +1,6 @@
 const axios = require("axios");
 const { StatusCodes } = require("http-status-codes");
+const { readFileAndSearch } = require("../data/search");
 
 const getTiingoData = async (req, res) => {
   try {
@@ -50,3 +51,4 @@ const getTiingoData = async (req, res) => {
 module.exports = {
   getTiingoData
 };
+

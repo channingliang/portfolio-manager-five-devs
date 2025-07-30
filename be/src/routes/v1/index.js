@@ -1,6 +1,6 @@
 const express = require("express");
 
-const { InfoController, AccountController, CashController, TiingoController } = require("../../controllers");
+const { InfoController, AccountController, CashController, TiingoController, SearchController } = require("../../controllers");
 const PortfolioHoldingController = require("../../controllers/portfolio-holding-controller");
 const PortfolioTransactionController = require("../../controllers/portfolio-transaction-controller");
 
