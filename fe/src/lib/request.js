@@ -1,8 +1,5 @@
 import axios from "axios";
 
-// Read Tiingo token and API base URL from environment variables (Vite project)
-const TIINGO_TOKEN = import.meta.env.VITE_TIINGO_TOKEN;
-const TIINGO_API = import.meta.env.VITE_TIINGO_API;
 const BE_API = import.meta.env.VITE_BE_API;
 
 // Create an axios instance with base URL and timeout for your local API
@@ -28,31 +25,6 @@ instance.interceptors.response.use(
   },
 );
 
-// Create a separate axios instance for Tiingo API
-const tiingoInstance = axios.create({
-  baseURL: TIINGO_API, // Tiingo API base URL
-  timeout: 10000, // Request timeout in milliseconds
-});
-
-// Add a request interceptor for Tiingo instance to automatically include token param in every request
-tiingoInstance.interceptors.request.use((config) => {
-  // Make sure params exists
-  if (!config.params) config.params = {};
-  // Always add Tiingo token as a param
-  config.params.token = TIINGO_TOKEN;
-  return config;
-});
-
-// Add a response interceptor for Tiingo API to handle responses and errors
-tiingoInstance.interceptors.response.use(
-  (response) => response.data, // Return response data directly
-  (error) => {
-    // Handle Tiingo request errors
-    console.error("Tiingo Request error:", error);
-    return Promise.reject(error);
-  },
-);
-
 // Encapsulate common HTTP methods for easy use (local API)
 const api = {
   // GET request
@@ -74,11 +46,6 @@ const api = {
   // PATCH request
   patch(url, data, config = {}) {
     return instance.patch(url, data, config);
-  },
-
-  // Tiingo GET request: automatically includes token param
-  tiingoGet(url, params, config = {}) {
-    return tiingoInstance.get(url, { params, ...config });
   },
 };
 

@@ -120,8 +120,54 @@ const deleteAccount = async (req, res) => {
   }
 };
 
+// 更新账户信息
+const updateAccount = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updateData = req.body;
+    
+    // 查找账户
+    const account = await db.Account.findByPk(id);
+    
+    if (!account) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        code: StatusCodes.NOT_FOUND,
+        msg: `未找到 ID 为 ${id} 的账户`,
+        data: {}
+      });
+    }
+    
+    // 更新账户信息
+    await account.update(updateData);
+    
+    // 构建响应数据
+    const responseData = {
+      user_id: account.user_id,
+      name: account.name,
+      currency: account.currency,
+      balance: parseFloat(account.balance),
+      created_at: new Date(account.getDataValue('created_at')).toISOString(),
+      updated_at: new Date(account.getDataValue('updated_at')).toISOString()
+    };
+    
+    return res.status(StatusCodes.OK).json({
+      code: StatusCodes.OK,
+      msg: 'Account updated successfully.',
+      data: responseData
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
+      code: StatusCodes.INTERNAL_SERVER_ERROR,
+      msg: '更新账户失败',
+      data: error.message
+    });
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
-  deleteAccount
+  deleteAccount,
+  updateAccount
 };  

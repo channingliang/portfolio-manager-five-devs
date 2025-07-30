@@ -1,7 +1,7 @@
 const db = require("../models");
 const Cash = db.Cash;
 const Account = db.Account;
-const sequelize = db.sequelize; // 假设Sequelize实例已导出
+const sequelize = db.sequelize;
 
 // 验证金额是否为有效正数
 const isValidAmount = (amount) => {
@@ -9,16 +9,16 @@ const isValidAmount = (amount) => {
   return !isNaN(num) && num > 0;
 };
 
-const createCashTransaction = async (req, res, type) => {
+// 统一的创建现金交易函数
+exports.createCashTransaction = async (req, res) => {
   let transaction;
   try {
-    // 开始数据库事务
     transaction = await sequelize.transaction();
     
-    const { account_id, amount, description } = req.body;
+    const { account_id, type, amount, description } = req.body;
 
     // 基础字段校验
-    if (!account_id || !amount) {
+    if (!account_id || !type || !amount) {
       throw new Error("Missing required fields.");
     }
 
@@ -27,25 +27,26 @@ const createCashTransaction = async (req, res, type) => {
       throw new Error("金额必须是大于0的有效数字");
     }
 
-    // 1. 查询账户是否存在（注意：account_id 实际对应 Account.user_id）
+    // 交易类型校验
+    if (type !== 1 && type !== 2) {
+      throw new Error("非法交易类型。");
+    }
+
+    // 查询账户
     const account = await Account.findOne({ 
       where: { user_id: account_id },
-      transaction // 传递事务对象
+      transaction 
     });
 
     if (!account) {
       throw new Error("用户不存在。");
     }
 
-    // 2. 处理存取款逻辑
+    // 处理存取款逻辑
     let newBalance;
-    let transactionType;
     if (type === 1) {
-      // 存款：加钱
       newBalance = parseFloat(account.balance) + parseFloat(amount);
-      transactionType = "存款";
     } else if (type === 2) {
-      // 支出：扣钱，判断余额是否足够
       const currentBalance = parseFloat(account.balance);
       const transactionAmount = parseFloat(amount);
       
@@ -54,34 +55,31 @@ const createCashTransaction = async (req, res, type) => {
       }
       
       newBalance = currentBalance - transactionAmount;
-      transactionType = "支出";
-    } else {
-      throw new Error("非法交易类型。");
     }
 
-    // 3. 更新账户余额
+    // 更新账户余额
     account.balance = newBalance;
     await account.save({ transaction });
 
-    // 4. 创建交易记录
+    // 创建交易记录（related_id 设为 null）
     const cashRecord = await Cash.create({
       account_id,
       type,
       amount,
-      related_id: 0,
+      related_id: null, // 允许为空
       description,
       occurred_at: new Date(),
     }, { transaction });
 
-    // 提交事务
     await transaction.commit();
 
-    // 5. 构建响应数据
+    // 构建响应数据
     const responseData = {
-      transaction_id: cashRecord.cash_account_id,
+      cash_transaction_id: cashRecord.cash_account_id,
       account_id: cashRecord.account_id,
       type: cashRecord.type,
       amount: cashRecord.amount,
+      related_id: cashRecord.related_id, // 返回 null
       description: cashRecord.description,
       occurred_at: cashRecord.occurred_at,
       current_balance: newBalance
@@ -89,16 +87,14 @@ const createCashTransaction = async (req, res, type) => {
 
     return res.status(201).json({
       code: 201,
-      msg: `${transactionType}交易成功`,
+      msg: "Cash transaction created successfully.",
       data: responseData
     });
   } catch (err) {
-    // 回滚事务
     if (transaction) await transaction.rollback();
     
     console.error("Cash transaction error:", err);
     
-    // 统一错误响应处理
     const errorMap = {
       "Missing required fields.": 400,
       "金额必须是大于0的有效数字": 400,
@@ -118,9 +114,10 @@ const createCashTransaction = async (req, res, type) => {
   }
 };
 
-exports.getCashTransactionsByAccount = async (req, res) => {
+// 获取现金交易记录
+exports.getCashTransactions = async (req, res) => {
   try {
-    const account_id = parseInt(req.params.account_id);
+    const account_id = parseInt(req.query.account_id);
 
     if (isNaN(account_id)) {
       return res.status(400).json({
@@ -130,7 +127,6 @@ exports.getCashTransactionsByAccount = async (req, res) => {
       });
     }
 
-    // 检查账户是否存在
     const account = await Account.findOne({ where: { user_id: account_id } });
     if (!account) {
       return res.status(404).json({
@@ -140,23 +136,35 @@ exports.getCashTransactionsByAccount = async (req, res) => {
       });
     }
 
-    // 查询交易记录
     const transactions = await Cash.findAll({
       where: { account_id },
       attributes: [
         "cash_account_id",
+        "account_id",
         "type",
         "amount",
+        "related_id",
         "description",
         "occurred_at"
       ],
       order: [["occurred_at", "DESC"]]
     });
 
+    const responseTransactions = transactions.map(transaction => ({
+      cash_transaction_id: transaction.cash_account_id,
+      account_id: transaction.account_id,
+      type: transaction.type,
+      amount: transaction.amount,
+      related_id: transaction.related_id,
+      description: transaction.description,
+      occurred_at: transaction.occurred_at,
+      current_balance: account.balance
+    }));
+
     return res.status(200).json({
       code: 200,
-      msg: "获取交易记录成功",
-      data: transactions
+      msg: "Cash transactions retrieved successfully.",
+      data: responseTransactions
     });
   } catch (err) {
     console.error("查询交易记录失败:", err);
@@ -168,5 +176,49 @@ exports.getCashTransactionsByAccount = async (req, res) => {
   }
 };
 
-exports.depositCash = (req, res) => createCashTransaction(req, res, 1);
-exports.spendCash = (req, res) => createCashTransaction(req, res, 2);  
+// 获取现金分布
+exports.getCashDistribution = async (req, res) => {
+  try {
+    const account_id = parseInt(req.query.account_id);
+
+    if (isNaN(account_id)) {
+      return res.status(400).json({
+        code: 400,
+        msg: "无效的账户 ID。",
+        data: {}
+      });
+    }
+
+    const account = await Account.findOne({ where: { user_id: account_id } });
+    if (!account) {
+      return res.status(404).json({
+        code: 404,
+        msg: "用户不存在。",
+        data: {}
+      });
+    }
+
+    // 实际项目中需要根据业务逻辑计算分布
+    const distribution = [
+      { name: "Cash", value: 40 },
+      { name: "Stock", value: 30 },
+      // 其他资产类型...
+    ];
+
+    return res.status(200).json({
+      code: 200,
+      msg: "Cash distribution retrieved successfully.",
+      data: distribution
+    });
+  } catch (err) {
+    console.error("获取现金分布失败:", err);
+    return res.status(500).json({
+      code: 500,
+      msg: "服务器内部错误。",
+      data: err.message
+    });
+  }
+};
+
+
+//
