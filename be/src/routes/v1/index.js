@@ -33,8 +33,9 @@ router.delete("/account/:id", AccountController.deleteAccount);
 router.post("/cash", CashController.createCashTransaction);
 // 2. 获取现金交易记录（通过query参数account_id筛选）
 router.get("/cash", CashController.getCashTransactions);
-// 3. 获取现金分布（通过query参数account_id筛选）
-router.get("/cash/distribution", CashController.getCashDistribution);
+// // 3. 获取现金分布（通过query参数account_id筛选）
+// router.get("/cash/distribution", CashController.getCashDistribution);
+router.get("/cash/summary", CashController.getCashSummary);
 
 // // 投资组合持仓接口
 // router.post(
@@ -78,8 +79,11 @@ router.get("/cash/distribution", CashController.getCashDistribution);
 //   PortfolioTransactionController.getPortfolioTransactionById,
 // );
 //
-// // 市场数据接口 - 新增内容
-// router.get("/market/stock", MarketController.getStockMarketData);
+// 市场数据接口 - 新增内容
+router.get("/market/stock", MarketController.getStockMarketData);
+
+// 获取股票详情
+router.get("/market/stock/:ticker", MarketController.getStockByTicker);
 //
 // //获取每周portfolio数据
 // router.get(

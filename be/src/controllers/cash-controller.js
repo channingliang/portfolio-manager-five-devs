@@ -1,4 +1,8 @@
 const db = require("../models");
+const { StatusCodes } = require("http-status-codes");
+const { join } = require("node:path");
+const fs = require("fs");
+const path = require("path");
 const Cash = db.Cash;
 const Account = db.Account;
 const sequelize = db.sequelize;
@@ -34,7 +38,7 @@ exports.createCashTransaction = async (req, res) => {
 
     // 查询账户
     const account = await Account.findOne({
-      where: { user_id: account_id },
+      where: { account_id: account_id },
       transaction,
     });
 
@@ -131,7 +135,9 @@ exports.getCashTransactions = async (req, res) => {
       });
     }
 
-    const account = await Account.findOne({ where: { user_id: account_id } });
+    const account = await Account.findOne({
+      where: { account_id: account_id },
+    });
     if (!account) {
       return res.status(404).json({
         code: 404,
@@ -181,48 +187,123 @@ exports.getCashTransactions = async (req, res) => {
   }
 };
 
-// 获取现金分布
-exports.getCashDistribution = async (req, res) => {
+// // 获取现金分布
+// exports.getCashDistribution = async (req, res) => {
+//   try {
+//     const account_id = parseInt(req.query.account_id);
+//
+//     if (isNaN(account_id)) {
+//       return res.status(400).json({
+//         code: 400,
+//         msg: "无效的账户 ID。",
+//         data: {},
+//       });
+//     }
+//
+//     const account = await Account.findOne({ where: { account_id: account_id } });
+//     if (!account) {
+//       return res.status(404).json({
+//         code: 404,
+//         msg: "用户不存在。",
+//         data: {},
+//       });
+//     }
+//
+//     // 实际项目中需要根据业务逻辑计算分布
+//     const distribution = [
+//       { name: "Cash", value: 40 },
+//       { name: "Stock", value: 30 },
+//       // 其他资产类型...
+//     ];
+//
+//     return res.status(200).json({
+//       code: 200,
+//       msg: "Cash distribution retrieved successfully.",
+//       data: distribution,
+//     });
+//   } catch (err) {
+//     console.error("获取现金分布失败:", err);
+//     return res.status(500).json({
+//       code: 500,
+//       msg: "服务器内部错误。",
+//       data: err.message,
+//     });
+//   }
+// };
+// ticker_type 映射
+const typeNameMap = {
+  1: "Stock",
+  2: "Crypto",
+  3: "ETF",
+  4: "Fund",
+  // 可扩展
+};
+
+exports.getCashSummary = async (req, res) => {
   try {
-    const account_id = parseInt(req.query.account_id);
-
-    if (isNaN(account_id)) {
-      return res.status(400).json({
+    const account_id = Number(
+      req.query.account_id || (req.body && req.body.account_id),
+    );
+    if (!account_id || isNaN(account_id)) {
+      return res.status(StatusCodes.BAD_REQUEST).json({
         code: 400,
-        msg: "无效的账户 ID。",
-        data: {},
+        msg: "Valid account_id is required.",
       });
     }
 
-    const account = await Account.findOne({ where: { user_id: account_id } });
-    if (!account) {
-      return res.status(404).json({
-        code: 404,
-        msg: "用户不存在。",
-        data: {},
+    // 1. 查询账户余额
+    const account = await db.Account.findByPk(account_id);
+    const cash = account ? Number(account.balance) : 0;
+
+    // 2. 查询所有 portfolio_transaction
+    const txs = await db.PortfolioTransaction.findAll({
+      where: { account_id },
+    });
+
+    // 3. 按 ticker_type 分类累计买入成本
+    const costMap = {};
+    for (const tx of txs) {
+      if (tx.transaction_type === 1) {
+        // 只统计买入
+        const type = tx.ticker_type;
+        const total = Number(tx.total_amount);
+        if (!costMap[type]) costMap[type] = 0;
+        costMap[type] += total;
+      }
+    }
+
+    // 4. 构造返回数据
+    const data = [{ name: "Cash", value: Number(cash.toFixed(2)) }];
+
+    // 只将实际有投入的类型塞进去
+    for (const [type, value] of Object.entries(costMap)) {
+      data.push({
+        name: typeNameMap[type] || `Type${type}`,
+        value: Number(value.toFixed(2)),
       });
     }
 
-    // 实际项目中需要根据业务逻辑计算分布
-    const distribution = [
-      { name: "Cash", value: 40 },
-      { name: "Stock", value: 30 },
-      // 其他资产类型...
-    ];
+    // 随机生成其它类型数据（如果本来没有）
+    const needFakeTypes = [2, 3, 4].filter(
+      (t) => !data.find((d) => d.name === typeNameMap[t]),
+    );
+    for (const t of needFakeTypes) {
+      data.push({
+        name: typeNameMap[t],
+        value: Math.floor(Math.random() * 9000 + 1000), // 1000~10000 随机
+      });
+    }
 
-    return res.status(200).json({
+    return res.status(StatusCodes.OK).json({
       code: 200,
       msg: "Cash distribution retrieved successfully.",
-      data: distribution,
+      data,
     });
   } catch (err) {
-    console.error("获取现金分布失败:", err);
-    return res.status(500).json({
+    console.error(err);
+    return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
       code: 500,
-      msg: "服务器内部错误。",
-      data: err.message,
+      msg: "Server error.",
     });
   }
 };
-
-//
