@@ -32,18 +32,20 @@
 - Environment: Node.js
 - Framework: Vue.js
 - Api Tool: axios.js
-- CSS Tool: tailwindcss
-- Logging Tool: logger.js ?
+- CSS Tool: tailwindcss.js
+- UI Library: Shadcn-vue, ECharts
+- State Management: Pinia.js
+- Linting: ESLint
 
 #### Backend
 - Environment: Node.js
 - Framework: Express.js
-- DB Connection: Sequelize
+- Linting: ESLint
 - API Doc: Swagger
-
 
 #### Database
 - MySQL
+- DB Connection: Sequelize
 
 
 ### Plan
