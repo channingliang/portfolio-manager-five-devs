@@ -20,7 +20,7 @@ import GraphsCarousel from "@/components/dashboard/GraphsCarousel.vue";
     </div>
 
     <div class="w-[400px]">
-      <div class="sticky top-24 space-y-4">
+      <div class="sticky top-24 mb-6 space-y-4">
         <!--<GraphsCarousel />-->
         <PieChart />
         <LineGraph />

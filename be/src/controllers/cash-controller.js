@@ -290,7 +290,7 @@ exports.getCashSummary = async (req, res) => {
     for (const t of needFakeTypes) {
       data.push({
         name: typeNameMap[t],
-        value: Math.floor(Math.random() * 9000 + 1000), // 1000~10000 随机
+        value: Math.floor(Math.random() * 90000 + 10000), // 10000~100000 随机
       });
     }
 
