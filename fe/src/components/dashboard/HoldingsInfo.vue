@@ -182,11 +182,11 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
 
 <template>
   <div
-    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border bg-white/70 p-4 shadow-lg backdrop-blur-md"
+    class="sticky top-24 z-888 mb-4 w-full rounded-2xl border-2 bg-white/70 p-4 shadow-lg backdrop-blur-md"
   >
     <div class="flex items-center gap-1">
       <ChartCandlestick class="size-4" />
-      <span>Assets</span>
+      <span>Portfolio</span>
     </div>
     <div class="mt-2 text-xl">${{ totalValue }}</div>
   </div>
@@ -208,16 +208,16 @@ const handleSellConfirm = async ({ quantity, price, stock }) => {
       >
         <PopoverTrigger as-child>
           <div
-            class="relative cursor-pointer rounded-xl border bg-white p-4 shadow-sm transition-all hover:shadow-md"
+            class="relative cursor-pointer rounded-xl border-2 bg-white p-4 shadow-sm transition-all hover:shadow-md"
           >
             <!-- 产品名和代码 -->
             <div class="mb-2 text-sm">
               <div class="text-end text-xs text-gray-500">
-                <span class="rounded-xl border px-3 py-1">{{
+                <span class="rounded-xl border-2 px-3 py-1">{{
                   item.ticker_type === 1 ? "Stock" : "Crypto/Fund"
                 }}</span>
               </div>
-              <div class="font-bold">
+              <div class="mt-2 font-bold">
                 <p>{{ item.name }}</p>
                 <p class="mt-1 text-xs text-gray-500">{{ item.ticker }}</p>
               </div>

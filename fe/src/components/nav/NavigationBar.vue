@@ -33,7 +33,7 @@ accountStore.fetchAccountInfo(1);
 <template>
   <nav class="fixed top-6 z-999 flex h-12 w-full justify-center">
     <div
-      class="mr-4 h-12 overflow-hidden rounded-full border bg-white/70 p-3 shadow-lg backdrop-blur-md"
+      class="mr-4 h-12 overflow-hidden rounded-full border-2 bg-white/70 p-3 shadow-lg backdrop-blur-md"
     >
       <img
         src="../../assets/icon.png"
@@ -42,7 +42,7 @@ accountStore.fetchAccountInfo(1);
       />
     </div>
     <div
-      class="flex min-w-[500px] justify-center rounded-4xl border bg-white/70 px-16 shadow-lg backdrop-blur-md"
+      class="flex min-w-[500px] justify-center rounded-4xl border-2 bg-white/70 px-16 shadow-lg backdrop-blur-md"
     >
       <NavigationMenu class="h-full">
         <NavigationMenuList>

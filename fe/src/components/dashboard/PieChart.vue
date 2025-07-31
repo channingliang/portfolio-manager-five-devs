@@ -31,7 +31,7 @@ function renderChart() {
       trigger: "item",
       formatter: ({ name, value }) => {
         const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
-        return `${name}<br/>占比: ${pct}%<br/>数值: ${value}`;
+        return `${name}<br/>Per: ${pct}%<br/>Val: ${value}`;
       },
     },
     legend: {
@@ -89,13 +89,13 @@ watch(pieData, renderChart, { deep: true });
 
 <template>
   <div
-    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border p-4 shadow-lg"
+    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border-2 p-4 shadow-lg"
   >
     <ChartPie class="size-4" />
     Pie Chart
   </div>
   <div
     ref="chartRef"
-    class="mx-auto min-h-[300px] w-auto rounded-2xl border pt-4 pb-6 shadow-lg"
+    class="mx-auto min-h-[300px] w-auto rounded-2xl border-2 pt-4 pb-6 shadow-lg"
   />
 </template>

@@ -64,7 +64,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="z-888 mb-4 w-full rounded-2xl border p-4 shadow-lg">
+  <div class="z-888 mb-4 w-full rounded-2xl border-2 p-4 shadow-lg">
     <div class="flex items-center gap-1">
       <BadgeDollarSign class="size-4" />
       Balance
@@ -74,7 +74,7 @@ onUnmounted(() => {
     </div>
   </div>
 
-  <div class="h-[calc(100vh-260px)] overflow-y-auto rounded-2xl border">
+  <div class="h-[calc(100vh-260px)] overflow-y-auto rounded-2xl border-2">
     <Accordion type="single" collapsible>
       <template v-if="transactionHistory.length > 0">
         <AccordionItem

@@ -74,6 +74,7 @@ const processMessage = ref("");
 
 // 使用 mock 数据模拟搜索
 import { mockCryptos } from "@/lib/api.js";
+
 const handleSearch = () => {
   searchQuery.value = searchInput.value.trim();
   if (!searchQuery.value) return;
@@ -140,6 +141,7 @@ const displayedStocks = computed(() => allStocks.value);
 
 // 使用 mock 数据模拟 EOD 数据获取
 import { cryptoPrices } from "@/lib/api.js";
+
 const fetchEODData = (stock, onlyPrice = false) => {
   const mock = cryptoPrices.find((s) => s.ticker === stock.ticker);
   if (!mock) return;
@@ -308,7 +310,7 @@ onMounted(() => {
           v-model="searchInput"
           type="text"
           placeholder="Enter crypto name or ticker"
-          class="flex-1 rounded-lg border border-gray-300 px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
+          class="flex-1 rounded-lg border-2 border-gray-300 px-4 py-2 shadow-sm focus:ring-2 focus:ring-blue-400"
           @keyup.enter="handleSearch"
         />
         <Button
@@ -352,8 +354,8 @@ onMounted(() => {
                   <TableCell class="text-right">{{ item.quantity }}</TableCell>
                   <TableCell class="text-right">${{ item.price }}</TableCell>
                   <TableCell class="text-right"
-                    >${{ item.total.toFixed(2) }}</TableCell
-                  >
+                    >${{ item.total.toFixed(2) }}
+                  </TableCell>
                   <TableCell class="text-center">
                     <Button
                       class="bg-gradient-to-r from-red-500 to-red-600 text-white"
@@ -500,8 +502,8 @@ onMounted(() => {
           <Button
             @click="dialogOpen = false"
             class="bg-gray-300 text-gray-800 hover:bg-gray-400"
-            >Cancel</Button
-          >
+            >Cancel
+          </Button>
           <Button
             @click="confirmTransaction"
             :class="

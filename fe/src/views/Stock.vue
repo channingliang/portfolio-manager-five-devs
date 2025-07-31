@@ -57,35 +57,34 @@ const formatStockList = (arr, oldArr = []) =>
   });
 
 // debounce + 后端请求
-let debounceTimer = null;
 const handleSearch = async (isManualRefresh = false) => {
   searching.value = true;
-  if (!isManualRefresh) clearTimeout(debounceTimer);
-
-  const doSearch = async () => {
-    try {
-      loading.value = true;
-      let params = {};
-      if (searchInput.value.trim()) {
-        params.search = searchInput.value.trim();
-      }
-      const res = await api.get("/market/stock", params);
-      allStocksRaw.value = Array.isArray(res) ? res : [];
-      allStocks.value = formatStockList(allStocksRaw.value);
-    } catch {
-      allStocksRaw.value = [];
-      allStocks.value = [];
+  try {
+    loading.value = true;
+    let params = {};
+    if (searchInput.value.trim()) {
+      params.search = searchInput.value.trim();
     }
-    searching.value = false;
-    loading.value = false;
-  };
-
-  if (isManualRefresh) {
-    await doSearch();
-  } else {
-    debounceTimer = setTimeout(doSearch, 300);
+    const res = await api.get("/market/stock", params);
+    allStocksRaw.value = Array.isArray(res) ? res : [];
+    allStocks.value = formatStockList(allStocksRaw.value);
+  } catch {
+    allStocksRaw.value = [];
+    allStocks.value = [];
   }
+  searching.value = false;
+  loading.value = false;
 };
+
+const debounceSearch = (() => {
+  let timer = null;
+  return function () {
+    if (timer) clearTimeout(timer);
+    timer = setTimeout(() => {
+      handleSearch();
+    }, 1000); // 改成你想要的防抖时间
+  };
+})();
 
 // 刷新按钮
 const handleRefresh = () => {
@@ -124,7 +123,7 @@ const handleBuyConfirm = async ({ quantity, price, stock }) => {
   }
   buyLoading.value = true;
   buyError.value = "";
-  
+
   api
     .post("/portfolio/transaction", {
       account_id: accountStore.id,
@@ -189,7 +188,6 @@ onMounted(setupPriceUpdate);
 
 onUnmounted(() => {
   if (priceUpdateTimer) clearInterval(priceUpdateTimer);
-  if (debounceTimer) clearTimeout(debounceTimer);
 });
 </script>
 
@@ -199,12 +197,12 @@ onUnmounted(() => {
     <div class="sticky top-24 z-888 flex items-center justify-between gap-2">
       <div class="flex items-center justify-center gap-3">
         <div
-          class="flex h-10 items-center rounded-4xl border bg-white/70 px-6 shadow-lg backdrop-blur-md"
+          class="flex h-10 items-center rounded-4xl border-2 bg-white/70 px-6 shadow-lg backdrop-blur-md"
         >
           Market <span class="mx-3">/</span> Stock
         </div>
         <Button
-          class="size-10 rounded-4xl border bg-white/70 px-4 shadow-lg backdrop-blur-md"
+          class="size-10 rounded-4xl border-2 bg-white/70 px-4 shadow-lg backdrop-blur-md"
           :disabled="searching || loading"
           variant="outline"
           size="icon"
@@ -218,11 +216,11 @@ onUnmounted(() => {
         <Input
           v-model="searchInput"
           placeholder="e.g. aapl, tsla"
-          class="h-10 flex-1 rounded-4xl border bg-white/70 px-4 shadow-lg backdrop-blur-md"
-          @input="handleSearch"
+          class="h-10 flex-1 rounded-4xl border-2 bg-white/70 px-4 shadow-lg backdrop-blur-md"
+          @input="debounceSearch"
         />
         <Button
-          class="size-10 rounded-4xl border bg-white/70 px-4 shadow-lg backdrop-blur-md"
+          class="size-10 rounded-4xl border-2 bg-white/70 px-4 shadow-lg backdrop-blur-md"
           :disabled="searching"
           variant="outline"
           size="icon"
@@ -232,7 +230,7 @@ onUnmounted(() => {
         </Button>
 
         <Button
-          class="size-10 rounded-4xl border bg-white/70 px-4 shadow-lg backdrop-blur-md"
+          class="size-10 rounded-4xl border-2 bg-white/70 px-4 shadow-lg backdrop-blur-md"
           variant="outline"
           size="icon"
           @click="

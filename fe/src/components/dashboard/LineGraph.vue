@@ -1,13 +1,13 @@
 <template>
   <div
-    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border p-4 shadow-lg"
+    class="z-888 mb-4 flex w-full items-center gap-1 rounded-2xl border-2 p-4 shadow-lg"
   >
     <ChartLine class="size-4" />
     Line Graph
   </div>
   <div
     ref="chartRef"
-    class="min-h-[300px] w-full rounded-2xl border px-4 pb-6 shadow-lg"
+    class="min-h-[300px] w-full rounded-2xl border-2 px-4 pb-6 shadow-lg"
   />
 </template>
 

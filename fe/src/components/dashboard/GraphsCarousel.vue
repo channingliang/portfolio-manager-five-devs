@@ -17,7 +17,7 @@ const plugin = Autoplay({
 </script>
 
 <template>
-  <div class="rounded-2xl border p-4">
+  <div class="rounded-2xl border-2 p-4">
     <Carousel
       class="relative w-full max-w-xl"
       :plugins="[plugin]"
